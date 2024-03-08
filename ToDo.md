@@ -1,4 +1,4 @@
-# Sujet projet RE218
+# Sujet projet RE218: Groupe 3
 
 ## Résumé du fonctionnement
 
