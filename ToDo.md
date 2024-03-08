@@ -12,7 +12,7 @@ Langage: C
 
 ### Client
 
-Langage: objet (python, java, rust, ...)
+Langage: objet --> Java
 
 ### Application
 
