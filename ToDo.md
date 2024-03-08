@@ -17,3 +17,7 @@ Langage: objet --> Java
 ### Application
 
 Langage: JS?
+
+## Infos
+
+Un fichier possède une clef unique calculable à l'aide d'outils style md5 qu'il faudra intégrer au système
