@@ -7,7 +7,6 @@ public class Peer {
     private int trackerPortNumber;
     private InetAddress trackerIpAdress;
     private InetAddress IpAdress;
-    private Socket socket;
     private File[] files;
     
     //fichiers disponibles (Hashmap ?)
@@ -20,18 +19,25 @@ public class Peer {
     }
 
     // Utilisation d'une méthode séparée pour établir la connexion avec le tracker
-    public void connectToTracker() throws IOException {
-        try {
-            socket = new Socket(IpAdress, portNumber);
+    public void connectToPeer(InetAddress PeerAdress, int PeerPortNumber) throws IOException {
+        try (Socket socket = new Socket(PeerAdress, PeerPortNumber)){
+            System.out.println("Connexion réussie\n");
             // Connexion réussie, vous pouvez effectuer d'autres opérations ici si nécessaire
-        } catch (Exception e) {
+        } catch (IOException e) {
             // Gestion de l'exception en lançant une IOException
-            throw new IOException("Erreur lors de la connexion au tracker.", e);
+            System.out.println("I/O error: " + e.getMessage());
         }
     }
 
+    public void connectToTracker() throws IOException {
+        try (Socket socket = new Socket(trackerIpAdress, trackerPortNumber)){
+            System.out.println("Connexion au tracker réussie\n");
+        } catch (IOException e) {
+            System.out.println("I/O error: " + e.getMessage());
+        }
+    }
+    
     public void init() {
         //charger fichier config;
     }
-
 }
