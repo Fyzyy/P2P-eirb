@@ -11,3 +11,6 @@ compile:
 
 exec: compile
 	$(EXEC) $(BUILD_REPO) Peer
+
+clean:
+	rm -f $(BUILD_REPO)/*.class
