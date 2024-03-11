@@ -8,6 +8,7 @@ public class Peer {
     private InetAddress trackerIpAdress;
     private InetAddress IpAdress;
     private File[] files;
+    private Socket socket;
     
     //fichiers disponibles (Hashmap ?)
 
@@ -22,6 +23,7 @@ public class Peer {
     public void connectToPeer(InetAddress PeerAdress, int PeerPortNumber) throws IOException {
         try (Socket socket = new Socket(PeerAdress, PeerPortNumber)){
             System.out.println("Connexion réussie\n");
+            this.socket = socket;
             // Connexion réussie, vous pouvez effectuer d'autres opérations ici si nécessaire
         } catch (IOException e) {
             // Gestion de l'exception en lançant une IOException
@@ -32,9 +34,14 @@ public class Peer {
     public void connectToTracker() throws IOException {
         try (Socket socket = new Socket(trackerIpAdress, trackerPortNumber)){
             System.out.println("Connexion au tracker réussie\n");
+            this.socket = socket;
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
         }
+    }
+
+    public void endConnection() throws IOException{
+        this.socket.close();
     }
     
     public void init() {
