@@ -6,8 +6,8 @@
 #include <omp.h>
 
 #include "config.h"
+#include "parser.h"
 
-#define PORT 8080
 #define MAX_BUFFER_SIZE 2048
 #define MAX_PEERS 50
 #define MAX_PEERS_CONNECTIONS 10
@@ -46,14 +46,19 @@ void handle_peer_connection(int socket, const char *ip, int port) {
 
     while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
         // Traiter les données reçues
-        // ...
 
         buffer[bytes_received] = '\0';
         printf("Données reçues de %s:%d : %s\n", ip, port, buffer);
+        parsing(buffer);
+
     }
 
     if (bytes_received == 0) {
         printf("%s:%d déconnecté.\n", ip, port);
+        #pragma omp critical
+            numConnectedPeers--;
+        printf("connexted peer : %d\n", numConnectedPeers);
+        
     } else if (bytes_received == -1) {
         perror("Erreur lors de la réception de données");
     }
@@ -72,6 +77,9 @@ void accept_connections(int server_socket) {
             perror("Erreur lors de l'acceptation de la connexion");
             exit(EXIT_FAILURE);
         }
+        #pragma omp critical
+            numConnectedPeers++;
+        printf("connexted peer : %d\n", numConnectedPeers);
 
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);

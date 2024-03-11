@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -fopenmp
-SRC = config.c tracker.c
+SRC = config.c tracker.c parser.c
 OBJ_DIR = build
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 EXEC = tracker
