@@ -3,15 +3,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <omp.h>
 
 #include "config.h"
 
 #define PORT 8080
-#define BUFFER_SIZE 1024
-#define MAX_PEERS 10
+#define MAX_BUFFER_SIZE 2048
+#define MAX_PEERS 50
+#define MAX_PEERS_CONNECTIONS 10
 #define MAX_KEY_LENGTH 33  // Longueur maximale d'une clé MD5 (32 caractères + 1 pour le caractère nul)
 #define MAX_FILES_PER_PEER 50  
-#define MAX_BUFFER_SIZE 8192
 
 
 struct PeerInfo {
@@ -60,14 +61,35 @@ void handle_peer_connection(int socket, const char *ip, int port) {
     close(socket);
 }
 
+void accept_connections(int server_socket) {
+    struct sockaddr_in client_address;
+    socklen_t client_address_len = sizeof(client_address);
+    int client_socket;
+
+    #pragma omp parallel for //threads
+    for (size_t i = 0; i < MAX_PEERS_CONNECTIONS; i++) {
+        if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
+            perror("Erreur lors de l'acceptation de la connexion");
+            exit(EXIT_FAILURE);
+        }
+
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
+        printf("Connexion acceptée de %s:%d\n", client_ip, ntohs(client_address.sin_port));
+
+        handle_peer_connection(client_socket, client_ip, client_address.sin_port);
+
+        close(client_socket);
+    }
+}
+
 int main() {
 
     struct ServerConfig serverConfig;
     load_config("config.ini", &serverConfig);
 
-    int server_socket, client_socket;
-    struct sockaddr_in server_address, client_address;
-    socklen_t client_address_len = sizeof(client_address);
+    int server_socket;
+    struct sockaddr_in server_address;
 
     // Créer une socket
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -86,7 +108,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    if (listen(server_socket, 10) == -1) {
+    if (listen(server_socket, MAX_PEERS_CONNECTIONS) == -1) {
         perror("Erreur lors de la mise en écoute de la socket");
         exit(EXIT_FAILURE);
     }
@@ -94,18 +116,9 @@ int main() {
     printf("Serveur en attente de connexions sur le port %d...\n", serverConfig.port);
 
     while (1) {
-        if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
-            perror("Erreur lors de l'acceptation de la connexion");
-            exit(EXIT_FAILURE);
-        }
-
-        char client_ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
-
-        printf("Connexion acceptée de %s:%d\n", client_ip, ntohs(client_address.sin_port));
-
-        handle_peer_connection(client_socket, client_ip, client_address.sin_port);
+        accept_connections(server_socket);
     }
+        
 
     close(server_socket);
 
