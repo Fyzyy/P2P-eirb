@@ -10,43 +10,21 @@
 #define BUFFER_SIZE 1024
 #define MAX_PEERS 10
 #define MAX_KEY_LENGTH 33  // Longueur maximale d'une clé MD5 (32 caractères + 1 pour le caractère nul)
-#define MAX_FILES_PER_PEER 50  // Nombre maximal de fichiers par pair
+#define MAX_FILES_PER_PEER 50  
+#define MAX_BUFFER_SIZE 8192
 
-// Structure pour stocker les informations sur les pairs
+
 struct PeerInfo {
     int socket;
-    char ip_address[INET_ADDRSTRLEN];  // pour stocker l'adresse IP au format texte
+    char ip_address[INET_ADDRSTRLEN];
     int port;
     char files[MAX_FILES_PER_PEER][MAX_KEY_LENGTH];
     int num_files;
-    // Ajoutez d'autres informations si nécessaire
 };
 
-// Tableau pour stocker les informations sur les pairs connectés
 struct PeerInfo connectedPeers[MAX_PEERS];
 int numConnectedPeers = 0;
-/*
-// Fonction pour gérer les demandes de fichiers
-void handle_file_request(int client_socket, const char *file_key) {
-    // ... (recherche des pairs ayant la clé correspondante)
 
-    // Envoyer la réponse au pair approprié
-    send(connectedPeers[peerIndex].socket, file_key, strlen(file_key), 0);
-}
-
-// Fonction pour stocker des logs
-void log_message(const char *message) {
-    // ... (écriture dans un fichier de logs, affichage à la console, etc.)
-    printf("%s\n", message);
-}
-
-// Fonction pour charger la configuration depuis un fichier
-void load_configuration(const char *config_file) {
-    // ... (chargement de la configuration)
-}
-*/
-
-// Fonction pour afficher les informations sur les pairs
 void display_peer_info() {
     for (int i = 0; i < numConnectedPeers; ++i) {
         printf("Peer %d:\n", i + 1);
@@ -60,54 +38,32 @@ void display_peer_info() {
     }
 }
 
-// Fonction pour gérer les connexions entrantes des pairs
-void handle_peer_connection(int peer_socket, const char *peer_ip, int peer_port) {
-    // ... (traitement initial des connexions peer)
+void handle_peer_connection(int socket, const char *ip, int port) {
 
-    // Stocker les informations sur le pair
-    if (numConnectedPeers < MAX_PEERS) {
-        struct PeerInfo newPeer;
-        newPeer.socket = peer_socket;
-        strncpy(newPeer.ip_address, peer_ip, INET_ADDRSTRLEN);
-        newPeer.port = peer_port;
-        newPeer.num_files = 0;
-        // Ajoutez d'autres informations si nécessaire
-        connectedPeers[numConnectedPeers] = newPeer;
-        numConnectedPeers++;
-    } else {
-        // Gérer le dépassement de la limite des pairs connectés
-        // (vous pouvez le gérer selon vos besoins)
-    }
-    display_peer_info();
-    // ... (traitement ultérieur des connexions peer)
-}
+    char buffer[MAX_BUFFER_SIZE];
+    ssize_t bytes_received;
 
-// Fonction pour ajouter un fichier à la liste des fichiers d'un pair
-void add_file_to_peer(int peer_index, const char *file_key) {
-    struct PeerInfo *peer = &connectedPeers[peer_index];
-    
-    if (peer->num_files < MAX_FILES_PER_PEER) {
-        strncpy(peer->files[peer->num_files], file_key, MAX_KEY_LENGTH);
-        peer->num_files++;
-    } else {
-        // Gérer le dépassement de la limite des fichiers par pair
-        // (vous pouvez le gérer selon vos besoins)
+    while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
+        // Traiter les données reçues
+        // ...
+
+        buffer[bytes_received] = '\0';
+        printf("Données reçues de %s:%d : %s\n", ip, port, buffer);
     }
+
+    if (bytes_received == 0) {
+        printf("%s:%d déconnecté.\n", ip, port);
+    } else if (bytes_received == -1) {
+        perror("Erreur lors de la réception de données");
+    }
+
+    close(socket);
 }
 
 int main() {
 
     struct ServerConfig serverConfig;
-
-    if (load_config("config.ini", &serverConfig) != 0) {
-        fprintf(stderr, "Failed to load configurations.\n");
-        return 1;
-    }
-
-    printf("Server Configurations:\n");
-    printf("Port: %d\n", serverConfig.port);
-    printf("Address: %s\n", serverConfig.address);
-
+    load_config("config.ini", &serverConfig);
 
     int server_socket, client_socket;
     struct sockaddr_in server_address, client_address;
@@ -121,8 +77,8 @@ int main() {
 
     // Configurer l'adresse du serveur
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = inet_addr(serverConfig.address);
+    server_address.sin_port = htons(serverConfig.port);
 
     // Lier la socket à l'adresse et au port
     if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
@@ -130,16 +86,14 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // Mettre le serveur en mode écoute
     if (listen(server_socket, 10) == -1) {
         perror("Erreur lors de la mise en écoute de la socket");
         exit(EXIT_FAILURE);
     }
 
-    printf("Serveur en attente de connexions sur le port %d...\n", PORT);
+    printf("Serveur en attente de connexions sur le port %d...\n", serverConfig.port);
 
     while (1) {
-        // Accepter la connexion entrante
         if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
             perror("Erreur lors de l'acceptation de la connexion");
             exit(EXIT_FAILURE);
@@ -150,11 +104,9 @@ int main() {
 
         printf("Connexion acceptée de %s:%d\n", client_ip, ntohs(client_address.sin_port));
 
-        // Gérer la requête du client
         handle_peer_connection(client_socket, client_ip, client_address.sin_port);
     }
 
-    // Fermer la socket du serveur
     close(server_socket);
 
     return 0;

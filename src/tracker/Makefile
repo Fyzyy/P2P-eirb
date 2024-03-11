@@ -4,6 +4,7 @@ SRC = config.c tracker.c
 OBJ_DIR = build
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 EXEC = tracker
+PORT = 8080
 
 all: $(OBJ_DIR) $(EXEC)
 

@@ -5,17 +5,16 @@
 #include "config.h"
 
 
-int load_config(const char *file_path, struct ServerConfig *config) {
+void load_config(const char *file_path, struct ServerConfig *config) {
     FILE *file = fopen(file_path, "r");
     if (!file) {
         fprintf(stderr, "Error opening file: %s\n", file_path);
-        return 1;
     }
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, sizeof(line), file)) {
         // Supprimer les espaces en début et fin de ligne
-        char *trimmed_line = strtok(line, "\r\n\t ");
+        char *trimmed_line = strtok(line, "\r\n\t");
 
         // Ignorer les lignes vides et les commentaires
         if (trimmed_line == NULL || trimmed_line[0] == '#' || trimmed_line[0] == ';') {
@@ -23,8 +22,8 @@ int load_config(const char *file_path, struct ServerConfig *config) {
         }
 
         // Séparer la ligne en clé et valeur
-        char *key = strtok(trimmed_line, "=");
-        char *value = strtok(NULL, "=");
+        char *key = strtok(trimmed_line, " =");
+        char *value = strtok(NULL, " =");
 
         if (key && value) {
             // Supprimer les espaces en début et fin de clé et valeur
@@ -32,14 +31,16 @@ int load_config(const char *file_path, struct ServerConfig *config) {
             char *trimmed_value = strtok(value, "\t ");
 
             // Comparer les clés et stocker les valeurs correspondantes
-            if (strcmp(trimmed_key, "port") == 0) {
+            if (strcmp(trimmed_key, "tracker-port") == 0) {
                 config->port = atoi(trimmed_value);
-            } else if (strcmp(trimmed_key, "address") == 0) {
+            } else if (strcmp(trimmed_key, "tracker-address") == 0) {
                 strncpy(config->address, trimmed_value, sizeof(config->address) - 1);
             }
         }
     }
 
+    printf("Server Configurations:\n");
+    printf("Port: %d\n", config->port);
+    printf("Address: %s\n", config->address);
     fclose(file);
-    return 0;
 }
