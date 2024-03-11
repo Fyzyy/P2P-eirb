@@ -33,18 +33,17 @@ enum tokens str_to_token(char* str) {
     return UNKNOWN;
 }
 
-void seed(char* tokens) {
-    printf("Peer seeding files:\n");
+enum tokens seed(char* tokens) {
+
 
     // Aller à la partie de la liste de fichiers
     tokens = strtok(NULL, "[");
-    if (tokens == NULL) {
-        printf("Erreur : Crochet ouvrant manquant.\n");
-        return;
-    }
+    
+    if (tokens != NULL)
+        printf("Peer seeding files:\n");
 
     while (tokens != NULL) {
-        char* file_name = strtok(NULL, " ");
+        char* file_name = strtok(NULL, " "); 
         char* file_size_str = strtok(NULL, " ");
         char* piece_size_str = strtok(NULL, " ");
         char* file_key = strtok(NULL, " ]");
@@ -57,47 +56,94 @@ void seed(char* tokens) {
         int piece_size = atoi(piece_size_str);
 
         printf("File: %s, Size: %d, Piece Size: %d, Key: %s\n", file_name, file_size, piece_size, file_key);
+        //TODO
     }
+    return OK;
 }
 
 
 
-void announce(char* tokens) {
-    tokens = strtok(NULL, " ");
+enum tokens announce(char* tokens) {
+    tokens = strtok(NULL, " "); // listen || seed
     switch (str_to_token(tokens))
     {
     case LISTEN:
-        tokens = strtok(NULL, " ");
+        tokens = strtok(NULL, " "); //port
         printf("peer listening %d\n", atoi(tokens)); 
+        //TODO
         __attribute__((fallthrough));
     case SEED:
-        seed(tokens);
-        break;
+        return seed(tokens);
+    case UNKNOWN:
+        printf("Unknown command\n");
+        return UNKNOWN;
     default:
-        break;
+        return OK;
     }
+}
+
+//look [filename="foo" filesize>"100"]
+enum tokens look(char* tokens) {
+    char temp_copy[256];
+    tokens = strtok(NULL, "[");
+
+    printf("Peer looking for files:\n");
+
+    char* filename = strstr(tokens, "filename=");
+    if (filename == NULL) {
+        printf("Erreur : Clé de fichier manquante.\n");
+        return UNKNOWN;
+    }
+    else {
+        filename += strlen("filename=");
+        filename = strtok(strncpy(temp_copy, filename, strlen(filename)), "\"");
+        printf("Matching files for filename '%s':\n", filename);
+    }
+
+    char* filesize = strstr(tokens, "filesize>");
+    if (filesize == NULL) {
+        printf("Erreur : Clé de taille manquante.\n");
+        return UNKNOWN;
+    }
+    else {
+        filesize += strlen("filesize>");
+        filesize = strtok(strncpy(temp_copy, filesize, strlen(filesize)), "\"");
+        printf("Matching files for filesize > %d:\n", atoi(filesize));
+    }
+    
+    //TODO
+    return LIST;
+}
+
+enum tokens getfile(char* tokens) {
+    tokens = strtok(NULL, " "); // file key
+    if (tokens == NULL) {
+        printf("Erreur : Clé de fichier manquante.\n");
+        return UNKNOWN;
+    }
+    printf("Peer requesting file with key: %s\n", tokens);
+    //TODO
+
+    return PEERS;
 }
 
 enum tokens parsing(char* buffer) {
-    char* tokens = strtok(buffer, " ");
+    char* tokens = strtok(buffer, " "); // announce || look || getfile
     switch (str_to_token(tokens))
     {
         case ANNOUNCE:
-            announce(tokens);
-            return ANNOUNCE;
+            return announce(tokens);
         
+        case LOOK :
+            return look(tokens);
+        
+        case GETFILE:
+            return getfile(tokens);
+
+        case UNKNOWN:
+            printf("Unknown command\n");
+            return UNKNOWN;
         default:
             return UNKNOWN;
     }
-
-}
-
-
-
-void look() {
-    // Implement your look function here
-}
-
-void getfile() {
-    // Implement your getfile function here
 }
