@@ -1,3 +1,4 @@
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 
@@ -42,9 +43,10 @@ public class Peer {
         System.out.println(this.socket);
     }
 
-    public void sendMessage(String message){
-        System.out.println("J'affiche ce message: ");
-        System.out.println(message);
+    public void sendMessage(String message) throws IOException{
+        DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
+        dos.writeUTF(message);
+        dos.close();
     }
 
     public void endConnection() throws IOException{
