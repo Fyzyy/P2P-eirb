@@ -210,11 +210,3 @@ enum tokens parsing(char* buffer) {
             return UNKNOWN;
     }
 }
-
-// int main() {
-//     char buffer[] = "update seed [1 2 3] leech [4 5 6]\n";
-
-//     parsing(buffer);
-
-//     return 0;
-// }

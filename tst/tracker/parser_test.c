@@ -1,11 +1,9 @@
 #include "../../src/tracker/parser.h"
-
 #include <stdio.h>
-
 #include <assert.h>
 
 void test_parsing() {
-    char buffer1[] = "announce [file1 100 10 1234567890 file2 200 20 0987654321]";
+    char buffer1[] = "announce listen 2222 seed [file1 100 10 1234567890 file2 200 20 0987654321]";
     enum tokens result1 = parsing(buffer1);
     assert(result1 == OK);
 
@@ -24,7 +22,28 @@ void test_parsing() {
     printf("All tests passed!\n");
 }
 
+void test_limit_cases() {
+
+    // Test empty buffer
+    char buffer2[] = "okkk";
+    enum tokens result2 = parsing(buffer2);
+    assert(result2 == UNKNOWN);
+
+    // Test buffer with only whitespace
+    char buffer3[] = "   \t\n";
+    enum tokens result3 = parsing(buffer3);
+    assert(result3 == UNKNOWN);
+
+    // Test buffer with invalid syntax
+    char buffer4[] = "announce listen 2222 seed [file1 100 10 1234567890 file2 200 20 0987654321";
+    enum tokens result4 = parsing(buffer4);
+    assert(result4 == OK);
+
+    printf("All limit cases passed!\n");
+}
+
 int main() {
     test_parsing();
+    test_limit_cases();
     return 0;
 }
