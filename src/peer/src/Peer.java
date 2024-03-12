@@ -37,7 +37,14 @@ public class Peer {
             this.socket = socket;
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
+            throw e;
         }
+        System.out.println(this.socket);
+    }
+
+    public void sendMessage(String message){
+        System.out.println("J'affiche ce message: ");
+        System.out.println(message);
     }
 
     public void endConnection() throws IOException{
