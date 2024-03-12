@@ -35,24 +35,42 @@ enum tokens str_to_token(char* str) {
 
 /*********** ANNOUNCE ********************/
 
+enum tokens leech_key() {
+    char * keys = strtok(NULL, " []\r");
+
+    if (keys != NULL)
+        printf("Peer leeching key:\n");
+
+    while (keys != NULL) {
+        printf("Leech Key: %s\n", keys);
+        keys = strtok(NULL, " ]\r\n");
+
+        // TODO: Ajoutez votre logique pour le traitement de la clé leech
+    }
+    return OK;
+}
+
 enum tokens seed(char* tokens) {
 
 
     // Aller à la partie de la liste de fichiers
     tokens = strtok(NULL, "[");
 
-    if (tokens != NULL)
+    if (tokens != NULL && strcmp(tokens, "leech") != 0) {
         printf("Peer seeding files:\n");
+    }
 
-    while (tokens != NULL) {
-        char* file_name = strtok(NULL, " "); 
+    while (tokens != NULL && strcmp(tokens, "leech") != 0) {
+        char* file_name = strtok(NULL, " ");
+        if (file_name == NULL) {
+            break;
+        }
+        if (strcmp(file_name, "leech") == 0){
+            return LEECH;
+        } 
         char* file_size_str = strtok(NULL, " ");
         char* piece_size_str = strtok(NULL, " ");
         char* file_key = strtok(NULL, " ]\n\r");
-
-        if (file_name == NULL || file_size_str == NULL || piece_size_str == NULL || file_key == NULL) {
-            break;
-        }
 
         int file_size = atoi(file_size_str);
         int piece_size = atoi(piece_size_str);
@@ -72,8 +90,14 @@ enum tokens announce(char* tokens) {
         printf("peer listening %d\n", atoi(tokens)); 
         //TODO
         __attribute__((fallthrough));
+
     case SEED:
-        return seed(tokens);
+        enum tokens res = seed(tokens);
+        if (res == OK) return res;
+        __attribute__((fallthrough));
+
+    case LEECH:
+        return leech_key();
     case UNKNOWN:
         printf("Unknown command\n");
         return UNKNOWN;
@@ -84,7 +108,6 @@ enum tokens announce(char* tokens) {
 
 /*********** LOOK ********************/
 
-//look [filename="foo" filesize>"100"]
 enum tokens look(char* tokens) {
     char temp_copy[256];
     tokens = strtok(NULL, "[");
@@ -132,21 +155,6 @@ enum tokens getfile(char* tokens) {
 }
 
 /*********** UPDATE ********************/
-
-enum tokens leech_key() {
-    char * keys = strtok(NULL, " []\r");
-
-    if (keys != NULL)
-        printf("Peer leeching key:\n");
-
-    while (keys != NULL) {
-        printf("Leech Key: %s\n", keys);
-        keys = strtok(NULL, " ]\r\n");
-
-        // TODO: Ajoutez votre logique pour le traitement de la clé leech
-    }
-    return OK;
-}
 
 enum tokens seed_key() {
 
