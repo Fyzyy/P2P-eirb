@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 
 #include "parser.h"
@@ -48,7 +48,7 @@ enum tokens seed(char* tokens) {
         char* file_name = strtok(NULL, " "); 
         char* file_size_str = strtok(NULL, " ");
         char* piece_size_str = strtok(NULL, " ");
-        char* file_key = strtok(NULL, " ]");
+        char* file_key = strtok(NULL, " ]\n\r");
 
         if (file_name == NULL || file_size_str == NULL || piece_size_str == NULL || file_key == NULL) {
             break;
@@ -133,49 +133,48 @@ enum tokens getfile(char* tokens) {
 
 /*********** UPDATE ********************/
 
-enum tokens leech_key(char *tokens) {
-    tokens = strtok(NULL, "[");
+enum tokens leech_key() {
+    char * keys = strtok(NULL, " []\r");
 
-    if (tokens != NULL)
+    if (keys != NULL)
         printf("Peer leeching key:\n");
 
-    while (tokens != NULL) {
-        char *file_key = strtok(NULL, " ]");
-        if (file_key == NULL)
-            break;
+    while (keys != NULL) {
+        printf("Leech Key: %s\n", keys);
+        keys = strtok(NULL, " ]\r\n");
 
-        printf("Leech Key: %s\n", file_key);
         // TODO: Ajoutez votre logique pour le traitement de la clé leech
     }
     return OK;
 }
 
-enum tokens seed_key(char *tokens) {
-    // Aller à la partie de la liste de fichiers
-    tokens = strtok(NULL, "[");
+enum tokens seed_key() {
 
-    if (tokens != NULL)
+
+    // Aller à la partie de la liste de keys
+    char* keys = strtok(NULL, " []\r\n");
+
+    if (keys != NULL && strcmp(keys, "leech") != 0) {
         printf("Peer seeding key:\n");
+    }
 
-    while (tokens != NULL || strcmp(tokens, "leech") != 0) {
-        char *file_key = strtok(NULL, " ]");
-        if (file_key == NULL)
-            break;
-        printf("Seed Key: %s\n", file_key);
-        // TODO: Ajoutez votre logique pour le traitement de la clé seed
+    while (keys != NULL && strcmp(keys, "leech") != 0) {
+        printf("Seed Key: %s\n", keys);
+        keys = strtok(NULL, " ]");       
+
     }
     return OK;
 }
 
 enum tokens update(char* tokens) {
     tokens = strtok(NULL, " "); // seed || leech
-    printf("%s\n", tokens);
     switch (str_to_token(tokens)) {
         case SEED:
-            return seed_key(tokens);
+            seed_key();
+            __attribute__((fallthrough));
 
         case LEECH:
-            return leech_key(tokens);
+            return leech_key();
 
         case UNKNOWN:
             printf("Unknown command\n");
@@ -213,7 +212,7 @@ enum tokens parsing(char* buffer) {
 }
 
 // int main() {
-//     char buffer[] = "update seed [] leech [8905e92afeb80fc7722ec89eb0bf0966 123abc456def]";
+//     char buffer[] = "update seed [1 2 3] leech [4 5 6]\n";
 
 //     parsing(buffer);
 
