@@ -1,3 +1,4 @@
+package peer;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
@@ -44,9 +45,22 @@ public class Peer {
     }
 
     public void sendMessage(String message) throws IOException{
-        DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
-        dos.writeUTF(message);
-        dos.close();
+        try {
+            DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
+            try {
+                dos.writeUTF(message);   
+                dos.flush();    
+            } catch (Exception e) {
+                System.out.println("Cannot send message");
+            }
+            dos.close();
+        } catch (Exception e) {
+            System.out.println("Cannot create outpout stream");
+        }
+    }
+
+    public void printSocket() {
+        System.out.println(this.socket);
     }
 
     public void endConnection() throws IOException{
