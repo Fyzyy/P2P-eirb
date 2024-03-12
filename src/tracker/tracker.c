@@ -1,43 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <omp.h>
 
 #include "config.h"
 #include "parser.h"
+#include "peer.h"
 
-#define MAX_BUFFER_SIZE 2048
-#define MAX_PEERS 50
 #define MAX_PEERS_CONNECTIONS 10
-#define MAX_KEY_LENGTH 33  // Longueur maximale d'une clé MD5 (32 caractères + 1 pour le caractère nul)
-#define MAX_FILES_PER_PEER 50  
-
-
-struct PeerInfo {
-    int socket;
-    char ip_address[INET_ADDRSTRLEN];
-    int port;
-    char files[MAX_FILES_PER_PEER][MAX_KEY_LENGTH];
-    int num_files;
-};
-
-struct PeerInfo connectedPeers[MAX_PEERS];
-int numConnectedPeers = 0;
-
-void display_peer_info() {
-    for (int i = 0; i < numConnectedPeers; ++i) {
-        printf("Peer %d:\n", i + 1);
-        printf("  IP Address: %s\n", connectedPeers[i].ip_address);
-        printf("  Port: %d\n", connectedPeers[i].port);
-        printf("  Files:\n");
-        for (int j = 0; j < connectedPeers[i].num_files; ++j) {
-            printf("    %s\n", connectedPeers[i].files[j]);
-        }
-        printf("\n");
-    }
-}
 
 void handle_peer_connection(int socket, const char *ip, int port) {
 
