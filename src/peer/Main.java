@@ -24,7 +24,7 @@ public class Main {
         InetAddress addrTracker = InetAddress.getByName("127.0.0.1");
         
         // Peer creation
-        Peer peer = new Peer(addrPeer, 8081, addrTracker, 8080);
+        Peer peer = new Peer(addrPeer, 8080, addrTracker, 8080);
         
         // Connection to Tracker
         try {
