@@ -212,10 +212,10 @@ enum tokens parsing(char* buffer) {
     }
 }
 
-int main() {
-    char buffer[] = "update seed [] leech [8905e92afeb80fc7722ec89eb0bf0966 123abc456def]";
+// int main() {
+//     char buffer[] = "update seed [] leech [8905e92afeb80fc7722ec89eb0bf0966 123abc456def]";
 
-    parsing(buffer);
+//     parsing(buffer);
 
-    return 0;
-}
+//     return 0;
+// }
