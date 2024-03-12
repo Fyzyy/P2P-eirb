@@ -24,7 +24,7 @@ void handle_peer_connection(int socket, const char *ip, int port) {
         printf("%s:%d déconnecté.\n", ip, port);
         #pragma omp critical
             numConnectedPeers--;
-        printf("connexted peer : %d\n", numConnectedPeers);
+        printf("connected peer : %d\n", numConnectedPeers);
         
     } else if (bytes_received == -1) {
         perror("Erreur lors de la réception de données");
@@ -46,7 +46,7 @@ void accept_connections(int server_socket) {
         }
         #pragma omp critical
             numConnectedPeers++;
-        printf("connexted peer : %d\n", numConnectedPeers);
+        printf("connected peer : %d\n", numConnectedPeers);
 
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
