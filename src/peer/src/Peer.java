@@ -7,7 +7,7 @@ public class Peer {
     private int trackerPortNumber;
     private InetAddress trackerIpAdress;
     private InetAddress IpAdress;
-    private File[] files;
+    private SharedFile[] files;
     private Socket socket;
     
     //fichiers disponibles (Hashmap ?)
