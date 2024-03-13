@@ -1,5 +1,11 @@
-#include "../../src/tracker/parser.h"
 #include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "parser_test.h"
+#include "../../src/tracker/parser.h"
+
 #include <assert.h>
 
 void test_parsing() {
@@ -46,8 +52,9 @@ void test_limit_cases() {
     printf("All limit cases passed!\n");
 }
 
-int main() {
+void all_tests_parser() {
+    puts("Testing parser functions...\n");
     test_parsing();
     test_limit_cases();
-    return 0;
+    printf("All parser tests passed successfully!\n");
 }
