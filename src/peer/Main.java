@@ -26,21 +26,32 @@ public class Main {
         // Peer creation
         Peer peer = new Peer(addrPeer, 8080, addrTracker, 8080);
         
-        // Connection to Tracker
-        try {
-            peer.connectToTracker();
-        } catch (IOException e) {
-            return;
-        }
-
         while(true){
             System.out.println("Entrez un message à envoyer (ou 'exit' pour quitter) :");
             String newCommand = readInput();
-
+            
             // Vérifie si l'utilisateur souhaite quitter
             if (newCommand.equalsIgnoreCase("exit")) {
                 peer.endConnection();
                 break;
+            }
+            
+            if (newCommand.equalsIgnoreCase("tracker_connect")){
+                // Connection to Tracker
+                try {
+                    peer.connectToTracker();
+                } catch (IOException e) {
+                    return;
+                }
+            }
+            if (newCommand.equalsIgnoreCase("tracker_disconnect")){
+                // Connection to Tracker
+                try {
+                    peer.endConnection();
+                    return;
+                } catch (IOException e) {
+                    return;
+                }
             }
             
             peer.sendMessage(newCommand);
