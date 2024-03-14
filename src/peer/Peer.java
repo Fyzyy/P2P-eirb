@@ -1,5 +1,6 @@
 package peer;
 import java.io.DataOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.*;
 
@@ -11,7 +12,9 @@ public class Peer {
     private InetAddress trackerIpAdress;
     private SharedFile[] files;
     Socket socket;
-    private DataOutputStream dos;
+    private DataOutputStream sender;
+    private DataInputStream receiver;
+
     
     //fichiers disponibles (Hashmap ?)
 
@@ -27,9 +30,7 @@ public class Peer {
         try (Socket socket = new Socket(PeerAdress, PeerPortNumber)){
             System.out.println("Connexion réussie\n");
             this.socket = socket;
-            // Connexion réussie, vous pouvez effectuer d'autres opérations ici si nécessaire
         } catch (IOException e) {
-            // Gestion de l'exception en lançant une IOException
             System.out.println("I/O error: " + e.getMessage());
             throw e;
         }
@@ -39,17 +40,18 @@ public class Peer {
         try {
             socket = new Socket(trackerIpAdress, trackerPortNumber);
             System.out.println("Connexion au tracker réussie\n");
-            dos = new DataOutputStream(this.socket.getOutputStream());
+            sender = new DataOutputStream(this.socket.getOutputStream());
+            receiver = new DataInputStream(this.socket.getInputStream());
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;
         }
     }
-
+    
     public void sendMessage(String message) throws IOException{
         try {
-            dos.writeUTF(message);  
-            dos.flush();    
+            sender.writeChars(message);  
+            sender.flush();
         } catch (IOException e) {
             System.out.println("Cannot send message");
             throw e;
@@ -61,7 +63,7 @@ public class Peer {
     }
 
     public void endConnection() throws IOException{
-        dos.close();
+        sender.close();
         this.socket.close();
     }
     
