@@ -27,8 +27,16 @@ PeersList* create_peers_list() {
     peers->n_peers = 0;
     return peers;
 }
+/*
+* allocate and create a new peer and add it to the list
+* if the list is NULL, add the peer to the allPeers list if it is not already there
+* If the peer is already in the list, return the peer
+* If the maximum number of peers has been reached, return NULL
+*/
+PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
 
-PeerInfo* add_peer(PeersList* peers, const char *ip, int port) {
+    if (peers == NULL)
+        peers = &allPeers;
 
     // Check if the peer is already in the list
     if (search_peer(peers, ip, port) != NULL) {
@@ -104,14 +112,36 @@ void remove_list(PeersList* peers) {
     free(peers->peers);
 }
 
+char* PeersList_to_string(PeersList* peers)
+{
+    char* str = malloc(1 * sizeof(char));
+    if (str == NULL) {
+        fprintf(stderr, "Failed to allocate memory for string\n");
+        exit(EXIT_FAILURE);
+    }
+    str[0] = '\0';
+
+    for (int i = 0; i < peers->n_peers; i++) {
+        char* newStr = malloc(1 * sizeof(char));
+        if (newStr == NULL) {
+            fprintf(stderr, "Failed to allocate memory for string\n");
+            exit(EXIT_FAILURE);
+        }
+        snprintf(newStr, 100, "%s:%d\n", peers->peers[i]->ip_address, peers->peers[i]->port);
+        str = realloc(str, (strlen(str) + strlen(newStr) + 1) * sizeof(char));
+        if (str == NULL) {
+            fprintf(stderr, "Failed to allocate memory for string\n");
+            exit(EXIT_FAILURE);
+        }
+        strcat(str, newStr);
+        free(newStr);
+    }
+    return str;
+}
 
 
 void display_peers(PeersList* peers) {
-    printf("Peers List:\n");
-    for (int i = 0; i < peers->n_peers; i++) {
-        PeerInfo* peer = peers->peers[i];
-        printf("IP: %s, Port: %d\n", peer->ip_address, peer->port);
-    }
+    printf("Peers List: %s\n", PeersList_to_string(peers));
 }
 
 void display_connected_peer_info() {

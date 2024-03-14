@@ -27,12 +27,14 @@ PeerInfo* search_peer(PeersList* peers, const char *ip, int port);
 
 PeersList* create_peers_list();
 
-PeerInfo* add_peer(PeersList* peers, const char *ip, int port);
+PeerInfo* new_peer(PeersList* peers, const char *ip, int port);
 PeerInfo* delete_peer_from_list(PeersList* peers, const char *ip, int port);
 
 void remove_peer(PeerInfo* peer);
 void remove_all_peers();
 void remove_list(PeersList* peers);
+
+char* PeersList_to_string(PeersList* peers);
 
 void display_peers(PeersList* peers);
 void display_connected_peer_info();

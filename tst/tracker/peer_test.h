@@ -8,7 +8,7 @@ void test_create_peers_list();
 void test_search_peer();
 
 // Fonction de test pour l'ajout d'un pair dans une liste
-void test_add_peer();
+void test_new_peer();
 
 // Fonction de test pour la suppression d'un pair de la liste
 void test_delete_peer_from_list();
