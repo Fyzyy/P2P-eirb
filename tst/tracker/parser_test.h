@@ -1,8 +1,11 @@
 #ifndef PARSER_TEST_H
 #define PARSER_TEST_H
 
-void test_parsing();
-void test_limit_cases();
+
+void test_announce();
+void test_look();
+void test_getfile();
+void test_update();
 void all_tests_parser();
 
-#endif
+#endif /* PARSER_TEST_H */
