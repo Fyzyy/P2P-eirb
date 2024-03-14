@@ -47,9 +47,11 @@ public class Main {
                     return;
                 }
             }
+
             else if (newCommand.equalsIgnoreCase("tracker connect") && CONNECTED==1){
                 System.out.println("You are already connected\n");
             }
+            
             else if (newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
                     peer.endConnection();
