@@ -49,8 +49,9 @@ public class Peer {
     }
     
     public void sendMessage(String message) throws IOException{
+        byte[] bytes = message.getBytes("UTF-8");
         try {
-            sender.writeChars(message);  
+            sender.write(bytes);
             sender.flush();
         } catch (IOException e) {
             System.out.println("Cannot send message");
