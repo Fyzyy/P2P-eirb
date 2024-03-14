@@ -39,7 +39,7 @@ public class Peer {
     public void connectToTracker() throws IOException {
         try {
             socket = new Socket(trackerIpAdress, trackerPortNumber);
-            System.out.println("Connexion au tracker réussie\n");
+            System.out.println("Connection to tracker succesful\n");
             sender = new DataOutputStream(this.socket.getOutputStream());
             receiver = new DataInputStream(this.socket.getInputStream());
         } catch (IOException e) {   
