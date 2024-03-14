@@ -7,10 +7,11 @@ public class Peer {
 
     private int portNumber;
     private int trackerPortNumber;
-    private InetAddress trackerIpAdress;
     private InetAddress IpAdress;
+    private InetAddress trackerIpAdress;
     private SharedFile[] files;
-    private Socket socket;
+    Socket socket;
+    private DataOutputStream dos;
     
     //fichiers disponibles (Hashmap ?)
 
@@ -30,32 +31,28 @@ public class Peer {
         } catch (IOException e) {
             // Gestion de l'exception en lançant une IOException
             System.out.println("I/O error: " + e.getMessage());
+            throw e;
         }
     }
 
     public void connectToTracker() throws IOException {
-        try (Socket socket = new Socket(trackerIpAdress, trackerPortNumber)){
+        try {
+            socket = new Socket(trackerIpAdress, trackerPortNumber);
             System.out.println("Connexion au tracker réussie\n");
-            this.socket = socket;
-        } catch (IOException e) {
+            dos = new DataOutputStream(this.socket.getOutputStream());
+        } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;
         }
-        System.out.println(this.socket);
     }
 
     public void sendMessage(String message) throws IOException{
         try {
-            DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
-            try {
-                dos.writeUTF(message);   
-                dos.flush();    
-            } catch (Exception e) {
-                System.out.println("Cannot send message");
-            }
-            dos.close();
-        } catch (Exception e) {
-            System.out.println("Cannot create outpout stream");
+            dos.writeUTF(message);  
+            dos.flush();    
+        } catch (IOException e) {
+            System.out.println("Cannot send message");
+            throw e;
         }
     }
 
@@ -64,6 +61,7 @@ public class Peer {
     }
 
     public void endConnection() throws IOException{
+        dos.close();
         this.socket.close();
     }
     
