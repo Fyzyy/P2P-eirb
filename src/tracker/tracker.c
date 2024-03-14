@@ -5,18 +5,27 @@
 
 #define MAX_PEERS_CONNECTIONS 10
 
-void handle_peer_connection(int socket, const char *ip, int port) {
+void handle_peer_connection(int socket,const char *ip, int port) {
 
     char buffer[MAX_BUFFER_SIZE];
     ssize_t bytes_received;
+    PeerInfo* peer;
+
+    peer = new_peer(&connectedPeers, ip, port);
 
     while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
         // Traiter les données reçues
 
         buffer[bytes_received] = '\0';
         printf("Données reçues de %s:%d : %s\n", ip, port, buffer);
-        parsing(buffer, ip, port);
+        
+        response* res = create_response(peer);
 
+        parsing(buffer, res);
+
+        //TODO envoyer la réponse
+
+        free(res);
     }
 
     if (bytes_received == 0) {
@@ -30,6 +39,7 @@ void handle_peer_connection(int socket, const char *ip, int port) {
     }
 
     close(socket);
+    delete_peer_from_list(&connectedPeers, ip, port);
 }
 
 void accept_connections(int server_socket) {
