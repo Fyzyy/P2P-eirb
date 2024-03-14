@@ -1,5 +1,5 @@
 COMPIL := javac -d build
-EXEC := java -ea -cp
+EXEC := java -cp
 BUILD_REPO := build
 SRC_REPO := .
 TEST_REPO := tst
