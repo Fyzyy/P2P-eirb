@@ -63,7 +63,7 @@ void remove_tracked_file(const char* key) {
 int add_seeder_to_tracked_file(const char* key, const char* ip, int port) {
     FileInfo* file = search_tracked_file(key);
     if (file != NULL) {
-        PeerInfo* newPeer = add_peer(file->seeder, ip, port);
+        PeerInfo* newPeer = new_peer(file->seeder, ip, port);
         return (newPeer != NULL) ? 1 : 0;
     }
     return 0;
@@ -73,7 +73,7 @@ int add_seeder_to_tracked_file(const char* key, const char* ip, int port) {
 int add_leecher_to_tracked_file(const char* key, const char* ip, int port) {
     FileInfo* file = search_tracked_file(key);
     if (file != NULL) {
-        PeerInfo* newPeer = add_peer(file->leecher, ip, port);
+        PeerInfo* newPeer = new_peer(file->leecher, ip, port);
         return (newPeer != NULL) ? 1 : 0;
     }
     return 0;
