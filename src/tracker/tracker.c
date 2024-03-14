@@ -2,7 +2,6 @@
 
 #include "config.h"
 #include "parser.h"
-#include "peer.h"
 
 #define MAX_PEERS_CONNECTIONS 10
 
@@ -16,7 +15,7 @@ void handle_peer_connection(int socket, const char *ip, int port) {
 
         buffer[bytes_received] = '\0';
         printf("Données reçues de %s:%d : %s\n", ip, port, buffer);
-        parsing(buffer);
+        parsing(buffer, ip, port);
 
     }
 
