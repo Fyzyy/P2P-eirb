@@ -3,6 +3,7 @@ EXEC := java -cp
 BUILD_REPO := build
 SRC_REPO := .
 TEST_REPO := tst
+PACKAGE_REPO := build/peer
 
 all: exec
 
@@ -14,3 +15,4 @@ exec: compile
 
 clean:
 	rm -f $(BUILD_REPO)/*.class
+	rm -f $(PACKAGE_REPO)/*.class
