@@ -1,33 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "files.h"
+#include "response.h"
 
-enum tokens {
-    ANNOUNCE,
-    LISTEN,
-    SEED,
-    LEECH,
-    LOOK,
-    GETFILE,
-    LIST,
-    UPDATE,
-    PEERS,
-    OK,
-    UNKNOWN,
-    MAX_TOKEN,    
-};
-
-
-struct response
-{
-    enum tokens token;
-    void* data;
-    void* peers;
-};
-
-
-
-enum tokens parsing(char* buffer, const char* ip, int port);
+enum tokens parsing(char* buffer, response* res);
 
 #endif /* PARSER_H */

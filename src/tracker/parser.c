@@ -3,8 +3,9 @@
 #include <stdio.h>
 
 #include "parser.h"
+#include "files.h"
 
-char* string_tokens[12] = {
+char* string_tokens[MAX_TOKEN+1] = {
     "announce",
     "listen",
     "seed",
@@ -16,6 +17,7 @@ char* string_tokens[12] = {
     "peers",
     "ok",
     "unknown",
+    "error",
     "max"
 };
 
@@ -141,14 +143,26 @@ enum tokens look(char* tokens) {
 
 /*********** GETFILE ********************/
 
-enum tokens getfile(char* tokens) {
-    tokens = strtok(NULL, " "); // file key
-    if (tokens == NULL) {
+enum tokens getfile(response* res) {
+    char* key = strtok(NULL, " "); // file key
+    if (key == NULL) {
         printf("Erreur : Clé de fichier manquante.\n");
         return UNKNOWN;
     }
-    printf("Peer requesting file with key: %s\n", tokens);
-    //TODO
+    printf("Peer requesting file with key: %s\n", key);
+
+    FileInfo* file =  search_tracked_file(key);
+    if (file == NULL) {
+        strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+        res->token = ERROR;
+        return ERROR;
+    }
+    else {
+        res->token = PEERS;
+        char message[MAX_BUFFER_SIZE];
+        sprintf(message, "peers %s %s\n", file->key, PeersList_to_string(file->seeder));
+        strcpy(res->message, message);
+    }
 
     return PEERS;
 }
@@ -194,7 +208,7 @@ enum tokens update(char* tokens) {
 
 /*********** PARSING ********************/
 
-enum tokens parsing(char* buffer, const char* ip, int port) {
+enum tokens parsing(char* buffer, response* res) {
     char* tokens = strtok(buffer, " "); // announce || look || getfile
     switch (str_to_token(tokens))
     {
@@ -205,7 +219,7 @@ enum tokens parsing(char* buffer, const char* ip, int port) {
             return look(tokens);
         
         case GETFILE:
-            return getfile(tokens);
+            return getfile(res);
         
         case UPDATE:
             return update(tokens);
