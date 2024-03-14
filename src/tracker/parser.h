@@ -28,6 +28,6 @@ struct response
 
 
 
-enum tokens parsing(char* buffer, char* ip, int port);
+enum tokens parsing(char* buffer, const char* ip, int port);
 
 #endif /* PARSER_H */
