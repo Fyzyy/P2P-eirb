@@ -58,8 +58,8 @@ public class Main {
             }
 
             else if (newCommand.equalsIgnoreCase("help")){
-                System.out.println("To connect to tracker, type tracker_connect");
-                System.out.println("To disconnect from tracker, type tracker_disconnect\n");
+                System.out.println("To connect to tracker, type tracker connect");
+                System.out.println("To disconnect from tracker, type tracker disconnect\n");
             }
             
             else if (CONNECTED == 1){
