@@ -7,6 +7,7 @@ import peer.SharedFile;
 
 public class Main {
 
+    
     private static String readInput() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
@@ -17,7 +18,8 @@ public class Main {
         }
     }
     static public void main(String argv[]) throws IOException{
-
+        
+        int CONNECTED = 0;
         
         // Pour créer un InetAdress, on effectue comme suit
         InetAddress addrPeer = InetAddress.getByName("127.0.0.2");
@@ -25,9 +27,9 @@ public class Main {
         
         // Peer creation
         Peer peer = new Peer(addrPeer, 8080, addrTracker, 8080);
+        System.out.println("Type  message to send ('help' to get details, 'exit' to quit) :");
         
         while(true){
-            System.out.println("Entrez un message à envoyer (ou 'exit' pour quitter) :");
             String newCommand = readInput();
             
             // Vérifie si l'utilisateur souhaite quitter
@@ -36,25 +38,37 @@ public class Main {
                 break;
             }
             
-            if (newCommand.equalsIgnoreCase("tracker_connect")){
+            else if (newCommand.equalsIgnoreCase("tracker connect")){
                 // Connection to Tracker
                 try {
                     peer.connectToTracker();
+                    CONNECTED = 1;
                 } catch (IOException e) {
                     return;
                 }
             }
-            if (newCommand.equalsIgnoreCase("tracker_disconnect")){
-                // Connection to Tracker
+            else if (newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
                     peer.endConnection();
-                    return;
+                    CONNECTED = 0;
+                    System.out.println("Deconnection succesful\n");
                 } catch (IOException e) {
                     return;
                 }
             }
+
+            else if (newCommand.equalsIgnoreCase("help")){
+                System.out.println("To connect to tracker, type tracker_connect");
+                System.out.println("To disconnect from tracker, type tracker_disconnect\n");
+            }
             
-            peer.sendMessage(newCommand);
+            else if (CONNECTED == 1){
+                peer.sendMessage(newCommand);
+            }
+
+            else{
+                System.out.println("Please, connect before sending messages\n");
+            }
 
         }
 
