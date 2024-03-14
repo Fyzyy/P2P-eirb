@@ -1,3 +1,8 @@
+#ifndef PARSER_H
+#define PARSER_H
+
+#include "files.h"
+
 enum tokens {
     ANNOUNCE,
     LISTEN,
@@ -23,4 +28,6 @@ struct response
 
 
 
-enum tokens parsing(char* buffer);
+enum tokens parsing(char* buffer, char* ip, int port);
+
+#endif /* PARSER_H */

@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 
-
 #include "parser.h"
 
 char* string_tokens[12] = {
@@ -195,7 +194,7 @@ enum tokens update(char* tokens) {
 
 /*********** PARSING ********************/
 
-enum tokens parsing(char* buffer) {
+enum tokens parsing(char* buffer, char* ip, int port) {
     char* tokens = strtok(buffer, " "); // announce || look || getfile
     switch (str_to_token(tokens))
     {
