@@ -38,7 +38,7 @@ public class Main {
                 break;
             }
             
-            else if (newCommand.equalsIgnoreCase("tracker connect")){
+            else if (newCommand.equalsIgnoreCase("tracker connect") && CONNECTED==0){
                 // Connection to Tracker
                 try {
                     peer.connectToTracker();
@@ -46,6 +46,9 @@ public class Main {
                 } catch (IOException e) {
                     return;
                 }
+            }
+            else if (newCommand.equalsIgnoreCase("tracker connect") && CONNECTED==1){
+                System.out.println("You are already connected\n");
             }
             else if (newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
