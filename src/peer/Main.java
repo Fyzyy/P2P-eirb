@@ -1,9 +1,9 @@
-package peer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
+import peer.Peer;
+import peer.SharedFile;
 
 public class Main {
 
