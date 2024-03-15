@@ -18,9 +18,7 @@ public class Main {
         }
     }
     static public void main(String argv[]) throws IOException{
-        
-        int CONNECTED = 0;
-        
+                
         // Pour créer un InetAdress, on effectue comme suit
         InetAddress addrPeer = InetAddress.getByName("127.0.0.2");
         InetAddress addrTracker = InetAddress.getByName("127.0.0.1");
@@ -38,24 +36,24 @@ public class Main {
                 break;
             }
             
-            else if (newCommand.equalsIgnoreCase("tracker connect") && CONNECTED==0){
+            else if (newCommand.equalsIgnoreCase("tracker connect") && peer.getConnexionToTrackerStatus()==0){
                 // Connection to Tracker
                 try {
                     peer.connectToTracker();
-                    CONNECTED = 1;
+                    peer.setConnexionToTrackerStatus(1);
                 } catch (IOException e) {
                     return;
                 }
             }
 
-            else if (newCommand.equalsIgnoreCase("tracker connect") && CONNECTED==1){
+            else if (newCommand.equalsIgnoreCase("tracker connect") && peer.getConnexionToTrackerStatus()==1){
                 System.out.println("You are already connected\n");
             }
             
             else if (newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
                     peer.endConnection();
-                    CONNECTED = 0;
+                    peer.setConnexionToTrackerStatus(0);
                     System.out.println("Deconnection succesful\n");
                 } catch (IOException e) {
                     return;
@@ -67,12 +65,12 @@ public class Main {
                 System.out.println("To disconnect from tracker, type tracker disconnect\n");
             }
             
-            else if (CONNECTED == 1){
+            else if (peer.getConnexionToTrackerStatus() == 1){
                 try {
                     peer.sendMessage(newCommand);
                 } catch (Exception e) {
                     System.out.println("*****  Déconnexion  *****\n");
-                    CONNECTED = 0;
+                    peer.setConnexionToTrackerStatus(0);
                 }
             }
 
