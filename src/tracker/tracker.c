@@ -11,7 +11,7 @@ void handle_peer_connection(int socket,const char *ip, int port) {
     ssize_t bytes_received;
     PeerInfo* peer;
 
-    peer = new_peer(&connectedPeers, ip, port);
+    peer = new_peer(connectedPeers, ip, port);
 
     while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
         // Traiter les données reçues
@@ -31,15 +31,15 @@ void handle_peer_connection(int socket,const char *ip, int port) {
     if (bytes_received == 0) {
         printf("%s:%d déconnecté.\n", ip, port);
         #pragma omp critical
-            connectedPeers.n_peers--;
-        printf("connected peer : %d\n", connectedPeers.n_peers);
+            connectedPeers->n_peers--;
+        printf("connected peer : %d\n", connectedPeers->n_peers);
         
     } else if (bytes_received == -1) {
         perror("Erreur lors de la réception de données");
     }
 
     close(socket);
-    delete_peer_from_list(&connectedPeers, ip, port);
+    delete_peer_from_list(connectedPeers, ip, port);
 }
 
 void accept_connections(int server_socket) {
@@ -54,8 +54,8 @@ void accept_connections(int server_socket) {
             exit(EXIT_FAILURE);
         }
         #pragma omp critical
-            connectedPeers.n_peers++;
-        printf("connected peer : %d\n", connectedPeers.n_peers);
+            connectedPeers->n_peers++;
+        printf("connected peer : %d\n", connectedPeers->n_peers);
 
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
@@ -71,6 +71,8 @@ int main() {
 
     struct ServerConfig serverConfig;
     load_config("config.ini", &serverConfig);
+
+    init_global_lists();
 
     int server_socket;
     struct sockaddr_in server_address;
@@ -102,13 +104,14 @@ int main() {
 
     char input[100]; // Définir une taille de tampon appropriée
     while (1) {
-        fgets(input, sizeof(input), stdin); // Lire une ligne depuis l'entrée standard (terminal)
-        input[strcspn(input, "\n")] = '\0'; // Supprimer le saut de ligne
-        if (strcmp(input, "exit") == 0) {
-            break; // Quitter la boucle si l'entrée est "exit"
-        }
 
         accept_connections(server_socket);
+
+        // fgets(input, sizeof(input), stdin); // Lire une ligne depuis l'entrée standard (terminal)
+        // input[strcspn(input, "\n")] = '\0'; // Supprimer le saut de ligne
+        // if (strcmp(input, "exit") == 0) {
+        //     break; // Quitter la boucle si l'entrée est "exit"
+        // }
     }
 
     puts("exit tracker\n");
