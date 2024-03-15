@@ -50,6 +50,8 @@ void remove_tracked_file(const char* key) {
             } else {
                 trackedFiles = current->next;
             }
+            remove_list(current->seeder);
+            remove_list(current->leecher);
             free(current);
             return;
         }
@@ -103,7 +105,7 @@ void reset_tracked_files() {
     FileInfo* current = trackedFiles;
     while (current != NULL) {
         FileInfo* next = current->next;
-        free(current);
+        remove_tracked_file(current->key);
         current = next;
     }
     trackedFiles = NULL;

@@ -28,7 +28,6 @@ typedef struct response
 
 }response;
 
-
 response* create_response( PeerInfo* peer);
 
 void print_response(response* res);

@@ -24,6 +24,7 @@ void test_search_peer() {
     PeerInfo* foundPeer = search_peer(peers, "192.168.0.1", 8080);
     assert(foundPeer != NULL && "Peer not found.");
     remove_list(peers);
+    remove_all_peers();
 }
 
 // Fonction de test pour l'ajout d'un pair dans une liste
@@ -32,6 +33,7 @@ void test_new_peer() {
     PeerInfo* peer1 = new_peer(peers, "192.168.0.1", 8080);
     assert(peer1 != NULL && "Failed to add peer.");
     remove_list(peers);
+    remove_all_peers();
 }
 
 // Fonction de test pour la suppression d'un pair de la liste
@@ -41,6 +43,7 @@ void test_delete_peer_from_list() {
     PeerInfo* deletedPeer = delete_peer_from_list(peers, "192.168.0.1", 8080);
     assert(deletedPeer != NULL && "Peer not found for deletion.");
     remove_list(peers);
+    remove_all_peers();
 }
 
 // Fonction de test pour la suppression de tous les pairs de la liste
@@ -50,6 +53,7 @@ void test_remove_all_peers() {
     new_peer(peers, "192.168.0.2", 8081);
     remove_all_peers();
     assert(allPeers.n_peers == 0);
+    remove_list(peers);
 }
 
 
@@ -60,6 +64,7 @@ void all_tests_peer() {
     test_new_peer();
     test_delete_peer_from_list();
     test_remove_all_peers();
+    remove_all_peers();
     printf(GREEN_TEXT("All tests on peer passed successfully!\n"));
 }
 

@@ -40,6 +40,9 @@ clean:
 run: $(EXEC)
 	./$(EXEC)
 
+valgrind: $(EXEC)
+	valgrind ./$(EXEC)
+
 check_port:
 	@if lsof -Pi :$(PORT) -sTCP:LISTEN -t >/dev/null 2>&1; then \
 		echo "Port $(PORT) is in use."; \
