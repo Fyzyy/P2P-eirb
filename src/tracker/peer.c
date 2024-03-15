@@ -4,12 +4,14 @@
 
 #include "peer.h"
 
-PeersList allPeers;
-PeersList connectedPeers;
+PeersList* allPeers;
+PeersList* connectedPeers;
 
 PeerInfo* search_peer(PeersList* peers, const char *ip, int port) {
+    PeerInfo* peer;
     for (int i = 0; i < peers->n_peers; i++) {
-        PeerInfo* peer = peers->peers[i];
+        printf("i:%d",i);
+        peer = peers->peers[i];
         if (strcmp(peer->ip_address, ip) == 0 && peer->port == port) {
             return peer;
         }
@@ -27,6 +29,12 @@ PeersList* create_peers_list() {
     peers->n_peers = 0;
     return peers;
 }
+
+void init_global_lists() {
+    allPeers = create_peers_list();
+    connectedPeers = create_peers_list();
+}
+
 /*
 * allocate and create a new peer and add it to the list
 * if the list is NULL, add the peer to the allPeers list if it is not already there
@@ -35,12 +43,16 @@ PeersList* create_peers_list() {
 */
 PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     if (peers == NULL)
-        peers = &allPeers;
+        peers = allPeers;
+
+    puts("jai pas chercher");
 
     // Check if the peer is already in the list
-    PeerInfo* search = search_peer(peers, ip, port);
+    PeerInfo* search = search_peer(allPeers, ip, port);
     if (search != NULL)
         return search;
+    
+
 
     // Check if the maximum number of peers has been reached
     if (peers->n_peers >= MAX_PEERS) {
@@ -63,8 +75,8 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     peers->peers[peers->n_peers++] = newPeer;
 
     // If the list is allPeers and the peer is not already there, add it
-    if (peers == &allPeers && search_peer(&allPeers, ip, port) == NULL) {
-        allPeers.peers[allPeers.n_peers++] = newPeer;
+    if (peers == allPeers && search_peer(allPeers, ip, port) == NULL) {
+        allPeers->peers[allPeers->n_peers++] = newPeer;
     }
 
     return newPeer;
@@ -86,20 +98,20 @@ PeerInfo* delete_peer_from_list(PeersList* peers, const char *ip, int port) {
 
 // Remove a peer from the allPeers list and free the memory
 void remove_peer(PeerInfo* peer) {
-    free(delete_peer_from_list(&allPeers, peer->ip_address, peer->port));
+    free(delete_peer_from_list(allPeers, peer->ip_address, peer->port));
 }
 
 //remove all peers from the allPeers list
 void remove_all_peers() {
-    for (int i = 0; i < allPeers.n_peers; i++) {
-        free(allPeers.peers[i]);
+    for (int i = 0; i < allPeers->n_peers; i++) {
+        free(allPeers->peers[i]);
     }
-    allPeers.n_peers = 0;
+    allPeers->n_peers = 0;
 }
 
 // Free the memory allocated for the peers list (not the memory of the peers themselves)
 void remove_list(PeersList* peers) {
-    if (peers == &allPeers) 
+    if (peers == allPeers) 
         remove_all_peers();
     else 
         free(peers->peers);
@@ -146,5 +158,5 @@ void display_peers(PeersList* peers) {
 
 void display_connected_peer_info() {
     printf("Connected Peers:\n");
-    display_peers(&connectedPeers);
+    display_peers(connectedPeers);
 }

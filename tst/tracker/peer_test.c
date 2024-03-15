@@ -52,7 +52,7 @@ void test_remove_all_peers() {
     new_peer(peers, "192.168.0.1", 8080);
     new_peer(peers, "192.168.0.2", 8081);
     remove_all_peers();
-    assert(allPeers.n_peers == 0);
+    assert(allPeers->n_peers == 0);
     remove_list(peers);
 }
 

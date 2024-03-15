@@ -42,7 +42,7 @@ void test_getfile() {
     response* res = create_response(peer);
     puts("Response created");
 
-    display_peers(&allPeers);
+    display_peers(allPeers);
 
     char buffer[] = "getfile file_key\n";
     enum tokens result = parsing(buffer, res);
