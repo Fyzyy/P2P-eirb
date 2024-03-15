@@ -85,6 +85,8 @@ void all_tests_files() {
     test_add_leecher_to_tracked_file();
     test_remove_seeder_from_tracked_file();
     test_remove_leecher_from_tracked_file();
+    reset_tracked_files();
+    remove_all_peers();
     puts(GREEN_TEXT("All tests on files passed successfully!\n"));
 
 }
