@@ -36,7 +36,7 @@ enum tokens str_to_token(char* str) {
 
 /*********** ANNOUNCE ********************/
 
-enum tokens leech_key() {
+enum tokens leech_key(response* res) {
     char * keys = strtok(NULL, " []\r");
 
     if (keys != NULL)
@@ -48,14 +48,16 @@ enum tokens leech_key() {
 
         // TODO: Ajoutez votre logique pour le traitement de la clé leech
     }
+    res->token = OK;
+    strcpy(res->message, "ok\n");
     return OK;
 }
 
-enum tokens seed(char* tokens) {
+enum tokens seed(response* res) {
 
 
     // Aller à la partie de la liste de fichiers
-    tokens = strtok(NULL, "[");
+    char* tokens = strtok(NULL, "[");
 
     if (tokens != NULL && strcmp(tokens, "leech") != 0) {
         printf("Peer seeding files:\n");
@@ -76,48 +78,60 @@ enum tokens seed(char* tokens) {
         int file_size = atoi(file_size_str);
         int piece_size = atoi(piece_size_str);
 
+        if (search_tracked_file(file_key) == NULL)
+            add_tracked_file(file_name, file_size, piece_size, file_key);
+        add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);
+
         printf("File: %s, Size: %d, Piece Size: %d, Key: %s\n", file_name, file_size, piece_size, file_key);
         //TODO
     }
+    res->token = OK;
+    strcpy(res->message, "ok\n");
     return OK;
 }
 
-enum tokens announce(char* tokens) {
-    tokens = strtok(NULL, " "); // listen || seed
+enum tokens announce(response* res) {
+    char* tokens = strtok(NULL, " "); // listen || seed
     switch (str_to_token(tokens))
     {
     case LISTEN:
-        tokens = strtok(NULL, " "); //port
-        printf("peer listening %d\n", atoi(tokens)); 
+        char* port = strtok(NULL, " "); //port
+        printf("peer listening %d\n", atoi(port)); 
         //TODO
         __attribute__((fallthrough));
 
     case SEED:
-        enum tokens res = seed(tokens);
-        if (res == OK) return res;
+        enum tokens ret = seed(res);
+        if (ret == OK) return ret;
         __attribute__((fallthrough));
 
     case LEECH:
-        return leech_key();
+        return leech_key(res);
     case UNKNOWN:
         printf("Unknown command\n");
+        res->token = UNKNOWN;
+        strcpy(res->message, "Commande inconnue.\n");
         return UNKNOWN;
     default:
+        res->token = OK;
+        strcpy(res->message, "ok\n");
         return OK;
     }
 }
 
 /*********** LOOK ********************/
 
-enum tokens look(char* tokens) {
+enum tokens look(response* res) {
     char temp_copy[256];
-    tokens = strtok(NULL, "[");
+    char* tokens = strtok(NULL, "[");
 
     printf("Peer looking for files:\n");
 
     char* filename = strstr(tokens, "filename=");
     if (filename == NULL) {
         printf("Erreur : Clé de fichier manquante.\n");
+        res->token = ERROR;
+        strcpy(res->message, "Erreur : Clé de fichier manquante.\n");
         return UNKNOWN;
     }
     else {
@@ -187,15 +201,15 @@ enum tokens seed_key() {
     return OK;
 }
 
-enum tokens update(char* tokens) {
-    tokens = strtok(NULL, " "); // seed || leech
+enum tokens update(response* res) {
+    char* tokens = strtok(NULL, " "); // seed || leech
     switch (str_to_token(tokens)) {
         case SEED:
             seed_key();
             __attribute__((fallthrough));
 
         case LEECH:
-            return leech_key();
+            return leech_key(res);
 
         case UNKNOWN:
             printf("Unknown command\n");
@@ -213,16 +227,16 @@ enum tokens parsing(char* buffer, response* res) {
     switch (str_to_token(tokens))
     {
         case ANNOUNCE:
-            return announce(tokens);
+            return announce(res);
         
         case LOOK :
-            return look(tokens);
+            return look(res);
         
         case GETFILE:
             return getfile(res);
         
         case UPDATE:
-            return update(tokens);
+            return update(res);
 
         case UNKNOWN:
             printf("Unknown command\n");
