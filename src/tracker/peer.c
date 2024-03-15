@@ -63,7 +63,7 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     peers->peers[peers->n_peers++] = newPeer;
 
     // If the list is allPeers and the peer is not already there, add it
-    if (search_peer(&allPeers, ip, port) == NULL) {
+    if (peers == &allPeers && search_peer(&allPeers, ip, port) == NULL) {
         allPeers.peers[allPeers.n_peers++] = newPeer;
     }
 
