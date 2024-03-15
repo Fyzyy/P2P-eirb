@@ -2,6 +2,10 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.junit.jupiter.api.Test;
 
 import peer.Peer;
@@ -9,8 +13,15 @@ import peer.Peer;
 
 public class TestPeer {
 
-    void testErreurConnexion() {
-        Peer p = new Peer(new Inet, 0, null, 0)
+    @Test
+    void testErreurConnexion() throws UnknownHostException {
+        Peer p = new Peer(InetAddress.getByName("127.0.0.2"), 7, InetAddress.getByName("127.14.21.12"), 493);
+        try {
+            p.connectToTracker();
+            assertTrue(false);
+        } catch (IOException e) {
+            assertTrue(true);
+        }  
     }
     
 }
