@@ -29,6 +29,7 @@ void handle_peer_connection(int socket, const char *ip, int port) {
         
         response* res = create_response(peer);
         parsing(buffer, res);
+        send(socket, res->message, strlen(res->message), 0);
         //TODO envoyer la réponse
         free(res);
     }
