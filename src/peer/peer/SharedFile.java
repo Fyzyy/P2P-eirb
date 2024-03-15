@@ -41,6 +41,32 @@ public class SharedFile {
         pieceSize = 1024;
     }
 
+    public String getKey() {
+        String copy = new String(this.key);
+        return copy;
+    }
+
+    public long getSize() {
+        return this.size;
+    }
+
+    public int getPieceSize() {
+        return this.pieceSize;
+    }
+
+    public String getFilename() {
+        String copy = new String(this.filename);
+        return copy;
+    }
+
+    public File getFile() {
+        File copy = new File(this.file.getAbsolutePath());
+        if (copy.exists()) {
+            return copy;
+        }
+        return null;
+    }
+
     /**
      * Takes the path of the file and computes the hexadecimal key of the file.
      * 
