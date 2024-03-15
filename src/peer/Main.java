@@ -68,7 +68,12 @@ public class Main {
             }
             
             else if (CONNECTED == 1){
-                peer.sendMessage(newCommand);
+                try {
+                    peer.sendMessage(newCommand);
+                } catch (Exception e) {
+                    System.out.println("*****  Déconnexion  *****\n");
+                    CONNECTED = 0;
+                }
             }
 
             else{

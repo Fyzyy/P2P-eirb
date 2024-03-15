@@ -1,6 +1,8 @@
 #ifndef PEER_TEST_H
 #define PEER_TEST_H
 
+#include "../../src/tracker/peer.h"
+
 // Fonction de test pour la création d'une liste de pairs
 void test_create_peers_list();
 

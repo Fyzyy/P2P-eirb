@@ -20,12 +20,14 @@ typedef struct {
     int n_peers;
 } PeersList;
 
-extern PeersList allPeers;
-extern PeersList connectedPeers;
+extern PeersList* allPeers;
+extern PeersList* connectedPeers;
+
 
 PeerInfo* search_peer(PeersList* peers, const char *ip, int port);
 
 PeersList* create_peers_list();
+void init_global_lists();
 
 PeerInfo* new_peer(PeersList* peers, const char *ip, int port);
 PeerInfo* delete_peer_from_list(PeersList* peers, const char *ip, int port);

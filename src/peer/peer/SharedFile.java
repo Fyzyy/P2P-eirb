@@ -1,8 +1,6 @@
 package peer;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +37,32 @@ public class SharedFile {
         this.key = computeKey();
         this.size = Files.size(this.file.toPath());
         pieceSize = 1024;
+    }
+
+    public String getKey() {
+        String copy = new String(this.key);
+        return copy;
+    }
+
+    public long getSize() {
+        return this.size;
+    }
+
+    public int getPieceSize() {
+        return this.pieceSize;
+    }
+
+    public String getFilename() {
+        String copy = new String(this.filename);
+        return copy;
+    }
+
+    public File getFile() {
+        File copy = new File(this.file.getAbsolutePath());
+        if (copy.exists()) {
+            return copy;
+        }
+        return null;
     }
 
     /**
