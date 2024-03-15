@@ -38,9 +38,7 @@ void test_look() {
 
 void test_getfile() {
     PeerInfo* peer = new_peer(NULL,"192.168.0.1",2222);
-    puts("Peer created");
     response* res = create_response(peer);
-    puts("Response created");
 
     display_peers(allPeers);
 

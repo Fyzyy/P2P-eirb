@@ -1,4 +1,3 @@
-#include "../../src/tracker/peer.h"
 #include "peer_test.h"
 
 #include <stdio.h>

@@ -10,7 +10,6 @@ PeersList* connectedPeers;
 PeerInfo* search_peer(PeersList* peers, const char *ip, int port) {
     PeerInfo* peer;
     for (int i = 0; i < peers->n_peers; i++) {
-        printf("i:%d",i);
         peer = peers->peers[i];
         if (strcmp(peer->ip_address, ip) == 0 && peer->port == port) {
             return peer;
@@ -44,8 +43,6 @@ void init_global_lists() {
 PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     if (peers == NULL)
         peers = allPeers;
-
-    puts("jai pas chercher");
 
     // Check if the peer is already in the list
     PeerInfo* search = search_peer(allPeers, ip, port);
