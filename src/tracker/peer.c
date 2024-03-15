@@ -72,10 +72,6 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
         allPeers.n_peers++;
         return newPeer;
     }
-    else if (peers == NULL) {
-        free(newPeer);
-        return search_peer(&allPeers, ip, port);
-    }
 
     return newPeer;
 }
