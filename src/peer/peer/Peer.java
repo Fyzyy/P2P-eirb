@@ -11,10 +11,10 @@ public class Peer {
     private InetAddress IpAdress;
     private InetAddress trackerIpAdress;
     private SharedFile[] files;
-    Socket socket;
+    private Socket socket;
     private DataOutputStream sender;
     private DataInputStream receiver;
-
+    private int connectedToTracker = 0;
     
     //fichiers disponibles (Hashmap ?)
 
@@ -70,5 +70,13 @@ public class Peer {
     
     public void init() {
         //charger fichier config;
+    }
+
+    public int getConnexionToTrackerStatus(){
+        return this.connectedToTracker;
+    }
+
+    public void setConnexionToTrackerStatus(int status){
+        this.connectedToTracker = status;
     }
 }
