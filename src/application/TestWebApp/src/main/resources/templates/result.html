@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+</head>
+<body>
+    <h1>Result</h1>
+    <p>Parsed criteria:</p>
+    <ul>
+        <!-- Loop through the criteria array and display each item -->
+        <li th:each="c : ${criteria}" th:text="${c}"></li>
+    </ul>
+</body>
+</html>
