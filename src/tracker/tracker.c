@@ -118,6 +118,9 @@ int main() {
                 }
 
                 accept_connections(server_socket);
+                fgets(input, sizeof(input), stdin);
+                if (strncmp(input, "exit", 4) == 0)
+                    quit();
             }
         }
     }
