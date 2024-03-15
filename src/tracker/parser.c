@@ -46,7 +46,17 @@ enum tokens leech_key(response* res) {
         printf("Leech Key: %s\n", keys);
         keys = strtok(NULL, " ]\r\n");
 
-        // TODO: Ajoutez votre logique pour le traitement de la clé leech
+        FileInfo* file = search_tracked_file(keys);
+        if (file != NULL)
+        {
+            add_leecher_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
+        }
+        else if (file == NULL)
+        {
+            res->token = ERROR;
+            strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+            return ERROR;
+        }
     }
     res->token = OK;
     strcpy(res->message, "ok\n");
@@ -82,8 +92,8 @@ enum tokens seed(response* res) {
             add_tracked_file(file_name, file_size, piece_size, file_key);
         add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);
 
-        printf("File: %s, Size: %d, Piece Size: %d, Key: %s\n", file_name, file_size, piece_size, file_key);
-        //TODO
+        display_tracked_files();
+        
     }
     res->token = OK;
     strcpy(res->message, "ok\n");
@@ -138,14 +148,11 @@ enum tokens look(response* res) {
         filename += strlen("filename=");
         filename = strtok(strncpy(temp_copy, filename, strlen(filename)), "\"");
         printf("Matching files for filename '%s':\n", filename);
+        search_tracked_file(filename);
     }
 
     char* filesize = strstr(tokens, "filesize>");
-    if (filesize == NULL) {
-        printf("Erreur : Clé de taille manquante.\n");
-        return UNKNOWN;
-    }
-    else {
+    if (filesize != NULL) {
         filesize += strlen("filesize>");
         filesize = strtok(strncpy(temp_copy, filesize, strlen(filesize)), "\"");
         printf("Matching files for filesize > %d:\n", atoi(filesize));
@@ -183,7 +190,7 @@ enum tokens getfile(response* res) {
 
 /*********** UPDATE ********************/
 
-enum tokens seed_key() {
+enum tokens seed_key(response* res) {
 
 
     // Aller à la partie de la liste de keys
@@ -195,9 +202,26 @@ enum tokens seed_key() {
 
     while (keys != NULL && strcmp(keys, "leech") != 0) {
         printf("Seed Key: %s\n", keys);
-        keys = strtok(NULL, " ]");       
-
+        keys = strtok(NULL, " ]");  
+        FileInfo* file = search_tracked_file(keys);
+        if (file != NULL)
+        {
+            add_seeder_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
+        }
+        else if (file == NULL)
+        {
+            res->token = ERROR;
+            strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+            return ERROR;
+        }  
     }
+
+    if (keys != NULL && strcmp(keys, "leech") == 0) {
+        return LEECH;
+    }
+
+    res->token = OK;
+    strcpy(res->message, "ok\n");
     return OK;
 }
 
@@ -205,7 +229,8 @@ enum tokens update(response* res) {
     char* tokens = strtok(NULL, " "); // seed || leech
     switch (str_to_token(tokens)) {
         case SEED:
-            seed_key();
+            if (seed_key(res) != LEECH)
+                return OK;
             __attribute__((fallthrough));
 
         case LEECH:
@@ -239,7 +264,8 @@ enum tokens parsing(char* buffer, response* res) {
             return update(res);
 
         case UNKNOWN:
-            printf("Unknown command\n");
+            res->token = UNKNOWN;
+            strcpy(res->message, "Commande inconnue.\n");
             return UNKNOWN;
         default:
             return UNKNOWN;
