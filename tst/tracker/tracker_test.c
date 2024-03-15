@@ -13,8 +13,8 @@ int main() {
     printf(YELLOW_TEXT("Running tests...\n"));
 
     all_tests_parser();
-    //all_tests_peer();
-    //all_tests_files();
+    all_tests_peer();
+    all_tests_files();
 
     printf(GREEN_TEXT("All tests passed successfully!\n"));
 

@@ -47,7 +47,7 @@ void accept_connections(int server_socket) {
     socklen_t client_address_len = sizeof(client_address);
     int client_socket;
 
-    #pragma omp parallel for //threads
+    #pragma omp parallel for schedule(runtime)//threads
     for (size_t i = 0; i < MAX_PEERS_CONNECTIONS; i++) {
         if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
             perror("Erreur lors de l'acceptation de la connexion");
@@ -98,11 +98,21 @@ int main() {
     }
 
     printf("Serveur en attente de connexions sur le port %d...\n", serverConfig.port);
+    puts("Tapez 'exit' pour quitter le tracker :");
 
+    char input[100]; // Définir une taille de tampon appropriée
     while (1) {
+        fgets(input, sizeof(input), stdin); // Lire une ligne depuis l'entrée standard (terminal)
+        input[strcspn(input, "\n")] = '\0'; // Supprimer le saut de ligne
+        if (strcmp(input, "exit") == 0) {
+            break; // Quitter la boucle si l'entrée est "exit"
+        }
+
         accept_connections(server_socket);
     }
-        
+
+    puts("exit tracker\n");
+    remove_all_peers();
 
     close(server_socket);
 
