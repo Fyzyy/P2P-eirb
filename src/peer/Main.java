@@ -32,7 +32,9 @@ public class Main {
             
             // Vérifie si l'utilisateur souhaite quitter
             if (newCommand.equalsIgnoreCase("exit")) {
-                peer.endConnection();
+                if (peer.getConnexionToTrackerStatus()==1){
+                    peer.endConnection();
+                }
                 break;
             }
             
