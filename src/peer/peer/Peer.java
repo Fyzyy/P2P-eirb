@@ -58,6 +58,7 @@ public class Peer {
             try {
                 System.out.println(reader.readLine());
             } catch (IOException e) {
+                System.out.println("Cannot read message");
                 throw e;
             }
         } catch (IOException e) {
