@@ -1,7 +1,9 @@
 package peer;
 import java.io.DataOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 
 public class Peer {
@@ -13,7 +15,7 @@ public class Peer {
     private SharedFile[] files;
     private Socket socket;
     private DataOutputStream sender;
-    private DataInputStream receiver;
+    private BufferedReader reader;
     private int connectedToTracker = 0;
     
     //fichiers disponibles (Hashmap ?)
@@ -41,7 +43,7 @@ public class Peer {
             socket = new Socket(trackerIpAdress, trackerPortNumber);
             System.out.println("Connection to tracker succesful\n");
             sender = new DataOutputStream(this.socket.getOutputStream());
-            receiver = new DataInputStream(this.socket.getInputStream());
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;
@@ -53,6 +55,11 @@ public class Peer {
         try {
             sender.write(bytes);
             sender.flush();
+            try {
+                System.out.println(reader.readLine());
+            } catch (IOException e) {
+                throw e;
+            }
         } catch (IOException e) {
             System.out.println("Cannot send message");
             throw e;
