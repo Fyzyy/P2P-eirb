@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 #include "parser.h"
-#include "files.h"
+
+/*********** UTILS ******************/
 
 char* string_tokens[MAX_TOKEN+1] = {
     "announce",
@@ -46,6 +47,10 @@ enum tokens leech_key(response* res) {
         printf("Leech Key: %s\n", keys);
         keys = strtok(NULL, " ]\r\n");
 
+        if (keys == NULL) {
+            break;
+        }
+
         FileInfo* file = search_tracked_file(keys);
         if (file != NULL)
         {
@@ -67,14 +72,14 @@ enum tokens seed(response* res) {
 
 
     // Aller à la partie de la liste de fichiers
-    char* tokens = strtok(NULL, "[");
+    char* file_name = strtok(NULL, "[");
 
-    if (tokens != NULL && strcmp(tokens, "leech") != 0) {
+    if (file_name != NULL && strcmp(file_name, "leech") != 0) {
         printf("Peer seeding files:\n");
     }
 
-    while (tokens != NULL && strcmp(tokens, "leech") != 0) {
-        char* file_name = strtok(NULL, " ");
+    while (file_name != NULL && strcmp(file_name, "leech") != 0) {
+        file_name = strtok(NULL, " ");
         if (file_name == NULL) {
             break;
         }
@@ -91,8 +96,6 @@ enum tokens seed(response* res) {
         if (search_tracked_file(file_key) == NULL)
             add_tracked_file(file_name, file_size, piece_size, file_key);
         add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);
-
-        display_tracked_files();
         
     }
     res->token = OK;
@@ -112,6 +115,7 @@ enum tokens announce(response* res) {
 
     case SEED:
         enum tokens ret = seed(res);
+        display_tracked_files();
         if (ret == OK) return ret;
         __attribute__((fallthrough));
 

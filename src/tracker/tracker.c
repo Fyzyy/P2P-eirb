@@ -102,7 +102,10 @@ int main() {
     }
 
     printf("Serveur en attente de connexions sur le port %d...\n", serverConfig.port);
-    puts("Tapez 'exit' pour quitter le tracker :");
+    puts("'peers' pour afficher la liste des pairs connectés :");
+    puts("'files' pour afficher la liste des fichiers suivis :");
+
+    puts("'exit' pour quitter le tracker :");
 
     #pragma omp parallel
     {
@@ -113,9 +116,15 @@ int main() {
 
                 #pragma omp task shared(input)
                 {
-                    fgets(input, sizeof(input), stdin);
-                    if (strncmp(input, "exit", 4) == 0)
-                        quit();
+                    while (1) {
+                        fgets(input, sizeof(input), stdin);
+                        if (strncmp(input, "exit", 4) == 0)
+                            quit();
+                        if (strncmp(input, "files", 5) == 0)
+                            display_tracked_files();
+                        if (strncmp(input, "peers", 5) == 0)
+                            display_peers(connectedPeers);
+                    }
                 }
 
                 accept_connections(server_socket);
