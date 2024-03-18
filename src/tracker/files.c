@@ -126,14 +126,10 @@ void display_peers_for_tracked_file(const char* key) {
 void display_tracked_files() {
     FileInfo* current = trackedFiles;
     while (current != NULL) {
-        printf("File: %s |", current->filename);
+        printf("\nFile: %s |", current->filename);
         printf("Key: %s |", current->key);
         printf("Length: %d |", current->length);
-        printf("Piece size: %d |", current->pieceSize);
-        printf("Seeder peers: |");
-        display_peers(current->seeder);
-        printf("Leecher peers:\n");
-        display_peers(current->leecher);
+        printf("Piece size: %d \n", current->pieceSize);
         current = current->next;
     }
 }

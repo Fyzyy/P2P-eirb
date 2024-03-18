@@ -16,7 +16,21 @@ void test_announce() {
     PeerInfo* peer = new_peer(NULL,"192.168.0.1",2222);
     response* res = create_response(peer);
 
-    char buffer[] = "announce listen 2222 seed [file1 100 10 1234567890 file2 200 20 0987654321] leech [1221 212121]\n";
+    char buffer[] = "announce listen 2222 seed [file1 100 10 1234567890 file2 200 20 0987654321] leech [file1 file2]\n";
+    enum tokens result = parsing(buffer, res);
+    assert(result == ERROR);
+
+
+    display_tracked_files(trackedFiles);
+    remove_peer(peer);
+    free(res);
+}
+
+void test_listen() {
+    PeerInfo* peer = new_peer(NULL,"192.168.0.1",2222);
+    response* res = create_response(peer);
+
+    char buffer[] = "announce listen 2222\n";
     enum tokens result = parsing(buffer, res);
     assert(result == OK);
 
@@ -64,9 +78,10 @@ void test_update() {
 
 void all_tests_parser() {
     puts(YELLOW_TEXT("Testing parser functions..."));
-    // test_announce();
+    test_announce();
+    //test_listen();
     // test_look();
-    test_getfile();
+    //test_getfile();
     // test_update();
     printf(GREEN_TEXT("All tests on parser passed successfully!\n\n"));
 }

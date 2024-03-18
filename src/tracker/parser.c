@@ -38,7 +38,7 @@ enum tokens str_to_token(char* str) {
 /*********** ANNOUNCE ********************/
 
 enum tokens leech_key(response* res) {
-    char * keys = strtok(NULL, " []\r");
+    char * keys = strtok(NULL, "[");
 
     if (keys != NULL)
         printf("Peer leeching key:\n");
@@ -115,7 +115,7 @@ enum tokens announce(response* res) {
 
     case SEED:
         enum tokens ret = seed(res);
-        display_tracked_files();
+        //display_tracked_files();
         if (ret == OK) return ret;
         __attribute__((fallthrough));
 
