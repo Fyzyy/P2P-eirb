@@ -38,36 +38,28 @@ enum tokens str_to_token(char* str) {
 /*********** ANNOUNCE ********************/
 
 enum tokens leech_key(response* res) {
-    char * keys = strtok(NULL, "[");
+    char* separator = " []\n"; // leech
+    char* keys = strtok(NULL, separator);
 
     if (keys != NULL)
         printf("Peer leeching key:\n");
 
     while (keys != NULL) {
         printf("Leech Key: %s\n", keys);
-        keys = strtok(NULL, " ]\r\n");
-
-        if (keys == NULL) {
-            break;
-        }
-
         FileInfo* file = search_tracked_file(keys);
-        if (file != NULL)
-        {
+        if (file != NULL) {
             add_leecher_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
-        }
-        else if (file == NULL)
-        {
+        } else {
             res->token = ERROR;
             strcpy(res->message, "Erreur : Fichier non trouvé.\n");
             return ERROR;
         }
+        keys = strtok(NULL,separator);
     }
     res->token = OK;
     strcpy(res->message, "ok\n");
     return OK;
 }
-
 enum tokens seed(response* res) {
 
 
@@ -90,6 +82,12 @@ enum tokens seed(response* res) {
         char* piece_size_str = strtok(NULL, " ");
         char* file_key = strtok(NULL, " ]\n\r");
 
+        if (file_size_str == NULL || piece_size_str == NULL || file_key == NULL) {
+            res->token = ERROR;
+            strcpy(res->message, "Erreur : Paramètres manquants.\n");
+            return ERROR;
+        }
+
         int file_size = atoi(file_size_str);
         int piece_size = atoi(piece_size_str);
 
@@ -104,12 +102,13 @@ enum tokens seed(response* res) {
 }
 
 enum tokens announce(response* res) {
-    char* tokens = strtok(NULL, " "); // listen || seed
+    char* tokens = strtok(NULL, " "); // listen || seed || leech
     switch (str_to_token(tokens))
     {
     case LISTEN:
         char* port = strtok(NULL, " "); //port
-        printf("peer listening %d\n", atoi(port)); 
+        printf("peer listening %d\n", atoi(port));
+        res->peer->listening_port = atoi(port); 
         //TODO
         __attribute__((fallthrough));
 

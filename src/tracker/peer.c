@@ -46,8 +46,11 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
 
     // Check if the peer is already in the list
     PeerInfo* search = search_peer(allPeers, ip, port);
-    if (search != NULL)
+    if (search != NULL && search_peer(peers, ip, port) == NULL) {
+        // Add the peer to the list
+        peers->peers[peers->n_peers++] = search;
         return search;
+    }
     
 
 
@@ -67,7 +70,7 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     // Initialize the new peer
     strncpy(newPeer->ip_address, ip, INET_ADDRSTRLEN);
     newPeer->port = port;
-
+    newPeer->listening_port = port;
     // Add the peer to the list
     peers->peers[peers->n_peers++] = newPeer;
 
@@ -107,11 +110,13 @@ void remove_all_peers() {
 }
 
 // Free the memory allocated for the peers list (not the memory of the peers themselves)
-void remove_list(PeersList* peers) {
-    if (peers == allPeers) 
+void remove_list(PeersList* peersList) {
+    if (peersList == allPeers) 
         remove_all_peers();
-    else 
-        free(peers->peers);
+    else for (int i = 0; i < peersList->n_peers; i++) {
+        free(peersList->peers[i]);
+    }
+    free(peersList);
 }
 
 char* PeersList_to_string(PeersList* peers) {

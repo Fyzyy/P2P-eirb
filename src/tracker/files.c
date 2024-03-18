@@ -61,6 +61,7 @@ void remove_tracked_file(const char* key) {
 }
 
 
+
 // Fonction pour ajouter un pair seeder à un fichier suivi
 int add_seeder_to_tracked_file(const char* key, const char* ip, int port) {
     FileInfo* file = search_tracked_file(key);
@@ -85,7 +86,7 @@ int add_leecher_to_tracked_file(const char* key, const char* ip, int port) {
 int remove_seeder_from_tracked_file(const char* key, const char* ip, int port) {
     FileInfo* file = search_tracked_file(key);
     if (file != NULL) {
-        delete_peer_from_list(trackedFiles->seeder,ip, port);
+        free(delete_peer_from_list(trackedFiles->seeder,ip, port));
         return 1;
     }
     return 0;
@@ -95,7 +96,7 @@ int remove_seeder_from_tracked_file(const char* key, const char* ip, int port) {
 int remove_leecher_from_tracked_file(const char* key, const char* ip, int port) {
     FileInfo* file = search_tracked_file(key);
     if (file != NULL) {
-        delete_peer_from_list(trackedFiles->leecher,ip, port);
+        free(delete_peer_from_list(trackedFiles->leecher,ip, port));
         return 1;
     }
     return 0;

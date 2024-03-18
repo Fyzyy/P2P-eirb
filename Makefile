@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -fopenmp -I$(SRC_DIR)
+CFLAGS = -Wall -Wextra -fopenmp -I$(SRC_DIR) -g
 SRC_DIR = src/tracker
 TEST_DIR = tst/tracker
 SRC = config.c parser.c peer.c files.c response.c
@@ -40,8 +40,14 @@ clean:
 run: $(EXEC)
 	./$(EXEC)
 
+debug_test: $(TEST_EXEC)
+	gdb ./$(TEST_EXEC)
+
 valgrind: $(EXEC)
 	valgrind ./$(EXEC)
+
+valgrind_test: $(TEST_EXEC)
+	valgrind ./$(TEST_EXEC)
 
 check_port:
 	@if lsof -Pi :$(PORT) -sTCP:LISTEN -t >/dev/null 2>&1; then \

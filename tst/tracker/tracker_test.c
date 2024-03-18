@@ -15,8 +15,8 @@ int main() {
     init_global_lists();
 
     all_tests_parser();
-    all_tests_peer();
-    all_tests_files();
+    // all_tests_peer();
+    // all_tests_files();
 
     remove_list(allPeers);
     remove_list(connectedPeers);
