@@ -93,8 +93,7 @@ enum tokens seed(response* res) {
 
         if (search_tracked_file(file_key) == NULL)
             add_tracked_file(file_name, file_size, piece_size, file_key);
-        add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);
-        
+        add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);    
     }
     res->token = OK;
     strcpy(res->message, "ok\n");
@@ -103,6 +102,12 @@ enum tokens seed(response* res) {
 
 enum tokens announce(response* res) {
     char* tokens = strtok(NULL, " "); // listen || seed || leech
+    if (tokens == NULL) {
+        res->token = ERROR;
+        strcpy(res->message, "Usage : announce listen $Port seed [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2 …] leech [$Key3 $Key4 …]\n");
+        return ERROR;
+    }
+
     switch (str_to_token(tokens))
     {
     case LISTEN:

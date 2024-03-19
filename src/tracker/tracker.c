@@ -59,12 +59,12 @@ void accept_connections(int server_socket) {
                 exit(EXIT_FAILURE);
             }
             inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
-            printf("Connexion acceptée de %s:%d\n", client_ip, ntohs(client_address.sin_port));
+            printf("Connexion acceptée de %s:%d\n", client_ip, (int) ntohs(client_address.sin_port));
             printf("connected peer : %d\n", connectedPeers->n_peers + 1);
 
             #pragma omp task firstprivate(client_socket, client_ip, client_address) shared(connectedPeers, allPeers, server_socket)
             {
-                handle_peer_connection(client_socket, client_ip, client_address.sin_port);
+                handle_peer_connection(client_socket, client_ip, (int) ntohs(client_address.sin_port));
                 close(client_socket);
             }
         }
