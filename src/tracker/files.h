@@ -35,10 +35,10 @@ int add_seeder_to_tracked_file(const char* key, const char* ip, int port);
 int add_leecher_to_tracked_file(const char* key, const char* ip, int port);
 
 // Supprime un pair seeder d'un fichier suivi
-int remove_seeder_from_tracked_file(const char* key, const char* ip, int port);
+int delete_seeder_from_tracked_file(const char* key, const char* ip, int port);
 
 // Supprime un pair leecher d'un fichier suivi
-int remove_leecher_from_tracked_file(const char* key, const char* ip, int port);
+int delete_leecher_from_tracked_file(const char* key, const char* ip, int port);
 
 // Affiche les pairs seeder et leecher d'un fichier suivi
 void display_peers_for_tracked_file(const char* key);

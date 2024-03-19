@@ -126,11 +126,11 @@ void test_update() {
 void all_tests_parser() {
     puts(YELLOW_TEXT("Testing parser functions..."));
     test_announce();
-    // test_listen();
-    // test_seed();
-    // test_leech();
-    // test_look();
-    // test_getfile();
-    // test_update();
+    test_listen();
+    test_seed();
+    test_leech();
+    test_look();
+    test_getfile();
+    test_update();
     printf(GREEN_TEXT("All tests on parser passed successfully!\n\n"));
 }

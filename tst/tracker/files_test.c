@@ -52,7 +52,7 @@ void test_add_leecher_to_tracked_file() {
 }
 
 // Fonction de test pour supprimer un pair seeder d'un fichier suivi
-void test_remove_seeder_from_tracked_file() {
+void test_delete_seeder_from_tracked_file() {
     reset_tracked_files();
     // Ajouter un fichier avec un seeder
     add_tracked_file("file5.txt", 5000, 512, "key5");
@@ -60,12 +60,12 @@ void test_remove_seeder_from_tracked_file() {
     add_seeder_to_tracked_file("key5", "192.168.1.3", 8082);
     assert(trackedFiles->seeder->n_peers == 1);
     // Supprimer le seeder
-    remove_seeder_from_tracked_file("key5", "192.168.1.3", 8082);
+    delete_seeder_from_tracked_file("key5", "192.168.1.3", 8082);
     assert(trackedFiles->seeder->n_peers == 0);
 }
 
 // Fonction de test pour supprimer un pair leecher d'un fichier suivi
-void test_remove_leecher_from_tracked_file() {
+void test_delete_leecher_from_tracked_file() {
     reset_tracked_files();
     // Ajouter un fichier avec un leecher
     add_tracked_file("file6.txt", 6000, 512, "key6");
@@ -73,20 +73,20 @@ void test_remove_leecher_from_tracked_file() {
     add_leecher_to_tracked_file("key6", "192.168.1.4", 8083);
     assert(trackedFiles->leecher->n_peers == 1);
     // Supprimer le leecher
-    remove_leecher_from_tracked_file("key6", "192.168.1.4", 8083);
+    delete_leecher_from_tracked_file("key6", "192.168.1.4", 8083);
     assert(trackedFiles->leecher->n_peers == 0);
 }
 
 void all_tests_files() {
     puts(YELLOW_TEXT("Testing files functions..."));
     test_add_tracked_file();
-    test_remove_tracked_file();
+    test_delete_tracked_file();
     test_add_seeder_to_tracked_file();
     test_add_leecher_to_tracked_file();
-    test_remove_seeder_from_tracked_file();
-    test_remove_leecher_from_tracked_file();
+    test_delete_seeder_from_tracked_file();
+    test_delete_leecher_from_tracked_file();
     reset_tracked_files();
-    remove_all_peers();
+    delete_all_peers();
     puts(GREEN_TEXT("All tests on files passed successfully!\n"));
 
 }

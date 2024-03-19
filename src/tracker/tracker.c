@@ -8,6 +8,7 @@ int server_socket;
 
 void quit() {
 
+    reset_tracked_files();
     remove_all_peers();
     remove_list(connectedPeers);
     remove_list(allPeers);
@@ -42,7 +43,6 @@ void handle_peer_connection(int socket, const char *ip, int port) {
         perror("Erreur lors de la réception de données");
     }
 
-    close(socket);
 }
 
 void accept_connections(int server_socket) {

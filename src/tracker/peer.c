@@ -73,11 +73,9 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     newPeer->listening_port = port;
     // Add the peer to the list
     peers->peers[peers->n_peers++] = newPeer;
-
-    // If the list is allPeers and the peer is not already there, add it
-    if (peers == allPeers && search_peer(allPeers, ip, port) == NULL) {
+    
+    if (peers != allPeers)
         allPeers->peers[allPeers->n_peers++] = newPeer;
-    }
 
     return newPeer;
 }
@@ -113,9 +111,6 @@ void remove_all_peers() {
 void remove_list(PeersList* peersList) {
     if (peersList == allPeers) 
         remove_all_peers();
-    else for (int i = 0; i < peersList->n_peers; i++) {
-        free(peersList->peers[i]);
-    }
     free(peersList);
 }
 

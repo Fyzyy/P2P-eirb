@@ -14,10 +14,10 @@ void test_add_seeder_to_tracked_file();
 void test_add_leecher_to_tracked_file();
 
 // Fonction de test pour supprimer un pair seeder d'un fichier suivi
-void test_remove_seeder_from_tracked_file();
+void test_delete_seeder_from_tracked_file();
 
 // Fonction de test pour supprimer un pair leecher d'un fichier suivi
-void test_remove_leecher_from_tracked_file();
+void test_delete_leecher_from_tracked_file();
 
 void all_tests_files();
 

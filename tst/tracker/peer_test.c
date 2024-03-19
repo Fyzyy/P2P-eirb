@@ -31,8 +31,8 @@ void test_new_peer() {
     PeersList* peers = create_peers_list();
     PeerInfo* peer1 = new_peer(peers, "192.168.0.1", 2222);
     assert(peer1 != NULL && "Failed to add peer.");
+    remove_peer(peer1);
     remove_list(peers);
-    remove_all_peers();
 }
 
 // Fonction de test pour la suppression d'un pair de la liste
@@ -41,7 +41,6 @@ void test_delete_peer_from_list() {
     new_peer(peers, "192.168.0.1", 2222);
     PeerInfo* deletedPeer = delete_peer_from_list(peers, "192.168.0.1", 2222);
     assert(deletedPeer != NULL && "Peer not found for deletion.");
-    free(deletedPeer);
     remove_list(peers);
     remove_all_peers();
 }
