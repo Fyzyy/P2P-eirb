@@ -3,7 +3,7 @@ import java.net.InetAddress;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import peer.Peer;
-import peer.SharedFile;
+// import peer.SharedFile;
 
 public class Main {
 
@@ -52,7 +52,7 @@ public class Main {
                 System.out.println("You are already connected\n");
             }
             
-            else if (newCommand.equalsIgnoreCase("tracker disconnect")){
+            else if (peer.getConnexionToTrackerStatus()== 1 && newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
                     peer.endConnection();
                     peer.setConnexionToTrackerStatus(0);
