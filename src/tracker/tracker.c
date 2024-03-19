@@ -1,15 +1,22 @@
-#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <pthread.h>
 #include "config.h"
 #include "parser.h"
 
 #define MAX_PEERS_CONNECTIONS 10
+
 char input[100];
 int server_socket;
 
 void quit() {
-
+    
     reset_tracked_files();
-    remove_all_peers();
     remove_list(connectedPeers);
     remove_list(allPeers);
     printf("exit tracker\n");
@@ -45,34 +52,60 @@ void handle_peer_connection(int socket, const char *ip, int port) {
 
 }
 
-void accept_connections(int server_socket) {
+void *handle_client(void *arg) {
+    int client_socket = *(int *)arg;
+    struct sockaddr_in client_address;
+    socklen_t client_address_len = sizeof(client_address);
+    char client_ip[INET_ADDRSTRLEN];
+
+    if (getpeername(client_socket, (struct sockaddr *)&client_address, &client_address_len) == -1) {
+        perror("Erreur lors de la récupération de l'adresse IP du client");
+        close(client_socket);
+        return NULL;
+    }
+
+    inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
+    printf("Connexion acceptée de %s:%d\n", client_ip, (int) ntohs(client_address.sin_port));
+    printf("connected peer : %d\n", connectedPeers->n_peers + 1);
+
+    handle_peer_connection(client_socket, client_ip, (int) ntohs(client_address.sin_port));
+    close(client_socket);
+    return NULL;
+}
+
+void* accept_connections() {
     struct sockaddr_in client_address;
     socklen_t client_address_len = sizeof(client_address);
 
+    while (1) {
         int client_socket;
-        char client_ip[INET_ADDRSTRLEN];
-
-        while (1) {
-
-            if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
-                perror("Erreur lors de l'acceptation de la connexion");
-                exit(EXIT_FAILURE);
-            }
-            inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
-            printf("Connexion acceptée de %s:%d\n", client_ip, (int) ntohs(client_address.sin_port));
-            printf("connected peer : %d\n", connectedPeers->n_peers + 1);
-
-            #pragma omp task firstprivate(client_socket, client_ip, client_address) shared(connectedPeers, allPeers, server_socket)
-            {
-                handle_peer_connection(client_socket, client_ip, (int) ntohs(client_address.sin_port));
-                close(client_socket);
-            }
+        if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
+            perror("Erreur lors de l'acceptation de la connexion");
+            exit(EXIT_FAILURE);
         }
 
+        pthread_t client_thread;
+        if (pthread_create(&client_thread, NULL, handle_client, &client_socket) != 0) {
+            perror("Erreur lors de la création du thread client");
+            close(client_socket);
+        }
+    }
+}
+
+void *handle_stdin() {
+    while (1) {
+        fgets(input, sizeof(input), stdin);
+        if (strncmp(input, "exit", 4) == 0)
+            quit();
+        if (strncmp(input, "files", 5) == 0)
+            display_tracked_files();
+        if (strncmp(input, "peers", 5) == 0)
+            display_peers(connectedPeers);
+    }
+    return NULL;
 }
 
 int main() {
-
     struct ServerConfig serverConfig;
     load_config("config.ini", &serverConfig);
 
@@ -104,36 +137,17 @@ int main() {
     printf("Serveur en attente de connexions sur le port %d...\n", serverConfig.port);
     puts("'peers' pour afficher la liste des pairs connectés :");
     puts("'files' pour afficher la liste des fichiers suivis :");
-
     puts("'exit' pour quitter le tracker :");
 
-    #pragma omp parallel
-    {
-        #pragma omp single
-        {
-            // Boucle principale
-            while (1) {
+    pthread_t stdin_thread;
+    pthread_t connections_thread;
 
-                #pragma omp task shared(input)
-                {
-                    while (1) {
-                        fgets(input, sizeof(input), stdin);
-                        if (strncmp(input, "exit", 4) == 0)
-                            quit();
-                        if (strncmp(input, "files", 5) == 0)
-                            display_tracked_files();
-                        if (strncmp(input, "peers", 5) == 0)
-                            display_peers(connectedPeers);
-                    }
-                }
+    pthread_create(&stdin_thread, NULL, handle_stdin, NULL);
+    pthread_create(&connections_thread, NULL, accept_connections, NULL);
 
-                accept_connections(server_socket);
-                fgets(input, sizeof(input), stdin);
-                if (strncmp(input, "exit", 4) == 0)
-                    quit();
-            }
-        }
-    }
+    pthread_join(stdin_thread, NULL);
+    pthread_join(connections_thread, NULL);
+
     quit();
 
     return 0;

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -fopenmp -I$(SRC_DIR) -g
+CFLAGS = -Wall -Wextra -fopenmp -pthread -I$(SRC_DIR) -g
 SRC_DIR = src/tracker
 TEST_DIR = tst/tracker
 SRC = config.c parser.c peer.c files.c response.c
