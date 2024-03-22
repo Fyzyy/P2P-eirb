@@ -1,8 +1,8 @@
 package peer;
 import java.io.DataOutputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 
@@ -15,16 +15,18 @@ public class Peer {
     private SharedFile[] files;
     private Socket socket;
     private DataOutputStream sender;
-    private BufferedReader reader;
+    private BufferedReader tReader;
     private int connectedToTracker = 0;
+    private Listener listener;
     
     //fichiers disponibles (Hashmap ?)
 
-    public Peer(InetAddress IpAddress, int portNumber, InetAddress trackerIpAddress, int trackerPortNumber) {
+    public Peer(InetAddress IpAddress, int portNumber, InetAddress trackerIpAddress, int trackerPortNumber) throws IOException {
         this.trackerIpAdress = trackerIpAddress;
-        this.portNumber = portNumber;
         this.IpAdress = IpAddress;
         this.trackerPortNumber = trackerPortNumber;
+        this.portNumber = portNumber;
+        listener = new Listener(this.portNumber);
     }
 
     // Utilisation d'une méthode séparée pour établir la connexion avec le tracker
@@ -43,7 +45,8 @@ public class Peer {
             socket = new Socket(trackerIpAdress, trackerPortNumber);
             System.out.println("Connection to tracker succesful\n");
             sender = new DataOutputStream(this.socket.getOutputStream());
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            tReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.listener.start();
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;
@@ -56,7 +59,7 @@ public class Peer {
             sender.write(bytes);
             sender.flush();
             try {
-                System.out.println(reader.readLine());
+                System.out.println(tReader.readLine());
             } catch (IOException e) {
                 System.out.println("Cannot read message");
                 throw e;
@@ -71,9 +74,10 @@ public class Peer {
         System.out.println(this.socket);
     }
 
-    public void endConnection() throws IOException{
-        sender.close();
+    public void endTrackerConnection() throws IOException{
+        this.sender.close();
         this.socket.close();
+        this.tReader.close();
     }
     
     public void init() {

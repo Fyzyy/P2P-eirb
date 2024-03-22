@@ -14,7 +14,7 @@ import peer.Peer;
 public class TestPeer {
 
     @Test
-    void testErreurConnexion() throws UnknownHostException {
+    void testErreurConnexion() throws UnknownHostException, IOException {
         Peer p = new Peer(InetAddress.getByName("127.0.0.2"), 7, InetAddress.getByName("127.14.21.12"), 493);
         try {
             p.connectToTracker();
