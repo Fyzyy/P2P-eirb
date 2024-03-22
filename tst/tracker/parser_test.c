@@ -23,7 +23,7 @@ void test_announce() {
 
     char buffer[] = "announce listen 2222 seed [file1 100 10 1234567890 file2 200 20 0987654321] leech [file1 file2]\n";
     enum tokens result = parsing(buffer, res);
-    assert(result == ERROR);
+    assert(result == OK);
 
     clean();
     free(res);

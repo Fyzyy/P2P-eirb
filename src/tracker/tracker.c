@@ -40,6 +40,7 @@ void handle_peer_connection(int socket, const char *ip, int port) {
         send(socket, res->message, strlen(res->message), 0);
         //TODO envoyer la réponse
         free(res);
+        sched_yield();
     }
 
     if (bytes_received == 0) {
@@ -89,6 +90,9 @@ void* accept_connections() {
             perror("Erreur lors de la création du thread client");
             close(client_socket);
         }
+        else {
+            pthread_detach(client_thread);
+        }
     }
 }
 
@@ -100,7 +104,7 @@ void *handle_stdin() {
         if (strncmp(input, "files", 5) == 0)
             display_tracked_files();
         if (strncmp(input, "peers", 5) == 0)
-            display_peers(connectedPeers);
+            display_connected_peer_info();
     }
     return NULL;
 }
