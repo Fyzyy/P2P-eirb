@@ -24,7 +24,7 @@ public class Main {
         InetAddress addrTracker = InetAddress.getByName("127.0.0.1");
         
         // Peer creation
-        Peer peer = new Peer(addrPeer, 8080, addrTracker, 8080);
+        Peer peer = new Peer(addrPeer, 5050, addrTracker, 8080);
         System.out.println("Type  message to send ('help' to get details, 'exit' to quit) :");
         
         while(true){
@@ -33,7 +33,7 @@ public class Main {
             // Vérifie si l'utilisateur souhaite quitter
             if (newCommand.equalsIgnoreCase("exit")) {
                 if (peer.getConnexionToTrackerStatus()==1){
-                    peer.endConnection();
+                    peer.endTrackerConnection();
                 }
                 break;
             }
@@ -54,7 +54,7 @@ public class Main {
             
             else if (peer.getConnexionToTrackerStatus()== 1 && newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
-                    peer.endConnection();
+                    peer.endTrackerConnection();
                     peer.setConnexionToTrackerStatus(0);
                     System.out.println("Deconnection succesful\n");
                 } catch (IOException e) {
