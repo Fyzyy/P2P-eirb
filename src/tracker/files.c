@@ -16,10 +16,7 @@ void add_tracked_file(const char* filename, int length, int pieceSize, const cha
         newFile->key[MAX_KEY_LENGTH - 1] = '\0';
 
         newFile->seeder = create_peers_list();
-        newFile->leecher = create_peers_list();
-        newFile->seeder->n_peers = 0;
-        newFile->leecher->n_peers = 0;
-        
+        newFile->leecher = create_peers_list();       
  
         newFile->next = trackedFiles;
 
@@ -127,9 +124,9 @@ void display_peers_for_tracked_file(const char* key) {
 void display_tracked_files() {
     FileInfo* current = trackedFiles;
     while (current != NULL) {
-        printf("\nFile: %s |", current->filename);
-        printf("Key: %s |", current->key);
-        printf("Length: %d |", current->length);
+        printf("\nFile: %s | ", current->filename);
+        printf("Key: %s | ", current->key);
+        printf("Length: %d | ", current->length);
         printf("Piece size: %d \n", current->pieceSize);
         current = current->next;
     }
