@@ -26,8 +26,10 @@ void add_tracked_file(const char* filename, int length, int pieceSize, const cha
 
 // Fonction pour rechercher un fichier dans la liste des fichiers suivis
 FileInfo* search_tracked_file(const char* key) {
+    printf("key: %s\n", key);
     FileInfo* current = trackedFiles;
     while (current != NULL) {
+        printf("c_key: %s\n", current->key);
         if (strcmp(current->key, key) == 0) {
             return current;
         }

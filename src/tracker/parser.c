@@ -178,7 +178,7 @@ enum tokens look(response* res) {
 /*********** GETFILE ********************/
 
 enum tokens getfile(response* res) {
-    char* key = strtok(NULL, " "); // file key
+    char* key = strtok(NULL, " \n\t\r"); // file key
     if (key == NULL) {
         strcpy(res->message, "Usage: getfile $key\n");
         return ERROR;
@@ -194,7 +194,7 @@ enum tokens getfile(response* res) {
     else {
         res->token = PEERS;
         char message[MAX_BUFFER_SIZE];
-        sprintf(message, "peers %s %s\n", file->key, PeersList_to_string(file->seeder));
+        sprintf(message, "peers %s [%s]\n", file->key, PeersList_to_string(file->seeder));
         strcpy(res->message, message);
     }
 
@@ -205,32 +205,26 @@ enum tokens getfile(response* res) {
 
 enum tokens seed_key(response* res) {
 
+    char* key = strtok(NULL, " []\r\n");
 
-    // Aller à la partie de la liste de keys
-    char* keys = strtok(NULL, " []\r\n");
-
-    if (keys != NULL && strcmp(keys, "leech") != 0) {
-        printf("Peer seeding key:\n");
-    }
-
-    while (keys != NULL && strcmp(keys, "leech") != 0) {
-        printf("Seed Key: %s\n", keys);
-        keys = strtok(NULL, " ]");  
-        FileInfo* file = search_tracked_file(keys);
-        if (file != NULL)
-        {
-            add_seeder_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
+    while (key != NULL) {
+        if (strcmp(key, "leech") == 0) {
+            return LEECH;
         }
-        else if (file == NULL)
-        {
+
+        printf("Seed Key: %s\n", key);  
+        FileInfo* file = search_tracked_file(key);
+
+        if (file == NULL) {
             res->token = ERROR;
             strcpy(res->message, "Erreur : Fichier non trouvé.\n");
             return ERROR;
-        }  
-    }
+        }
 
-    if (keys != NULL && strcmp(keys, "leech") == 0) {
-        return LEECH;
+        add_seeder_to_tracked_file(key, res->peer->ip_address, res->peer->port);
+        printf("Key: %s found and added\n", key);
+
+        key = strtok(NULL, " []\r\n");
     }
 
     res->token = OK;
