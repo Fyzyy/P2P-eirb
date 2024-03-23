@@ -161,17 +161,34 @@ enum tokens look(response* res) {
         filename += strlen("filename=");
         filename = strtok(strncpy(temp_copy, filename, strlen(filename)), "\"");
         printf("Matching files for filename '%s':\n", filename);
-        search_tracked_file(filename);
     }
 
-    char* filesize = strstr(tokens, "filesize>");
+
+    char temp_copy2[256];
+    char operator = 0;
+    int size = -1;
+    char* filesize = strstr(tokens, "filesize");
     if (filesize != NULL) {
-        filesize += strlen("filesize>");
-        filesize = strtok(strncpy(temp_copy, filesize, strlen(filesize)), "\"");
-        printf("Matching files for filesize > %d:\n", atoi(filesize));
+        filesize += strlen("filesize");
+        operator = *(filesize);
+        filesize += 1;
+        filesize = strtok(strncpy(temp_copy2, filesize, strlen(filesize)), "\"");
+        printf("Matching files for filesize %c %d:\n", operator, atoi(filesize));
+        size = atoi(filesize);
     }
-    
-    //TODO
+
+    printf("Matching files for filename %s and filesize %c %d:\n", filename, operator, size);
+
+    FileInfo* file = look_file(filename, size, operator);
+    if (file == NULL) {
+        res->token = ERROR;
+        strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+        return ERROR;
+    }
+
+    char message[MAX_BUFFER_SIZE];
+    sprintf(message, "list [%s %d %d %s]\n", file->filename, file->length, file->pieceSize, file->key);
+    strcpy(res->message, message);
     return LIST;
 }
 
@@ -194,8 +211,10 @@ enum tokens getfile(response* res) {
     else {
         res->token = PEERS;
         char message[MAX_BUFFER_SIZE];
-        sprintf(message, "peers %s [%s]\n", file->key, PeersList_to_string(file->seeder));
+        char* peers_list = PeersList_to_string(file->seeder);
+        sprintf(message, "peers %s [%s]\n", file->key, peers_list);
         strcpy(res->message, message);
+        free(peers_list);
     }
 
     return PEERS;

@@ -28,6 +28,8 @@ void remove_tracked_file(const char* key);
 // Recherche un fichier dans la liste des fichiers suivis
 FileInfo* search_tracked_file(const char* key);
 
+FileInfo* look_file(const char* filename, int file_length, char operator);
+
 // Ajoute un pair seeder à un fichier suivi
 int add_seeder_to_tracked_file(const char* key, const char* ip, int port);
 

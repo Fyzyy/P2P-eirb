@@ -36,6 +36,42 @@ FileInfo* search_tracked_file(const char* key) {
     return NULL;
 }
 
+FileInfo* look_file(const char* filename, int file_length, char operator) {
+    FileInfo* current = trackedFiles;
+    
+    while (current != NULL) {
+        if (strcmp(current->filename, filename) == 0) {
+            if (file_length != -1) {
+                switch (operator) {
+                    case '<':
+                        if (current->length < file_length) {
+                            return current;
+                        }
+                        break;
+                    case '>':
+                        if (current->length > file_length) {
+                            return current;
+                        }
+                        break;
+                    case '=':
+                        if (current->length == file_length) {
+                            return current;
+                        }
+                        break;
+                    default:
+                        printf("Invalid operator\n");
+                        return NULL;
+                }
+            } else {
+                return current;
+            }
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+
 void remove_tracked_file(const char* key) {
     FileInfo* current = trackedFiles;
     FileInfo* previous = NULL;
