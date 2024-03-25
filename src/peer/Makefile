@@ -5,12 +5,12 @@ SRC_REPO := .
 TEST_REPO := tst
 PACKAGE_REPO := build/peer
 
-all: exec
+all: compile
 
 compile:
 	$(COMPIL) $(SRC_REPO)/*.java
 
-exec: compile
+run: compile
 	$(EXEC) $(BUILD_REPO) Main
 
 clean:
