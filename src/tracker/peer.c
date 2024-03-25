@@ -138,9 +138,11 @@ char* PeersList_to_string(PeersList* peers) {
     }
 
     // Concatenate peer strings
-    for (int i = 0; i < peers->n_peers; i++) {
-        snprintf(str + strlen(str), totalSize, "\n%s:%d\n", peers->peers[i]->ip_address, peers->peers[i]->port);
+    for (int i = 0; i < peers->n_peers-1; i++) {
+        snprintf(str + strlen(str), totalSize, "%s:%d ", peers->peers[i]->ip_address, peers->peers[i]->port);
     }
+    //remove last space
+    snprintf(str + strlen(str), totalSize, "%s:%d", peers->peers[peers->n_peers-1]->ip_address, peers->peers[peers->n_peers-1]->port);
 
     return str;
 }
