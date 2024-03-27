@@ -79,6 +79,11 @@ public class Peer {
         this.socket.close();
         this.tReader.close();
     }
+
+    public void exit() throws IOException{
+        listener.endListening();
+        endTrackerConnection();
+    }
     
     public void init() {
         //charger fichier config;

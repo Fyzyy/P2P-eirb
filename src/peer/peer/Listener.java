@@ -20,8 +20,9 @@ public class Listener extends Thread {
     }
 
     public void startListening() throws IOException {
+        System.out.println("coucou");
         ServerSocket tmpSocket = new ServerSocket(this.portNumber);
-        this.serverSocket = tmpSocket.accept();
+        this.serverSocket = tmpSocket.accept(); // --> Bloque ICI
         this.iStream = this.serverSocket.getInputStream();
         this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
         tmpSocket.close();
@@ -43,9 +44,12 @@ public class Listener extends Thread {
     }
 
     public void endListening() throws IOException {
-        this.serverSocket.close();
-        this.iStream.close();
-        this.pReader.close();
+        exit = true;
+        if (serverSocket != null && iStream != null && pReader != null){    
+            this.serverSocket.close();
+            this.iStream.close();
+            this.pReader.close();
+        }
     }
 
 }
