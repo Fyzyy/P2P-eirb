@@ -6,25 +6,29 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <errno.h>
 #include "config.h"
 #include "parser.h"
 
 #define MAX_PEERS_CONNECTIONS 10
+#define NUM_THREADS 5 // Nombre de threads dans le pool
 
 char input[100];
 int server_socket;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void quit() {
-    
+    // Mettre en place vos opérations de nettoyage ici
     reset_tracked_files();
     remove_list(connectedPeers);
     remove_list(allPeers);
-    printf("exit tracker\n");
+    printf("Sortie du tracker\n");
     close(server_socket);
     exit(EXIT_SUCCESS);
 }
 
-void handle_peer_connection(int socket, const char *ip, int port) {
+void handle_data(int socket, const char *ip, int port) {
     char buffer[MAX_BUFFER_SIZE];
     ssize_t bytes_received;
     
@@ -46,57 +50,43 @@ void handle_peer_connection(int socket, const char *ip, int port) {
     if (bytes_received == 0) {
         printf("%s:%d déconnecté.\n", ip, port);
         delete_peer_from_list(connectedPeers, ip, port);
-        printf("connected peer : %d\n", connectedPeers->n_peers);
+        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
     } else if (bytes_received == -1) {
         perror("Erreur lors de la réception de données");
     }
 
+    pthread_exit(NULL);
+
 }
 
-void *handle_client(void *arg) {
-    int client_socket = *(int *)arg;
-    struct sockaddr_in client_address;
-    socklen_t client_address_len = sizeof(client_address);
-    char client_ip[INET_ADDRSTRLEN];
+void *handle_client(void *unused) {
+    while (1) {
+        int client_socket;
+        struct sockaddr_in client_address;
+        socklen_t client_address_len = sizeof(client_address);
+        char client_ip[INET_ADDRSTRLEN];
 
-    if (getpeername(client_socket, (struct sockaddr *)&client_address, &client_address_len) == -1) {
-        perror("Erreur lors de la récupération de l'adresse IP du client");
+        pthread_mutex_lock(&mutex);
+        while ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
+            if (errno != EINTR) {
+                perror("Erreur lors de l'acceptation de la connexion");
+                pthread_mutex_unlock(&mutex);
+                pthread_exit(NULL);
+            }
+        }
+        pthread_mutex_unlock(&mutex);
+
+        inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
+        printf("Connexion acceptée de %s:%d\n", client_ip, (int) ntohs(client_address.sin_port));
+        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers + 1);
+
+        handle_data(client_socket, client_ip, (int) ntohs(client_address.sin_port));
         close(client_socket);
-        return NULL;
     }
-
-    inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
-    printf("Connexion acceptée de %s:%d\n", client_ip, (int) ntohs(client_address.sin_port));
-    printf("connected peer : %d\n", connectedPeers->n_peers + 1);
-
-    handle_peer_connection(client_socket, client_ip, (int) ntohs(client_address.sin_port));
-    close(client_socket);
     return NULL;
 }
 
-void* accept_connections() {
-    struct sockaddr_in client_address;
-    socklen_t client_address_len = sizeof(client_address);
-
-    while (1) {
-        int client_socket;
-        if ((client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len)) == -1) {
-            perror("Erreur lors de l'acceptation de la connexion");
-            exit(EXIT_FAILURE);
-        }
-
-        pthread_t client_thread;
-        if (pthread_create(&client_thread, NULL, handle_client, &client_socket) != 0) {
-            perror("Erreur lors de la création du thread client");
-            close(client_socket);
-        }
-        else {
-            pthread_detach(client_thread);
-        }
-    }
-}
-
-void *handle_stdin() {
+void *handle_stdin(void *unused) {
     while (1) {
         fgets(input, sizeof(input), stdin);
         if (strncmp(input, "exit", 4) == 0)
@@ -144,14 +134,20 @@ int main() {
     puts("'exit' pour quitter le tracker :");
 
     pthread_t stdin_thread;
-    pthread_t connections_thread;
+    pthread_t thread_pool[NUM_THREADS];
 
+    // Créer le thread pour gérer l'entrée standard
     pthread_create(&stdin_thread, NULL, handle_stdin, NULL);
-    pthread_create(&connections_thread, NULL, accept_connections, NULL);
 
+    // Créer le pool de threads pour gérer les connexions entrantes
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        pthread_create(&thread_pool[i], NULL, handle_client, NULL);
+    }
+
+    // Attendre la fin du thread gérant l'entrée standard
     pthread_join(stdin_thread, NULL);
-    pthread_join(connections_thread, NULL);
 
+    // Nettoyer et quitter
     quit();
 
     return 0;

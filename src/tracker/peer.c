@@ -124,6 +124,10 @@ char* PeersList_to_string(PeersList* peers) {
     }
     str[0] = '\0';
 
+    if (peers->n_peers == 0) {
+        return str;
+    }
+    
     // Calculate the total size needed for all peer strings
     size_t totalSize = 0;
     for (int i = 0; i < peers->n_peers; i++) {
