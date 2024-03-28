@@ -136,18 +136,16 @@ int main() {
     pthread_t stdin_thread;
     pthread_t thread_pool[NUM_THREADS];
 
-    // Créer le thread pour gérer l'entrée standard
+
     pthread_create(&stdin_thread, NULL, handle_stdin, NULL);
 
-    // Créer le pool de threads pour gérer les connexions entrantes
+
     for (int i = 0; i < NUM_THREADS; ++i) {
         pthread_create(&thread_pool[i], NULL, handle_client, NULL);
     }
 
-    // Attendre la fin du thread gérant l'entrée standard
     pthread_join(stdin_thread, NULL);
 
-    // Nettoyer et quitter
     quit();
 
     return 0;
