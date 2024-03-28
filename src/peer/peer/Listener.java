@@ -6,11 +6,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class Listener extends Thread {
 
     private int portNumber;
-    private Socket serverSocket;
+    private ServerSocket serverSocket;
     private InputStream iStream;
     private BufferedReader pReader;
     private boolean exit = false;
@@ -18,25 +19,26 @@ public class Listener extends Thread {
     public Listener(int portNumber) throws IOException {
         this.portNumber = portNumber;
     }
-
-    public void startListening() throws IOException {
-        System.out.println("coucou");
-        ServerSocket tmpSocket = new ServerSocket(this.portNumber);
-        this.serverSocket = tmpSocket.accept(); // --> Bloque ICI
-        this.iStream = this.serverSocket.getInputStream();
-        this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
-        tmpSocket.close();
-    }
     
     public void run() {
         try {
-            this.startListening();
+            serverSocket = new ServerSocket(this.portNumber);
+            serverSocket.setSoTimeout(1000);
             while (!exit) {
-                String s = this.pReader.readLine();
-                System.out.println(s);
-                // TODO parsing
+                try {
+                    Socket tmpSocket = this.serverSocket.accept();
+                    System.out.println("coucou");
+                    this.iStream = tmpSocket.getInputStream();
+                    this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
+                    String s = this.pReader.readLine();
+                    System.out.println(s);
+                    // TODO parsing
+                    tmpSocket.close();
+                } catch (SocketTimeoutException e) {
+                    // Exception lancée lorsqu'aucune connexion entrante n'est reçue dans le délai spécifié
+                    // Cela permet de vérifier périodiquement si exit est toujours false
+                }
             }
-            this.endListening();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -45,11 +47,7 @@ public class Listener extends Thread {
 
     public void endListening() throws IOException {
         exit = true;
-        if (serverSocket != null && iStream != null && pReader != null){    
-            this.serverSocket.close();
-            this.iStream.close();
-            this.pReader.close();
-        }
+        System.out.println("End Listening");
     }
 
 }
