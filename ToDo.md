@@ -20,7 +20,12 @@ Langage: JS?
 
 ## Infos
 
-Un fichier possède une clef unique calculable à l'aide d'outils style md5 qu'il faudra intégrer au système
+- Un fichier possède une clef unique calculable à l'aide d'outils style md5 qu'il faudra intégrer au système
+- si un message est mal formaté la connexion doit se fermer au bout de 3 tentatives d’erreur de suite.
+- la connexion TCP ne doit pas se fermer à chaque réception de message.
+- ChatGPT ou autre LLM sont autorisés pour trouver des bouts de code principalement sur le parsing des commandes. Un référencement approprié est demandé. De même, un retour d'expérience tracé dans le rapport intermédiaire ou finale est demandé.
+- suppression de la partie distribuée et de blockchain. Ce projet se concentre seulement sur la partie centralisée.
+- Pour chaque fichier en cours de téléchargement, il est nécessaire de stocker un manifest (fichier metadata) qui sauvegarde l’état de téléchargement dont la clé du fichier, la taille d’une pièce, etc.
 
 ## TODO
 
@@ -29,8 +34,7 @@ Un fichier possède une clef unique calculable à l'aide d'outils style md5 qu'i
 - Echanger des infos entre clients
 - Interface graphique du serveur et du client
 - Finir tests client
-
-- Changer en une pool de pthreads pour éviter le DDOS
 - Automate?
 - Attention aux readLine au niveau client
-- Fix exit client
+- Pool de threads pour Peer
+- Mettre en asynchrone
