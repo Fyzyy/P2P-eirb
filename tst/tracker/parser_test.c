@@ -91,6 +91,8 @@ void test_look() {
     PeerInfo* peer = new_peer(NULL,"192.168.0.1",2222);
     response* res = create_response(peer);
 
+    add_tracked_file("foo", 101, 1, "key1");
+
     char buffer[] = "look [filename=\"foo\" filesize>\"100\"]\n";
     enum tokens result = parsing(buffer, res);
     assert(result == LIST);

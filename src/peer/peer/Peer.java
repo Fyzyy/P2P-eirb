@@ -80,8 +80,12 @@ public class Peer {
         this.tReader.close();
     }
 
-    public void exit() throws IOException{
+    public void endListener() throws IOException{
         listener.endListening();
+    }
+
+    public void exit() throws IOException{
+        endListener();
         endTrackerConnection();
     }
     
