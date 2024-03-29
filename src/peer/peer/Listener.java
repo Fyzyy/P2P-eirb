@@ -24,6 +24,7 @@ public class Listener extends Thread {
         try {
             serverSocket = new ServerSocket(this.portNumber);
             serverSocket.setSoTimeout(1000);
+            System.out.println("Start Listening for Peers...");
             while (!exit) {
                 try {
                     Socket tmpSocket = this.serverSocket.accept();
