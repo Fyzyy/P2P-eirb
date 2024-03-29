@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head> 
+    <title>Announce your presence to the Tracker</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<h1>Show me what you got</h1>
+    <form action="#" th:action="@{/announce}" th:object="${announce}" method="post">
+    	<p>Port <input type="text" th:field="*{port}" /></p>
+        <p>File name: <input type="text" th:field="*{filename}" /></p>
+        <p>Length: <input type="text" th:field="*{length}" /></p>
+        <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+    </form>
+</body>
+</html>

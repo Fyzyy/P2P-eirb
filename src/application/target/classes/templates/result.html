@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head> 
+    <title>Announce your presence to the Tracker</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<h1>Result</h1>
+    <p th:text="'Port: ' + ${announce.port}" />
+    <p th:text="'File name: ' + ${announce.filename}" />
+    <p th:text="'Length: ' + ${announce.length}" />
+    <a href="/announce">Announce someone else</a>
+</body>
+</html>
