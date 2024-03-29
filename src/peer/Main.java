@@ -35,6 +35,9 @@ public class Main {
                 if (peer.getConnexionToTrackerStatus()==1){
                     peer.exit();
                 }
+                else{
+                    peer.endListener();
+                }
                 break;
             }
             
@@ -54,10 +57,10 @@ public class Main {
             
             else if (peer.getConnexionToTrackerStatus()== 1 && newCommand.equalsIgnoreCase("tracker disconnect")){
                 try {
-                    peer.endTrackerConnection();
+                    // peer.endTrackerConnection();
                     peer.setConnexionToTrackerStatus(0);
                     System.out.println("Deconnection succesful\n");
-                } catch (IOException e) {
+                } catch (Exception e) {
                     return;
                 }
             }
