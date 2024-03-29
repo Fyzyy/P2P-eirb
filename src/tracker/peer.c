@@ -71,6 +71,7 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     strncpy(newPeer->ip_address, ip, INET_ADDRSTRLEN);
     newPeer->port = port;
     newPeer->listening_port = port;
+    newPeer->socket = -1;
     // Add the peer to the list
     peers->peers[peers->n_peers++] = newPeer;
     

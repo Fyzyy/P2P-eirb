@@ -14,6 +14,7 @@ typedef struct {
     char ip_address[INET_ADDRSTRLEN];
     int port;
     int listening_port;
+    int socket;
 } PeerInfo;
 
 typedef struct {
