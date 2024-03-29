@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 public class Listener extends Thread {
 
     private int portNumber;
+    private Socket tmpSocket;
     private ServerSocket serverSocket;
     private InputStream iStream;
     private BufferedReader pReader;
@@ -30,7 +31,7 @@ public class Listener extends Thread {
         while (!exit) {
             try {
                 serverSocket.setSoTimeout(2000);
-                Socket tmpSocket = this.serverSocket.accept();
+                this.tmpSocket = this.serverSocket.accept();
                 System.out.println("Extern Peer connected");
                 String s = "";
                 while (s!=null) {
@@ -55,6 +56,8 @@ public class Listener extends Thread {
 
     public void endListening() throws IOException {
         exit = true;
+        this.tmpSocket.close();
+        this.serverSocket.close();
         System.out.println("End Listening");
     }
 
