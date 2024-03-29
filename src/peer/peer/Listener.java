@@ -21,29 +21,36 @@ public class Listener extends Thread {
     }
     
     public void run() {
-        try {
+        System.out.println("Start Listening for Peers...");
+        try{
             serverSocket = new ServerSocket(this.portNumber);
-            serverSocket.setSoTimeout(1000);
-            System.out.println("Start Listening for Peers...");
-            while (!exit) {
-                try {
-                    Socket tmpSocket = this.serverSocket.accept();
-                    System.out.println("coucou");
-                    this.iStream = tmpSocket.getInputStream();
-                    this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
-                    String s = this.pReader.readLine();
-                    System.out.println(s);
-                    // TODO parsing
-                    tmpSocket.close();
-                } catch (SocketTimeoutException e) {
-                    // Exception lancée lorsqu'aucune connexion entrante n'est reçue dans le délai spécifié
-                    // Cela permet de vérifier périodiquement si exit est toujours false
-                }
-            }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        
+        while (!exit) {
+            try {
+                serverSocket.setSoTimeout(2000);
+                Socket tmpSocket = this.serverSocket.accept();
+                System.out.println("Extern Peer connected");
+                String s = "";
+                while (s!=null) {
+                    this.iStream = tmpSocket.getInputStream();
+                    this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
+                    s = this.pReader.readLine();
+                    if (s == null){
+                        break;
+                    }
+                    System.out.println(s);
+                }
+                // TODO parsing                
+                System.out.println("Connection closed");
+                tmpSocket.close();
+            }
+            catch (IOException e) {
+                // System.out.println(e.getMessage());
+            }
+        } 
+        System.out.println("The END");
     }
 
     public void endListening() throws IOException {
