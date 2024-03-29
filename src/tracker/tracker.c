@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include <errno.h>
+#include <sys/select.h>
 #include "config.h"
 #include "parser.h"
 #include "thpool.h"
@@ -15,7 +16,7 @@
 #define NB_THREADS 5
 
 typedef struct args_data {
-    char* buffer;
+    char buffer[MAX_BUFFER_SIZE];
     PeerInfo* peer;
 }args_data;
 
@@ -42,41 +43,64 @@ void parse_and_response(void* args) {
     parsing(buffer, res);
     send(peer->socket, res->message, strlen(res->message), 0);
     free(res);
+    free(data);
 
 }
 
-
 void* handle_data() {
-
     while (1) {
+        fd_set readfds;
+        int max_fd = 0;
+
+        FD_ZERO(&readfds);
+
         for (int i = 0; i < connectedPeers->n_peers; i++) {
-            char buffer[MAX_BUFFER_SIZE];
-            ssize_t bytes_received;
+            int sockfd = connectedPeers->peers[i]->socket;
+            FD_SET(sockfd, &readfds);
 
-            PeerInfo* peer = connectedPeers->peers[i];
-            bytes_received = recv(peer->socket, buffer, sizeof(buffer), 0);
-
-            if (bytes_received > 0) {
-                args_data* args = (args_data*) malloc(sizeof(args_data));
-                args->peer = peer;
-                buffer[bytes_received] = '\0';
-                args->buffer = buffer;
-                thpool_add_work(thpool, parse_and_response, (void*) args);
-                free(args);
-            }
-            else if (bytes_received == 0) {
-                printf("%s:%d déconnecté.\n", peer->ip_address, peer->port);
-                delete_peer_from_list(connectedPeers, peer->ip_address, peer->port);
-                close(peer->socket);
-                printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
-            }
-            else if (bytes_received == -1) {
-                perror("Erreur lors de la réception de données");
+            if (sockfd > max_fd) {
+                max_fd = sockfd;
             }
         }
 
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 1000;  // Timeout de 1 milliseconde
+
+        int activity = select(max_fd + 1, &readfds, NULL, NULL, &timeout);
+
+        if (activity < 0) {
+            perror("Erreur lors de l'utilisation de select");
+            continue;
+        }
+
+        for (int i = 0; i < connectedPeers->n_peers; i++) {
+            int sockfd = connectedPeers->peers[i]->socket;
+
+            if (FD_ISSET(sockfd, &readfds)) {
+                ssize_t bytes_received;
+                char buffer[MAX_BUFFER_SIZE];
+                bytes_received = recv(sockfd, buffer, sizeof(buffer), 0);
+
+                if (bytes_received > 0) {
+                    args_data* args = (args_data*) malloc(sizeof(args_data));
+                    strcpy(args->buffer, buffer);
+                    args->peer = connectedPeers->peers[i];
+                    args->buffer[bytes_received] = '\0';
+                    thpool_add_work(thpool, parse_and_response, (void*) args);
+                } else if (bytes_received == 0) {
+                    printf("%s:%d déconnecté.\n", connectedPeers->peers[i]->ip_address, connectedPeers->peers[i]->port);
+                    delete_peer_from_list(connectedPeers, connectedPeers->peers[i]->ip_address, connectedPeers->peers[i]->port);
+                    close(sockfd);
+                    printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
+                } else if (bytes_received == -1) {
+                    perror("Erreur lors de la réception de données");
+                }
+            }
+        }
     }
 }
+
 
 void* handle_client() {
     while (1) {
@@ -91,21 +115,20 @@ void* handle_client() {
         
         inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
         port = (int) ntohs(client_address.sin_port);
-        printf("Connexion acceptée de %s:%d\n", client_ip, port);
-        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers + 1);
 
         PeerInfo* peer = new_peer(connectedPeers, client_ip, port);
         peer->socket = client_socket;
+
+        printf("Connexion acceptée de %s:%d\n", client_ip, port);
+        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
     }
 }
 
 void* handle_stdin() {
     while (1) {
         fgets(input, sizeof(input), stdin);
-        if (strncmp(input, "exit", 4) == 0) {
-            thpool_destroy(thpool);
-            quit();
-        }
+        if (strncmp(input, "exit", 4) == 0)
+            pthread_exit(NULL);
         if (strncmp(input, "files", 5) == 0)
             display_tracked_files();
         if (strncmp(input, "peers", 5) == 0)
@@ -156,6 +179,8 @@ int main() {
 
     pthread_join(input, NULL);
 
+    pthread_cancel(client);
+    pthread_cancel(data);
     thpool_destroy(thpool);    
 
 
