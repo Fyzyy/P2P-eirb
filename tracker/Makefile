@@ -13,7 +13,7 @@ DIST_DIR = dist
 EXEC = $(DIST_DIR)/tracker
 TEST_EXEC = $(DIST_DIR)/test
 
-all: $(DIST_DIR) $(OBJ_DIR) $(OBJ_DIR) $(EXEC) $(TEST_EXEC)
+all: $(DIST_DIR) $(OBJ_DIR) $(EXEC) $(TEST_EXEC)
 
 $(DIST_DIR) $(OBJ_DIR):
 	mkdir -p $@
@@ -27,14 +27,14 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 $(TEST_EXEC): $(TST_OBJ) $(OBJ)
 	$(CC) $(CFLAGS) $(TEST_DIR)/$(TRACKER_TEST) $^ -o $@
 
-$(TST_OBJ_DIR)/%.o: $(TEST_DIR)/%.c
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: $(TEST_EXEC)
 	./$(TEST_EXEC)
 
 clean:
-	rm -rf $(OBJ_DIR) $(TST_OBJ_DIR) $(DIST_DIR)
+	rm -rf $(OBJ_DIR) $(DIST_DIR)
 
 run: $(EXEC)
 	./$(EXEC)
