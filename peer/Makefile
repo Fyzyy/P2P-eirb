@@ -27,6 +27,6 @@ clean:
 
 # Exécution
 run: compile
-	$(JAVA) Main
+	$(JAVA) src.Main
 
 .PHONY: all compile clean run
