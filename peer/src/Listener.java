@@ -1,4 +1,4 @@
-package peer;
+package src;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+
+import src.Parser;
 
 public class Listener extends Thread {
 
@@ -43,7 +45,9 @@ public class Listener extends Thread {
                     }
                     System.out.println(s);
                 }
-                // TODO parsing                
+
+                Parser.parsePeerCommand(s);
+                            
                 System.out.println("Connection closed");
                 tmpSocket.close();
             }
@@ -56,7 +60,9 @@ public class Listener extends Thread {
 
     public void endListening() throws IOException {
         exit = true;
-        this.tmpSocket.close();
+        if (this.tmpSocket != null) {
+            this.tmpSocket.close();
+        }
         this.serverSocket.close();
         System.out.println("End Listening");
     }

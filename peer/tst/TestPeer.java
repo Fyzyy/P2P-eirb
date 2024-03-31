@@ -1,4 +1,4 @@
-package test;
+package tst;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 import org.junit.jupiter.api.Test;
 
-import peer.Peer;
+import src.Peer;
 
 
 public class TestPeer {

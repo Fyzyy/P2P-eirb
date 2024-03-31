@@ -1,15 +1,20 @@
+package src;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import peer.Peer;
 
 public class Main {
 
     private static final String TRACKER_CONNECT_COMMAND = "tracker connect";
     private static final String TRACKER_DISCONNECT_COMMAND = "tracker disconnect";
+    
     private static final String HELP_COMMAND = "help";
     private static final String EXIT_COMMAND = "exit";
+
+    private static final String CONNECT_COMMAND = "connect";
+    private static final String DISCONNECT_COMMAND = "disconnect";
+
 
     private static Peer peer;
 
@@ -54,7 +59,7 @@ public class Main {
         } else if (command.equalsIgnoreCase(HELP_COMMAND)) {
             System.out.println("To connect to tracker, type tracker connect");
             System.out.println("To disconnect from tracker, type tracker disconnect\n");
-        } else {
+        }  else {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 sendMessageToTracker(command);
             } else {

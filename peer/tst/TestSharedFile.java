@@ -1,6 +1,4 @@
-package test;
-
-import peer.SharedFile;
+package tst;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,6 +6,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import org.junit.jupiter.api.Test;
+
+import src.SharedFile;
 
 public class TestSharedFile {
 

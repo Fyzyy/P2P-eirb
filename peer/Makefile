@@ -1,18 +1,32 @@
-COMPIL := javac -d build
-EXEC := java -cp
-BUILD_REPO := build
-SRC_REPO := .
-TEST_REPO := tst
-PACKAGE_REPO := build/peer
+# Répertoires
+BUILD_DIR := build
+SRC_DIR := src
+PACKAGE_DIR := $(BUILD_DIR)/src
 
+# Commandes de compilation et d'exécution
+JAVAC := javac -d $(BUILD_DIR)
+JAVA := java -cp $(BUILD_DIR)
+
+# Fichiers source
+SOURCES := $(wildcard $(SRC_DIR)/*.java)
+CLASSES := $(SOURCES:$(SRC_DIR)/%.java=$(PACKAGE_DIR)/%.class)
+
+# Cible par défaut
 all: compile
 
-compile:
-	$(COMPIL) $(SRC_REPO)/*.java
+# Compilation
+compile: $(CLASSES)
 
-run: compile
-	$(EXEC) $(BUILD_REPO) Main
+$(PACKAGE_DIR)/%.class: $(SRC_DIR)/%.java
+	@mkdir -p $(PACKAGE_DIR)
+	$(JAVAC) $<
 
+# Nettoyage
 clean:
-	rm -f $(BUILD_REPO)/*.class
-	rm -f $(PACKAGE_REPO)/*.class
+	@rm -rf $(BUILD_DIR)
+
+# Exécution
+run: compile
+	$(JAVA) Main
+
+.PHONY: all compile clean run
