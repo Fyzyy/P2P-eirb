@@ -63,7 +63,9 @@ public class Listener extends Thread {
         if (this.tmpSocket != null) {
             this.tmpSocket.close();
         }
-        this.serverSocket.close();
+        if (this.serverSocket != null) {
+            this.serverSocket.close();
+        }
         System.out.println("End Listening");
     }
 
