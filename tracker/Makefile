@@ -1,22 +1,21 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -fopenmp -pthread -I$(SRC_DIR) -g
-SRC_DIR = src/tracker
-TEST_DIR = tst/tracker
+SRC_DIR = src/
+TEST_DIR = tst/
 SRC = config.c parser.c peer.c files.c response.c thpool.c
 TRACKER = tracker.c
 TST_SRC = parser_test.c peer_test.c files_test.c
 TRACKER_TEST = tracker_test.c
-OBJ_DIR = $(SRC_DIR)/build
-TST_OBJ_DIR = $(TEST_DIR)/build
+OBJ_DIR = build
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
-TST_OBJ = $(addprefix $(TST_OBJ_DIR)/, $(TST_SRC:.c=.o))
+TST_OBJ = $(addprefix $(OBJ_DIR)/, $(TST_SRC:.c=.o))
 DIST_DIR = dist
 EXEC = $(DIST_DIR)/tracker
 TEST_EXEC = $(DIST_DIR)/test
 
-all: $(DIST_DIR) $(OBJ_DIR) $(TST_OBJ_DIR) $(EXEC) $(TEST_EXEC)
+all: $(DIST_DIR) $(OBJ_DIR) $(OBJ_DIR) $(EXEC) $(TEST_EXEC)
 
-$(DIST_DIR) $(OBJ_DIR) $(TST_OBJ_DIR):
+$(DIST_DIR) $(OBJ_DIR):
 	mkdir -p $@
 
 $(EXEC): $(OBJ)

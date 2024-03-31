@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "parser_test.h"
-#include "../../src/tracker/parser.h"
+#include "parser.h"
 
 #include <assert.h>
 
