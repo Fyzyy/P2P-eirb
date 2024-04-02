@@ -6,8 +6,8 @@ import java.net.InetAddress;
 
 public class Main {
 
-    private static final String TRACKER_CONNECT_COMMAND = "tracker connect";
-    private static final String TRACKER_DISCONNECT_COMMAND = "tracker disconnect";
+    private static final String TRACKER_CONNECT_COMMAND = "connect tracker";
+    private static final String TRACKER_DISCONNECT_COMMAND = "disconnect tracker";
     
     private static final String HELP_COMMAND = "help";
     private static final String EXIT_COMMAND = "exit";
@@ -46,7 +46,7 @@ public class Main {
                 peer.endListener();
             }
             System.exit(0);
-        } else if (command.equalsIgnoreCase(TRACKER_CONNECT_COMMAND)) {
+        } else if (command.equalsIgnoreCase(TRACKER_CONNECT_COMMAND) || command.equalsIgnoreCase("ct")) {
             if (peer.getConnexionToTrackerStatus() == 0) {
                 connectToTracker();
             } else {
@@ -57,8 +57,8 @@ public class Main {
                 disconnectFromTracker();
             }
         } else if (command.equalsIgnoreCase(HELP_COMMAND)) {
-            System.out.println("To connect to tracker, type tracker connect");
-            System.out.println("To disconnect from tracker, type tracker disconnect\n");
+            System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
+            System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
         }  else {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 sendMessageToTracker(command);

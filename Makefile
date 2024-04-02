@@ -1,7 +1,7 @@
 TRACKER_REPO := tracker/
 PEER_REPO := peer/
 
-all:
+all: compile_tracker compile_peer
 
 tracker: compile_tracker
 	cd $(TRACKER_REPO); make; make run
