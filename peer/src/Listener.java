@@ -43,10 +43,10 @@ public class Listener extends Thread {
                     if (s == null){
                         break;
                     }
+                    Parser.parsePeerCommand(s);
                     System.out.println(s);
                 }
 
-                Parser.parsePeerCommand(s);
                             
                 System.out.println("Connection closed");
                 tmpSocket.close();
