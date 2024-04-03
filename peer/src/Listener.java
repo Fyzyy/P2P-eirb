@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import src.Parser;
 
@@ -18,51 +20,56 @@ public class Listener extends Thread {
     private InputStream iStream;
     private BufferedReader pReader;
     private boolean exit = false;
+    private ExecutorService executor;
 
     public Listener(int portNumber) throws IOException {
         this.portNumber = portNumber;
+        this.executor = Executors.newCachedThreadPool(); // Créer une pool de threads
     }
     
     public void run() {
         System.out.println("Start Listening for Peers...");
-        try{
+        try {
             serverSocket = new ServerSocket(this.portNumber);
         } catch (IOException e) {
             System.out.println(e.getMessage());
+            return;
         }
         while (!exit) {
             try {
-                serverSocket.setSoTimeout(2000);
-                this.tmpSocket = this.serverSocket.accept();
+                final Socket tmpSocket = this.serverSocket.accept();
                 System.out.println("Extern Peer connected");
-                String s = "";
-                while (s!=null) {
-                    this.iStream = tmpSocket.getInputStream();
-                    this.pReader = new BufferedReader(new InputStreamReader(this.iStream));
-                    s = this.pReader.readLine();
-                    if (s == null){
-                        break;
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleConnection(tmpSocket);
                     }
-                    Parser.parsePeerCommand(s);
-                    System.out.println(s);
-                }
-
-                            
-                System.out.println("Connection closed");
-                tmpSocket.close();
+                });
+            } catch (IOException e) {
+                // Handle exception
             }
-            catch (IOException e) {
-                // System.out.println(e.getMessage());
-            }
-        } 
+        }
+        executor.shutdown(); // Arrête la pool de threads
         System.out.println("The END");
+    }
+
+    private void handleConnection(Socket socket) {
+        try {
+            String s = "";
+            BufferedReader pReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while ((s = pReader.readLine()) != null) {
+                Parser.parsePeerCommand(s);
+                System.out.println(s);
+            }
+            System.out.println("Connection closed");
+            socket.close();
+        } catch (IOException e) {
+            // Handle exception
+        }
     }
 
     public void endListening() throws IOException {
         exit = true;
-        if (this.tmpSocket != null) {
-            this.tmpSocket.close();
-        }
         if (this.serverSocket != null) {
             this.serverSocket.close();
         }
