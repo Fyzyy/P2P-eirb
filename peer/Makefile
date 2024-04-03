@@ -11,6 +11,9 @@ JAVA := java -cp $(BUILD_DIR)
 SOURCES := $(wildcard $(SRC_DIR)/*.java)
 CLASSES := $(SOURCES:$(SRC_DIR)/%.java=$(PACKAGE_DIR)/%.class)
 
+# Port
+PORT := 5050
+
 # Cible par défaut
 all: compile
 
@@ -27,6 +30,6 @@ clean:
 
 # Exécution
 run: compile
-	$(JAVA) src.Main
+	$(JAVA) src.Main $(PORT)
 
 .PHONY: all compile clean run

@@ -79,10 +79,20 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+
+        int port = 5050; // Port par défaut
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Le port spécifié n'est pas un nombre valide. Utilisation du port par défaut : 5050");
+            }
+        }
+
         InetAddress addrPeer = InetAddress.getByName("127.0.0.2");
         InetAddress addrTracker = InetAddress.getByName("127.0.0.1");
 
-        peer = new Peer(addrPeer, 5050, addrTracker, 8080);
+        peer = new Peer(addrPeer, port, addrTracker, 8080);
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
 
