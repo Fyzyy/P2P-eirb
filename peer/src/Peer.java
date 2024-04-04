@@ -31,9 +31,11 @@ public class Peer {
 
     // Utilisation d'une méthode séparée pour établir la connexion avec le tracker
     public void connectToPeer(InetAddress PeerAdress, int PeerPortNumber) throws IOException {
-        try (Socket socket = new Socket(PeerAdress, PeerPortNumber)){
+        try {
+            this.socket = new Socket(PeerAdress, PeerPortNumber);
             System.out.println("Connexion réussie\n");
-            this.socket = socket;
+            this.sender = new DataOutputStream(this.socket.getOutputStream());
+            this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
             throw e;
@@ -42,10 +44,10 @@ public class Peer {
 
     public void connectToTracker() throws IOException {
         try {
-            socket = new Socket(trackerIpAdress, trackerPortNumber);
+            this.socket = new Socket(trackerIpAdress, trackerPortNumber);
             System.out.println("Connection to tracker succesful\n");
-            sender = new DataOutputStream(this.socket.getOutputStream());
-            tReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.sender = new DataOutputStream(this.socket.getOutputStream());
+            this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;

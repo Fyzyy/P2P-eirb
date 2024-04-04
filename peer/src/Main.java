@@ -12,8 +12,8 @@ public class Main {
     private static final String HELP_COMMAND = "help";
     private static final String EXIT_COMMAND = "exit";
 
-    private static final String CONNECT_COMMAND = "connect";
-    private static final String DISCONNECT_COMMAND = "disconnect";
+    private static final String CONNECT_COMMAND = "connect peer";
+    private static final String DISCONNECT_COMMAND = "disconnect peer";
 
 
     private static Peer peer;
@@ -21,6 +21,10 @@ public class Main {
     private static void connectToTracker() throws IOException {
         peer.connectToTracker();
         peer.setConnexionToTrackerStatus(1);
+    }
+
+    private static void connectToPeer(InetAddress address, int port) throws IOException {
+        peer.connectToPeer(address, port);
     }
 
     private static void disconnectFromTracker() throws IOException {
@@ -55,6 +59,16 @@ public class Main {
         } else if (command.equalsIgnoreCase(TRACKER_DISCONNECT_COMMAND)) {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 disconnectFromTracker();
+            }
+        } else if (command.equalsIgnoreCase(CONNECT_COMMAND)) {
+            System.out.println("Usage: IpAdress PortNumber");
+            String answer = readInput();
+            String answers[] = answer.split(" ");
+            if (answers.length == 2){
+                connectToPeer(InetAddress.getByName(answers[0]), Integer.parseInt(answers[1]));             
+            }
+            else{
+                System.out.println("Error missing arguments, connexion to peer process stoped.");
             }
         } else if (command.equalsIgnoreCase(HELP_COMMAND)) {
             System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
