@@ -26,6 +26,7 @@ public class Peer {
         this.trackerPortNumber = trackerPortNumber;
         this.portNumber = portNumber;
         listener = new Listener(this.portNumber);
+        this.listener.start();
     }
 
     // Utilisation d'une méthode séparée pour établir la connexion avec le tracker
@@ -45,7 +46,6 @@ public class Peer {
             System.out.println("Connection to tracker succesful\n");
             sender = new DataOutputStream(this.socket.getOutputStream());
             tReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.listener.start();
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
             throw e;
