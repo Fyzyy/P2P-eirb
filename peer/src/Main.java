@@ -23,8 +23,8 @@ public class Main {
         peer.setConnexionToTrackerStatus(1);
     }
 
-    private static void disconnectFromTracker() {
-        // peer.endTrackerConnection();
+    private static void disconnectFromTracker() throws IOException {
+        peer.endTrackerConnection();
         peer.setConnexionToTrackerStatus(0);
         System.out.println("Disconnection successful\n");
     }
