@@ -15,7 +15,8 @@ public class Peer {
     private Socket socket;
     private DataOutputStream sender;
     private BufferedReader tReader;
-    private int connectedToTracker = 0;
+    private boolean connectedToTracker = false;
+    private boolean connectedToPeer = false;
     private Listener listener;
     
     //fichiers disponibles (Hashmap ?)
@@ -81,6 +82,12 @@ public class Peer {
         this.tReader.close();
     }
 
+    public void endPeerConnection() throws IOException{
+        this.sender.close();
+        this.socket.close();
+        this.tReader.close();
+    }
+
     public void endListener() throws IOException{
         listener.endListening();
     }
@@ -94,11 +101,19 @@ public class Peer {
         //charger fichier config;
     }
 
-    public int getConnexionToTrackerStatus(){
+    public boolean getConnexionToTrackerStatus(){
         return this.connectedToTracker;
     }
 
-    public void setConnexionToTrackerStatus(int status){
+    public void setConnexionToTrackerStatus(boolean status){
         this.connectedToTracker = status;
+    }
+
+    public boolean getConnexionToPeerStatus(){
+        return this.connectedToPeer;
+    }
+
+    public void setConnexionToPeerStatus(boolean status){
+        this.connectedToPeer = status;
     }
 }
