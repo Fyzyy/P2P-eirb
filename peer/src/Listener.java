@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.RejectedExecutionException;
 import src.Parser;
 
 public class Listener extends Thread {
@@ -27,7 +27,7 @@ public class Listener extends Thread {
 
     public Listener(int portNumber) throws IOException {
         this.portNumber = portNumber;
-        this.executor = new ThreadPoolExecutor(10, 50, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1000));
+        this.executor = new ThreadPoolExecutor(10, 50, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10));
     }
     
     public void run() {
@@ -50,6 +50,8 @@ public class Listener extends Thread {
                 });
             } catch (IOException e) {
                 // Handle exception
+            } catch (RejectedExecutionException e) {
+                System.out.println("Too much connections, sent to queue\n");
             }
         }
         executor.shutdown(); // Arrête la pool de threads
