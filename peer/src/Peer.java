@@ -1,79 +1,86 @@
 package src;
-import java.io.DataOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Peer {
 
-    private int portNumber;
-    private int trackerPortNumber;
-    private InetAddress IpAdress;
-    private InetAddress trackerIpAdress;
-    private SharedFile[] files;
-    private Socket socket;
-    private DataOutputStream sender;
-    private BufferedReader tReader;
-    private boolean connectedToTracker = false;
-    private boolean connectedToPeer = false;
+    private List<Communication> communications;
     private Listener listener;
-    private PeerManager peerManager;
-    //fichiers disponibles (Hashmap ?)
 
-    public Peer(InetAddress IpAddress, int portNumber, InetAddress trackerIpAddress, int trackerPortNumber) throws IOException {
-        this.trackerIpAdress = trackerIpAddress;
-        this.IpAdress = IpAddress;
-        this.trackerPortNumber = trackerPortNumber;
-        this.portNumber = portNumber;
-        listener = new Listener(this.portNumber);
-        peerManager = new PeerManager();
-        this.listener.start();
+    public Peer(int portNumber) throws IOException {
+        communications = new ArrayList<>();
+
+        listener = new Listener(portNumber);
+        listener.start();
     }
 
-    // Utilisation d'une méthode séparée pour établir la connexion avec le tracker
-    public void connectToPeer(InetAddress PeerAdress, int PeerPortNumber) throws IOException {
-        try (Socket socket = new Socket(PeerAdress, PeerPortNumber)){
-            String adress = PeerAdress.toString();
-            peerManager.connectPeer(adress, PeerPortNumber);
-            System.out.println("Connexion réussie\n");
-            this.sender = new DataOutputStream(this.socket.getOutputStream());
-            this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+    public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
+        for (Communication communication: communications) {
+            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void connect(InetAddress Address, int PortNumber) throws IOException {
+        try (Socket socket = new Socket(Address, PortNumber)){
+            System.out.println("Connected to peer\n");
+            Communication communication = new Communication(socket);
+            communications.add(communication);
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
-            // throw e;
         }
     }
 
-    public boolean isConnectedToPeer(InetAddress PeerAdress, int PeerPortNumber) {
-        String adress = PeerAdress.toString();
-        return peerManager.isConnected(adress, PeerPortNumber);
-    }
-
-    public void disconnectPeer(InetAddress PeerAdress, int PeerPortNumber) {
-        String adress = PeerAdress.toString();
-        peerManager.disconnectPeer(adress, PeerPortNumber);
-    }
-
-    public void connectToTracker() throws IOException {
-        try {
-            this.socket = new Socket(trackerIpAdress, trackerPortNumber);
-            System.out.println("Connection to tracker succesful\n");
-            this.sender = new DataOutputStream(this.socket.getOutputStream());
-            this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-        } catch (IOException e) {   
-            System.out.println("I/O error: " + e.getMessage());
-            // throw e;
+    public void disconnect(InetAddress peerAddress, int peerPortNumber) throws IOException {
+        for (Communication communication : communications) {
+            if (haveCommunication(peerAddress, peerPortNumber)) {
+                communication.close();
+                communications.remove(communication);
+                System.out.println("Disconnected from peer\n");
+                return;
+            }
         }
+        System.out.println("Peer not found\n");
     }
-    
+
+    public void sendMessage(String message, InetAddress peerAddress, int peerPortNumber) {
+        for (Communication communication : communications) {
+            if (haveCommunication(peerAddress, peerPortNumber)) {
+                try {
+                    communication.sendMessage(message);
+                } catch (IOException e) {
+                    System.out.println("I/O error: " + e.getMessage());
+                }
+                return;
+            }
+        }
+        System.out.println("Peer not found\n");
+    }
+}
+
+class Communication {
+    private DataOutputStream sender;
+    private BufferedReader reader;
+    private Socket socket;
+
+    public Communication(Socket socket) throws IOException {
+        this.socket = socket;
+        this.sender = new DataOutputStream(this.socket.getOutputStream());
+        this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+    }
+
     public void sendMessage(String message) throws IOException{
         byte[] bytes = message.getBytes("UTF-8");
         try {
             sender.write(bytes);
             sender.flush();
             try {
-                System.out.println(tReader.readLine());
+                System.out.println(reader.readLine());
             } catch (IOException e) {
                 System.out.println("Cannot read message");
                 throw e;
@@ -84,52 +91,13 @@ public class Peer {
         }
     }
 
-    public void printConnectedPeers() {
-        peerManager.printConnectedPeers();
+    public Socket getSocket() {
+        return this.socket;
     }
 
-    public void printSocket() {
-        System.out.println(this.socket);
-    }
-
-    public void endTrackerConnection() throws IOException{
+    public void close() throws IOException {
         this.sender.close();
         this.socket.close();
-        this.tReader.close();
-    }
-
-    public void endPeerConnection() throws IOException{
-        this.sender.close();
-        this.socket.close();
-        this.tReader.close();
-    }
-
-    public void endListener() throws IOException{
-        listener.endListening();
-    }
-
-    public void exit() throws IOException{
-        endListener();
-        endTrackerConnection();
-    }
-    
-    public void init() {
-        //charger fichier config;
-    }
-
-    public boolean getConnexionToTrackerStatus(){
-        return this.connectedToTracker;
-    }
-
-    public void setConnexionToTrackerStatus(boolean status){
-        this.connectedToTracker = status;
-    }
-
-    public boolean getConnexionToPeerStatus(){
-        return this.connectedToPeer;
-    }
-
-    public void setConnexionToPeerStatus(boolean status){
-        this.connectedToPeer = status;
+        this.reader.close();
     }
 }
