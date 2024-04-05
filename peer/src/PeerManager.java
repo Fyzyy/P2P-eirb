@@ -41,6 +41,10 @@ public class PeerManager {
     }
 
     public void printConnectedPeers() {
+        if (connectedPeers.isEmpty()) {
+            System.out.println("No connected peers");
+            return;
+        }
         System.out.println("Connected peers:");
         for (PeerConnection peer : connectedPeers) {
             System.out.println(peer.getIpAddress() + ":" + peer.getPort());

@@ -44,6 +44,8 @@ public class Main {
 
     private static void handleUserCommand(String command) throws IOException {
         String[] tokens = command.split("\\s+");
+
+        // Connect to multiple peers
         if (tokens.length >= 2 && tokens[0].equalsIgnoreCase("connect")) {
             int nb_peer = (tokens.length - 1) / 2;
             for (int i = 0; i < nb_peer; i++) {
@@ -61,7 +63,25 @@ public class Main {
                 }
             }
         }
-
+        // Disconnect from multiple peers
+        if (tokens.length >= 2 && tokens[0].equalsIgnoreCase("disconnect")) {
+            int nb_peer = (tokens.length - 1) / 2;
+            for (int i = 0; i < nb_peer; i++) {
+                String[] addressParts = tokens[i * 2 + 1].split(":");
+                if (addressParts.length == 2) {
+                    String ipAddress = addressParts[0];
+                    InetAddress address = InetAddress.getByName(ipAddress);
+                    int port = Integer.parseInt(addressParts[1]);
+        
+                    if (peer.isConnectedToPeer(address, port)) {
+                        peer.disconnectPeer(address, port);
+                    } else {
+                        System.out.println("You are not connected\n");
+                    }
+                }
+            }
+        }
+        // Exit command
         if (command.equalsIgnoreCase(EXIT_COMMAND)) {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 peer.exit();
@@ -69,30 +89,33 @@ public class Main {
                 peer.endListener();
             }
             System.exit(0);
-        } else if (command.equalsIgnoreCase(TRACKER_CONNECT_COMMAND) || command.equalsIgnoreCase("ct")) {
+        }
+        // connext tracker command 
+        else if (command.equalsIgnoreCase(TRACKER_CONNECT_COMMAND) || command.equalsIgnoreCase("ct")) {
             if (peer.getConnexionToTrackerStatus() == 0) {
                 connectToTracker();
             } else {
                 System.out.println("You are already connected\n");
             }
-        } else if (command.equalsIgnoreCase(TRACKER_DISCONNECT_COMMAND)) {
+        } 
+        // disconnect tracker command
+        else if (command.equalsIgnoreCase(TRACKER_DISCONNECT_COMMAND)) {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 disconnectFromTracker();
             }
-        } else if (command.equalsIgnoreCase(CONNECT_COMMAND)) {
-            System.out.println("Usage: IpAdress PortNumber");
-            String answer = readInput();
-            String answers[] = answer.split(" ");
-            if (answers.length == 2){
-                connectToPeer(InetAddress.getByName(answers[0]), Integer.parseInt(answers[1]));             
-            }
-            else{
-                System.out.println("Error missing arguments, connexion to peer process stoped.");
-            }
-        } else if (command.equalsIgnoreCase(HELP_COMMAND)) {
+        }
+        // print connected peers
+        else if (command.equalsIgnoreCase("peers")) {
+            peer.printConnectedPeers();
+        }
+
+        // help command
+        else if (command.equalsIgnoreCase(HELP_COMMAND)) {
             System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
             System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
-        } else {
+
+        } 
+        else {
             if (peer.getConnexionToTrackerStatus() == 1) {
                 sendMessageToTracker(command);
             } else {

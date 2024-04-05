@@ -27,6 +27,7 @@ public class Peer {
         this.trackerPortNumber = trackerPortNumber;
         this.portNumber = portNumber;
         listener = new Listener(this.portNumber);
+        peerManager = new PeerManager();
         this.listener.start();
     }
 
@@ -81,6 +82,10 @@ public class Peer {
             System.out.println("Cannot send message");
             throw e;
         }
+    }
+
+    public void printConnectedPeers() {
+        peerManager.printConnectedPeers();
     }
 
     public void printSocket() {
