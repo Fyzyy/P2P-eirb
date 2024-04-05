@@ -40,7 +40,7 @@ public class Peer {
             this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
-            throw e;
+            // throw e;
         }
     }
 
@@ -62,7 +62,7 @@ public class Peer {
             this.tReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         } catch (IOException e) {   
             System.out.println("I/O error: " + e.getMessage());
-            throw e;
+            // throw e;
         }
     }
     
