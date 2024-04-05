@@ -63,7 +63,7 @@ public class PeerManager {
     }
 }
 
-class PeerConnection {
+final class PeerConnection {
     private String ipAddress;
     private int port;
 
