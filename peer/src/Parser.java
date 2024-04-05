@@ -3,12 +3,14 @@ package src;
 import java.util.*;
 
 public class Parser {
-    // Méthode pour parser les commandes provenant du tracker
-    public static void parseTrackerCommand(String command) {
+
+    public static void parseCommand(String command) {
         String[] parts = command.split("\\s+");
         String messageType = parts[0];
         
         switch (messageType) {
+
+            //tracker commands
             case "ok":
                 System.out.println("Confirmation du tracker : " + command);
                 break;
@@ -18,17 +20,8 @@ public class Parser {
             case "peers":
                 parsePeersCommand(parts);
                 break;
-            default:
-                System.out.println("Commande non reconnue du tracker : " + command);
-        }
-    }
-    
-    // Méthode pour parser les commandes provenant des pairs
-    public static void parsePeerCommand(String command) {
-        String[] parts = command.split("\\s+");
-        String messageType = parts[0];
-        
-        switch (messageType) {
+
+            //peer commands
             case "interested":
                 parseInterestedCommand(parts);
                 break;
@@ -42,10 +35,10 @@ public class Parser {
                 parseDataCommand(parts);
                 break;
             default:
-                System.out.println("Commande non reconnue du pair : " + command);
+                System.out.println("Commande non reconnue : " + command);
         }
     }
-    
+
     // Méthodes de parsing pour les commandes du Tracker
     private static void parseListCommand(String[] parts) {
         List<String> files = Arrays.asList(parts).subList(1, parts.length);
@@ -103,11 +96,11 @@ public class Parser {
         String trackerCommand2 = "list [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2]";
         String trackerCommand3 = "peers $Key [$IP1:$Port1 $IP2:$Port2]";
 
-        parseTrackerCommand(trackerCommand);
-        parseTrackerCommand(trackerCommand2);
-        parseTrackerCommand(trackerCommand3);
+        parseCommand(trackerCommand);
+        parseCommand(trackerCommand2);
+        parseCommand(trackerCommand3);
         
         String peerCommand = "interested 8905e92afeb80fc7722ec89eb0bf0966";
-        parsePeerCommand(peerCommand);
+        parseCommand(peerCommand);
     }
 }

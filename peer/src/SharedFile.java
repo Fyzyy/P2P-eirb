@@ -23,6 +23,9 @@ public class SharedFile {
 
     // Taille en octets d'une pièce du fichier
     private int pieceSize;
+
+    // Tableau de bits représentant les pièces du fichier
+    private int[] bitMap;
     
     /**
      * Constructor of the SharedFile class
