@@ -18,7 +18,7 @@ public class Peer {
     private boolean connectedToTracker = false;
     private boolean connectedToPeer = false;
     private Listener listener;
-    
+    private PeerManager peerManager;
     //fichiers disponibles (Hashmap ?)
 
     public Peer(InetAddress IpAddress, int portNumber, InetAddress trackerIpAddress, int trackerPortNumber) throws IOException {
