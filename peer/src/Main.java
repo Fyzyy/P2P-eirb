@@ -43,6 +43,25 @@ public class Main {
     }
 
     private static void handleUserCommand(String command) throws IOException {
+        String[] tokens = command.split("\\s+");
+        if (tokens.length >= 2 && tokens[0].equalsIgnoreCase("connect")) {
+            int nb_peer = (tokens.length - 1) / 2;
+            for (int i = 0; i < nb_peer; i++) {
+                String[] addressParts = tokens[i * 2 + 1].split(":");
+                if (addressParts.length == 2) {
+                    String ipAddress = addressParts[0];
+                    InetAddress address = InetAddress.getByName(ipAddress);
+                    int port = Integer.parseInt(addressParts[1]);
+        
+                    if (peer.isConnectedToPeer(address, port)) {
+                        peer.connectToPeer(address, port);
+                    } else {
+                        System.out.println("You are already connected\n");
+                    }
+                }
+            }
+        }
+
         if (command.equalsIgnoreCase(EXIT_COMMAND)) {
             if (peer.getConnexionToTrackerStatus() == true) {
                 peer.exit();
@@ -130,4 +149,6 @@ public class Main {
             handleUserCommand(newCommand);
         }
     }
+
 }
+

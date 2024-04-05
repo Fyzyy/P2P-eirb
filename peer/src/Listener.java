@@ -61,7 +61,7 @@ public class Listener extends Thread {
             String s = "";
             BufferedReader pReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             while ((s = pReader.readLine()) != null) {
-                Parser.parsePeerCommand(s);
+                Parser.parseCommand(s);
                 System.out.println(s);
             }
             System.out.println("Connection closed");
