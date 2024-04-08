@@ -1,5 +1,6 @@
 TRACKER_REPO := tracker/
 PEER_REPO := peer/
+APP_REPO := app/
 
 all: compile_tracker compile_peer
 
@@ -14,6 +15,9 @@ compile_peer:
 
 compile_tracker:
 	cd $(TRACKER_REPO); make
+
+app:
+	cd $(APP_REPO); pnpm install; pnpm run dev
 
 clean:
 	cd $(TRACKER_REPO); make clean
