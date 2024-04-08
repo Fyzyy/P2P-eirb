@@ -36,5 +36,5 @@ Langage: JS?
 - Finir tests client
 - Automate?
 - Attention aux readLine au niveau client
-- Pool de threads pour Peer
-- Mettre en asynchrone
+
+- Fix Reformat
