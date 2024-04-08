@@ -13,8 +13,8 @@ public class Main {
     private static final String HELP_COMMAND = "help";
     private static final String EXIT_COMMAND = "exit";
 
-    private static final String CONNECT_COMMAND = "connect peer";
-    private static final String DISCONNECT_COMMAND = "disconnect peer";
+    private static final String CONNECT_COMMAND = "connect";
+    private static final String DISCONNECT_COMMAND = "disconnect";
     private static final String SEND_COMMAND = "send";
 
     private static InetAddress TRACKER_ADDRESS;
@@ -30,6 +30,20 @@ public class Main {
     }
 
     private static void handleConnect(String[] tokens) throws IOException, UnknownHostException {
+
+        if (tokens[1].equals("tracker")) {
+            System.out.println("Tracker connection");
+            InetAddress address = TRACKER_ADDRESS;
+            int port = TRACKER_PORT;
+            
+            if (!peer.haveCommunication(address, port)) {
+                peer.connect(address, port);
+                System.out.println("Connection successful\n");
+            } else {
+                System.out.println("You are already connected\n");
+            }
+        }
+
         int nb_peer = (tokens.length - 1) / 2;
         for (int i = 0; i < nb_peer; i++) {
             String[] addressParts = tokens[i * 2 + 1].split(":");
@@ -120,8 +134,8 @@ public class Main {
         if (tokens.length >= 2) {
             switch (tokens[0]) {
                 case CONNECT_COMMAND:
-                    handleConnect(tokens);
-                    break;
+                handleConnect(tokens);
+                break;
 
                 case DISCONNECT_COMMAND:
                     handleDisconnect(tokens);
