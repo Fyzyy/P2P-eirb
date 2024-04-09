@@ -115,18 +115,19 @@ public class Main {
 
         String message = messageBuilder.toString().trim();
         System.out.println("Message to send: " + message + "\n");
-    
+
         // Extract peer addresses and ports from the command
         for (int peerIndex = i + 1; peerIndex < tokens.length; peerIndex++) {
 
             if (tokens[peerIndex].equals("tracker")) {
-                tokens[peerIndex] = TRACKER_ADDRESS.toString() + ":" + Integer.toString(TRACKER_PORT);
+                tokens[peerIndex] = TRACKER_ADDRESS.toString().replace("/", "") + ":" + Integer.toString(TRACKER_PORT);
                 System.out.println("tracker in");
             }
             
             String[] addressParts = tokens[peerIndex].split(":");
 
             if (addressParts.length == 2) {
+                System.out.println(addressParts.getClass().getName());
                 InetAddress address = InetAddress.getByName(addressParts[0]);
                 int port = Integer.parseInt(addressParts[1]);
     
