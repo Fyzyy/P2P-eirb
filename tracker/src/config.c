@@ -5,10 +5,11 @@
 #include "config.h"
 
 
-void load_config(const char *file_path, struct ServerConfig *config) {
+int load_config(const char *file_path, struct ServerConfig *config) {
     FILE *file = fopen(file_path, "r");
     if (!file) {
         fprintf(stderr, "Error opening file: %s\n", file_path);
+        return -1;
     }
 
     char line[MAX_LINE_LENGTH];
@@ -43,4 +44,5 @@ void load_config(const char *file_path, struct ServerConfig *config) {
     printf("Port: %d\n", config->port);
     printf("Address: %s\n", config->address);
     fclose(file);
+    return 0;
 }

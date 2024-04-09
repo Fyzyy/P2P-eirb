@@ -6,4 +6,4 @@ struct ServerConfig {
     char address[MAX_VALUE_LENGTH];
 };
 
-void load_config(const char *file_path, struct ServerConfig *config);
+int load_config(const char *file_path, struct ServerConfig *config);
