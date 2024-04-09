@@ -126,7 +126,6 @@ public class Main {
 
             if (tokens[peerIndex].equals("tracker")) {
                 tokens[peerIndex] = TRACKER_ADDRESS.toString().replace("/", "") + ":" + Integer.toString(TRACKER_PORT);
-                System.out.println("tracker in");
             }
             
             String[] addressParts = tokens[peerIndex].split(":");
