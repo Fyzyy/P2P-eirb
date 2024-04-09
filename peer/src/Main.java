@@ -31,65 +31,70 @@ public class Main {
 
     private static void handleConnect(String[] tokens) throws IOException, UnknownHostException {
 
-        if (tokens[1].equals("tracker")) {
-            System.out.println("Tracker connection");
-            InetAddress address = TRACKER_ADDRESS;
-            int port = TRACKER_PORT;
-            
-            if (!peer.haveCommunication(address, port)) {
-                peer.connect(address, port);
-                System.out.println("Connection successful\n");
-            } else {
-                System.out.println("You are already connected\n");
-            }
-        }
-
-        int nb_peer = (tokens.length) / 2;
-        for (int i = 0; i < nb_peer; i++) {
-            String[] addressParts = tokens[i * 2 + 1].split(":");
-            if (addressParts.length == 2) {
-                String ipAddress = addressParts[0];
-                InetAddress address = InetAddress.getByName(ipAddress);
-                int port = Integer.parseInt(addressParts[1]);
-    
+        
+        int nb_peer = (tokens.length);
+        for (int i = 1; i < nb_peer; i++) {
+            System.out.println("****************************************************");
+            if (tokens[i].equals("tracker")) {
+                InetAddress address = TRACKER_ADDRESS;
+                int port = TRACKER_PORT;
+                
                 if (!peer.haveCommunication(address, port)) {
+                    System.out.println("Connecting to tracker ...");
                     peer.connect(address, port);
                     System.out.println("Connection successful\n");
                 } else {
                     System.out.println("You are already connected\n");
                 }
             }
+            else {
+                String[] addressParts = tokens[i].split(":");
+                if (addressParts.length == 2) {
+                    String ipAddress = addressParts[0];
+                    InetAddress address = InetAddress.getByName(ipAddress);
+                    int port = Integer.parseInt(addressParts[1]);
+        
+                    if (!peer.haveCommunication(address, port)) {
+                        System.out.println("Connecting to " + address + ":" + port + " ...");
+                        peer.connect(address, port);
+                        System.out.println("Connection successful\n");
+                    } else {
+                        System.out.println("You are already connected\n");
+                    }
+                }
+            }
         }
     }
 
     private static void handleDisconnect(String[] tokens) throws IOException, UnknownHostException {
-        int nb_peer = (tokens.length) / 2;
-
-        if (tokens[1].equals("tracker")) {
-            System.out.println("Tracker deconnection");
-            InetAddress address = TRACKER_ADDRESS;
-            int port = TRACKER_PORT;
-            
-            if (peer.haveCommunication(address, port)) {
-                peer.disconnect(address, port);
-                System.out.println("Disconnection successful\n");
-            } else {
-                System.out.println("You are not connected\n");
-            }
-        }
-
-        for (int i = 0; i < nb_peer; i++) {
-            String[] addressParts = tokens[i * 2 + 1].split(":");
-            if (addressParts.length == 2) {
-                String ipAddress = addressParts[0];
-                InetAddress address = InetAddress.getByName(ipAddress);
-                int port = Integer.parseInt(addressParts[1]);
+        int nb_peer = (tokens.length);
+        for (int i = 1; i < nb_peer; i++) {
+            if (tokens[i].equals("tracker")) {
+                InetAddress address = TRACKER_ADDRESS;
+                int port = TRACKER_PORT;
     
                 if (peer.haveCommunication(address, port)) {
+                    System.out.println("Disconnecting from tracker ...");
                     peer.disconnect(address, port);
                     System.out.println("Disconnection successful\n");
                 } else {
                     System.out.println("You are not connected\n");
+                }
+            }
+            else {
+                String[] addressParts = tokens[i].split(":");
+                if (addressParts.length == 2) {
+                    String ipAddress = addressParts[0];
+                    InetAddress address = InetAddress.getByName(ipAddress);
+                    int port = Integer.parseInt(addressParts[1]);
+        
+                    if (peer.haveCommunication(address, port)) {
+                        System.out.println("Disconnecting from " + address + ":" + port + " ...");
+                        peer.disconnect(address, port);
+                        System.out.println("Disconnection successful\n");
+                    } else {
+                        System.out.println("You are not connected\n");
+                    }
                 }
             }
         }
@@ -140,6 +145,18 @@ public class Main {
             }
         }
     }
+
+
+    private static void usage() {
+        System.out.println("**************************************************************");
+        System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
+        System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
+        System.out.println("To connect to peer, type: " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To send message to peer, type: " + SEND_COMMAND + " \"$message\" $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To exit the client, type: " + EXIT_COMMAND);
+        System.out.println("**************************************************************");
+        }
     
     
 
@@ -161,19 +178,14 @@ public class Main {
                     break;
 
                 default:
+                    usage();
                     break;
             }
         }
         else if (tokens.length == 1){
             switch (command) {
                 case HELP_COMMAND:
-                    System.out.println("**************************************************************");
-                    System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
-                    System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
-                    System.out.println("To connect to peer, type: " + CONNECT_COMMAND + "\n");
-                    System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + "\n");
-                    System.out.println("To exit the client, type: " + EXIT_COMMAND);
-                    System.out.println("**************************************************************");
+                    usage();
                     break;
                 case EXIT_COMMAND:
                     System.out.println("Exiting peer...");

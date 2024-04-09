@@ -29,7 +29,6 @@ public class Peer {
     public void connect(InetAddress Address, int PortNumber) throws IOException {
         try {
             Communication communication = new Communication(new Socket(Address, PortNumber));
-            System.out.println("Connected to peer\n");
             this.communications.add(communication);
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
