@@ -63,7 +63,21 @@ public class Main {
     }
 
     private static void handleDisconnect(String[] tokens) throws IOException, UnknownHostException {
-        int nb_peer = (tokens.length - 1) / 2;
+        int nb_peer = (tokens.length) / 2;
+
+        if (tokens[1].equals("tracker")) {
+            System.out.println("Tracker deconnection");
+            InetAddress address = TRACKER_ADDRESS;
+            int port = TRACKER_PORT;
+            
+            if (peer.haveCommunication(address, port)) {
+                peer.disconnect(address, port);
+                System.out.println("Disconnection successful\n");
+            } else {
+                System.out.println("You are not connected\n");
+            }
+        }
+
         for (int i = 0; i < nb_peer; i++) {
             String[] addressParts = tokens[i * 2 + 1].split(":");
             if (addressParts.length == 2) {
@@ -71,7 +85,7 @@ public class Main {
                 InetAddress address = InetAddress.getByName(ipAddress);
                 int port = Integer.parseInt(addressParts[1]);
     
-                if (peer.haveCommunication(address, port) == true) {
+                if (peer.haveCommunication(address, port)) {
                     peer.disconnect(address, port);
                     System.out.println("Disconnection successful\n");
                 } else {
@@ -134,8 +148,8 @@ public class Main {
         if (tokens.length >= 2) {
             switch (tokens[0]) {
                 case CONNECT_COMMAND:
-                handleConnect(tokens);
-                break;
+                    handleConnect(tokens);
+                    break;
 
                 case DISCONNECT_COMMAND:
                     handleDisconnect(tokens);

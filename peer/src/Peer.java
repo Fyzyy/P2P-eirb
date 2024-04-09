@@ -27,10 +27,10 @@ public class Peer {
     }
 
     public void connect(InetAddress Address, int PortNumber) throws IOException {
-        try (Socket socket = new Socket(Address, PortNumber)){
+        try {
+            Communication communication = new Communication(new Socket(Address, PortNumber));
             System.out.println("Connected to peer\n");
-            Communication communication = new Communication(socket);
-            communications.add(communication);
+            this.communications.add(communication);
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
         }
@@ -39,8 +39,8 @@ public class Peer {
     public void disconnect(InetAddress peerAddress, int peerPortNumber) throws IOException {
         for (Communication communication : communications) {
             if (haveCommunication(peerAddress, peerPortNumber)) {
+                this.communications.remove(communication);
                 communication.close();
-                communications.remove(communication);
                 System.out.println("Disconnected from peer\n");
                 return;
             }
