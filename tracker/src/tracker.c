@@ -138,7 +138,9 @@ void* handle_stdin() {
 
 int main() {
     struct ServerConfig serverConfig;
-    load_config("config.ini", &serverConfig);
+    if (load_config("config.ini", &serverConfig) != 0) {
+        return EXIT_FAILURE;
+    }
 
     init_global_lists();
     struct sockaddr_in server_address;
