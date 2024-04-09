@@ -41,13 +41,13 @@ public class Listener extends Thread {
         while (!exit) {
             try {
                 final Socket tmpSocket = this.serverSocket.accept();
-                System.out.println("Extern Peer connected");
                 executor.submit(new Runnable() {
                     @Override
                     public void run() {
                         handleConnection(tmpSocket);
                     }
                 });
+                System.out.println("Extern Peer connected");
             } catch (IOException e) {
                 // Handle exception
             } catch (RejectedExecutionException e) {
