@@ -44,7 +44,7 @@ public class Main {
             }
         }
 
-        int nb_peer = (tokens.length - 1) / 2;
+        int nb_peer = (tokens.length) / 2;
         for (int i = 0; i < nb_peer; i++) {
             String[] addressParts = tokens[i * 2 + 1].split(":");
             if (addressParts.length == 2) {
