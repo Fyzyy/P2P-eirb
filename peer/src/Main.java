@@ -118,7 +118,7 @@ public class Main {
             }
         }
 
-        String message = messageBuilder.toString().trim();
+        String message = messageBuilder.toString();
         System.out.println("Message to send: " + message + "\n");
 
         // Extract peer addresses and ports from the command

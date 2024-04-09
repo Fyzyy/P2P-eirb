@@ -1,21 +1,5 @@
 package src;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.RejectedExecutionException;
-import src.Parser;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -28,139 +12,118 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class NonBlockingServerWithThread {
-
-    public static void main(String[] args) throws IOException {
-        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress("localhost", 8080));
-        serverSocketChannel.configureBlocking(false); // Configurer le canal du serveur en mode non bloquant
-
-        Selector selector = Selector.open();
-        serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT); // Enregistrer le canal du serveur pour les
-                                                                        // événements d'acceptation
-
-        ExecutorService executorService = Executors.newFixedThreadPool(10); // Créer un pool de threads
-
-        while (true) {
-            selector.select(); // Attendre qu'un événement se produise
-
-            Set<SelectionKey> selectedKeys = selector.selectedKeys();
-            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-
-            while (keyIterator.hasNext()) {
-                SelectionKey key = keyIterator.next();
-                keyIterator.remove();
-
-                if (key.isAcceptable()) {
-                    // Accepter une nouvelle connexion
-                    ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
-                    SocketChannel clientChannel = serverChannel.accept();
-                    clientChannel.configureBlocking(false); // Configurer le canal du client en mode non bloquant
-                    clientChannel.register(selector, SelectionKey.OP_READ); // Enregistrer le canal du client pour les
-                                                                            // événements de lecture
-                } else if (key.isReadable()) {
-                    // Lire les données envoyées par le client dans un thread séparé du pool
-                    executorService.submit(() -> {
-                        try {
-                            SocketChannel clientChannel = (SocketChannel) key.channel();
-                            ByteBuffer buffer = ByteBuffer.allocate(1024);
-                            int bytesRead = clientChannel.read(buffer);
-                            if (bytesRead == -1) {
-                                // La connexion a été fermée par le client
-                                clientChannel.close();
-                            } else if (bytesRead > 0) {
-                                buffer.flip();
-                                byte[] bytes = new byte[buffer.remaining()];
-                                buffer.get(bytes);
-                                String message = new String(bytes);
-                                System.out.println("Received: " + message);
-
-                                // Traiter le message reçu dans le thread du pool, par exemple, parser le
-                                // message
-                                parseMessage(message);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    private static void parseMessage(String message) {
-        // Ajoutez ici la logique de traitement du message
-        System.out.println("Parsing message: " + message);
-    }
-}
-
 public class Listener extends Thread {
 
     private int portNumber;
-    private Socket tmpSocket;
-    private ServerSocket serverSocket;
-    private InputStream iStream;
-    private BufferedReader pReader;
-    private boolean exit = false;
-    private ExecutorService executor;
-    private List<Communication> communications;
+    private Selector selector;
+    private ExecutorService messageHandlerPool;
 
-    public Listener(int portNumber) throws IOException {
+    public Listener(int portNumber) {
         this.portNumber = portNumber;
-        this.executor = new ThreadPoolExecutor(10, 50, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10));
+        this.messageHandlerPool = Executors.newFixedThreadPool(10); // Pool de threads pour le traitement des messages
     }
 
     public void run() {
-        System.out.println("Start Listening for Peers...");
         try {
-            serverSocket = new ServerSocket(this.portNumber);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
-        while (!exit) {
-            try {
-                final Socket tmpSocket = this.serverSocket.accept();
-                communications.add(new Communication(tmpSocket));
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        handleConnection(tmpSocket);
+            // Ouvrir le canal du serveur et le configurer en mode non bloquant
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.configureBlocking(false);
+
+            // Liaison du canal du serveur au port spécifié
+            serverSocketChannel.socket().bind(new InetSocketAddress(portNumber));
+
+            // Ouvrir le sélecteur et l'enregistrer avec le canal du serveur pour les connexions entrantes
+            selector = Selector.open();
+            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+            System.out.println("Start Listening for Peers...");
+
+            // Boucle principale pour écouter les événements
+            while (true) {
+                // Sélection des canaux prêts pour l'opération
+                int readyChannels = selector.select();
+
+                // Si aucun canal n'est prêt, passer à l'itération suivante
+                if (readyChannels == 0) {
+                    continue;
+                }
+
+                // Obtenir l'ensemble des clés sélectionnées
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+
+                // Parcourir les clés sélectionnées et gérer les événements
+                while (keyIterator.hasNext()) {
+                    SelectionKey key = keyIterator.next();
+
+                    if (key.isAcceptable()) {
+                        handleAcceptableEvent(serverSocketChannel, key);
+                    } else if (key.isReadable()) {
+                        handleReadableEvent(key);
                     }
-                });
-                System.out.println("Extern Peer connected");
-            } catch (IOException e) {
-                // Handle exception
-            } catch (RejectedExecutionException e) {
-                System.out.println("Too much connections, sent to queue\n");
+
+                    // Supprimer la clé traitée pour éviter de la traiter à nouveau
+                    keyIterator.remove();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error while listening for connections: " + e.getMessage());
+        }
+    }
+
+    private void handleAcceptableEvent(ServerSocketChannel serverSocketChannel, SelectionKey key) throws IOException {
+        // Accepter la connexion entrante
+        SocketChannel socketChannel = serverSocketChannel.accept();
+        socketChannel.configureBlocking(false);
+
+        // Enregistrer le canal avec le sélecteur pour les lectures futures
+        socketChannel.register(selector, SelectionKey.OP_READ);
+
+        System.out.println("Extern Peer connected: " + socketChannel.getRemoteAddress());
+    }
+
+    private void handleReadableEvent(SelectionKey key) {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+        try {
+            // Lire les données du canal dans le tampon
+            int bytesRead = socketChannel.read(buffer);
+            if (bytesRead == -1) {
+                // La connexion a été fermée par le client
+                System.out.println("Connection closed: " + socketChannel.getRemoteAddress());
+                socketChannel.close();
+                return;
+            }
+
+            // Convertir les données lues du tampon en une chaîne de caractères
+            buffer.flip();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            String message = new String(bytes);
+
+            // Envoyer le message pour traitement dans le pool de threads
+            messageHandlerPool.execute(() -> handleIncomingMessage(message));
+
+            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
+        } catch (IOException e) {
+            System.out.println("Error while reading message: " + e.getMessage());
+            try {
+                socketChannel.close();
+            } catch (IOException ex) {
+                // Ignorer l'exception lors de la fermeture du canal
             }
         }
-        executor.shutdown(); // Arrête la pool de threads
+    }
+
+    private void handleIncomingMessage(String message) {
+        // Effectuer le traitement du message ici
+        // Exemple : Parser.parseCommand(message);
+    }
+
+    public void endListening() {
+        // Arrêter le pool de threads
+        messageHandlerPool.shutdown();
         System.out.println("The END");
     }
-
-    private void handleConnection(Socket socket) {
-        try {
-            String s = "";
-            BufferedReader pReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            while ((s = pReader.readLine()) != null) {
-                System.out.println("Received: " + s);
-                Parser.parseCommand(s);
-            }
-            System.out.println("Connection closed");
-            socket.close();
-        } catch (IOException e) {
-            System.out.println("unable to receive message \n");
-            // Handle exception
-        }
-    }
-
-    public void endListening() throws IOException {
-        exit = true;
-        if (this.serverSocket != null) {
-            this.serverSocket.close();
-        }
-        System.out.println("End Listening");
-    }
-
 }
