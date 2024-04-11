@@ -71,6 +71,43 @@ public class Peer {
         System.out.println("Peer not found\n");
     }
 
+    public void sendFile(String filePath, Communication communication) {
+        try {
+            FileInputStream fis = new FileInputStream(filePath);
+            OutputStream os = communication.getSocket().getOutputStream();
+
+            byte[] fileNameBytes = fileManager.getFile(filePath).getFile().getName().getBytes();
+            os.write(fileNameBytes);
+            os.write('\n');
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1){
+                os.write(buffer, 0, bytesRead);
+            }
+
+            System.out.println("File sent");
+            fis.close();
+        } catch (IOException e) {
+            System.out.println("Error: Cannot send file");
+        }
+    }
+
+    public void listFiles() {
+        System.out.println("Listing files stored in peer storage: ");
+        fileManager.listFiles();
+    }
+
+    public void addFile(String filePath) {
+        try {
+            System.out.println("Adding file " + filePath + " to peer storage...");
+            fileManager.addFile(filePath);
+            System.out.println("Done");
+        } catch (Exception e) {
+            System.out.println("Cannot add file to peer storage");
+        }
+    }
+
     public void displayPeers() {
         System.out.println("List of connected peers:");
         for (Communication communication : communications) {
