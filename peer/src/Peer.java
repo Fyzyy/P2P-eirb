@@ -60,4 +60,11 @@ public class Peer {
         }
         System.out.println("Peer not found\n");
     }
+
+    public void displayPeers() {
+        System.out.println("List of connected peers:");
+        for (Communication communication : communications) {
+            System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":" + communication.getSocket().getPort());
+        }
+    }
 }
