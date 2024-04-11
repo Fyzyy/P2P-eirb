@@ -17,10 +17,12 @@ public class Listener extends Thread {
     private int portNumber;
     private Selector selector;
     private ExecutorService messageHandlerPool;
+    private Parser parser;
 
-    public Listener(int portNumber) {
+    public Listener(int portNumber, Parser parser) {
         this.portNumber = portNumber;
         this.messageHandlerPool = Executors.newFixedThreadPool(10); // Pool de threads pour le traitement des messages
+        this.parser = parser;
     }
 
     public void run() {
@@ -101,11 +103,15 @@ public class Listener extends Thread {
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             String message = new String(bytes);
-
+            
+            Response response = new Response();
             // Envoyer le message pour traitement dans le pool de threads
-            messageHandlerPool.execute(() -> handleIncomingMessage(message));
+            messageHandlerPool.execute(() -> handleIncomingMessage(message, response));
+
+            socketChannel.write(ByteBuffer.wrap(response.getMessage().getBytes()));
 
             System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
+            System.out.println("Response: " + response.getMessage());
         } catch (IOException e) {
             System.out.println("Error while reading message: " + e.getMessage());
             try {
@@ -116,10 +122,9 @@ public class Listener extends Thread {
         }
     }
 
-    private void handleIncomingMessage(String message) {
-        // Effectuer le traitement du message ici
-        // Exemple : Parser.parseCommand(message);
-        System.out.println("Processing message: " + message);
+    private void handleIncomingMessage(String message, Response response) {
+        response = parser.parseCommand(message);
+
     }
 
     public void endListening() {

@@ -2,18 +2,20 @@ package src;
 
 import java.io.*;
 import java.net.*;
-import java.util.Set;
 import java.util.HashSet;
 
 public class Peer {
 
-    private Set<Communication> communications;
+    private HashSet<Communication> communications;
+    private FileManager fileManager;
     private Listener listener;
 
     public Peer(int portNumber) throws IOException {
+        
         communications = new HashSet<Communication>();
+        fileManager = new FileManager();
 
-        listener = new Listener(portNumber);
+        listener = new Listener(portNumber, new Parser(fileManager));
         listener.start();
     }
 
@@ -50,8 +52,16 @@ public class Peer {
     public void sendMessage(String message, InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
             if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
+                //Send
                 try {
                     communication.sendMessage(message);
+                } catch (IOException e) {
+                    System.out.println("I/O error: " + e.getMessage());
+                }
+
+                //Receive
+                try {
+                    System.out.println(communication.receiveMessage());
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
                 }

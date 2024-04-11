@@ -4,10 +4,17 @@ import java.util.*;
 
 public class Parser {
 
-    public static void parseCommand(String command) {
+    private FileManager fileManager;
+
+    public Parser(FileManager fileManager) {
+        this.fileManager = fileManager;
+    }
+
+    public Response parseCommand(String command) {
         String[] parts = command.split("\\s+");
         String messageType = parts[0];
-        
+        Response response = new Response();
+
         switch (messageType) {
 
             //tracker commands
@@ -23,7 +30,7 @@ public class Parser {
 
             //peer commands
             case "interested":
-                parseInterestedCommand(parts);
+                response = parseInterestedCommand(parts);
                 break;
             case "have":
                 parseHaveCommand(parts);
@@ -37,10 +44,30 @@ public class Parser {
             default:
                 System.out.println("Commande non reconnue : " + command);
         }
+        return response;
     }
+    
+    // Méthodes de parsing pour les commandes des Pairs
+    private Response parseInterestedCommand(String[] parts) {
+        String key = parts[1];
+        System.out.println("Intérêt du pair pour le fichier avec la clé " + key);
+        Response response = new Response();
 
+        if (fileManager.containsFile(key)) {
+            response.setType(ResponseType.SUCCESS);
+            response.setMessage("have" + key + " " + fileManager.getFile(key).getBitMap().toString());
+        }
+        else {
+            response.setType(ResponseType.ERROR);
+            response.setMessage("Key not found");
+        }
+
+        return response;
+        
+    }
+    
     // Méthodes de parsing pour les commandes du Tracker
-    private static void parseListCommand(String[] parts) {
+    private  void parseListCommand(String[] parts) {
         List<String> files = Arrays.asList(parts).subList(1, parts.length);
         for (int i = 0; i < files.size(); i++) {
             if (i % 4 == 0) {
@@ -53,7 +80,7 @@ public class Parser {
         }
     }
     
-    private static void parsePeersCommand(String[] parts) {
+    private  void parsePeersCommand(String[] parts) {
         String key = parts[1];
         List<String> peerList = Arrays.asList(parts).subList(2, parts.length);
 
@@ -66,41 +93,22 @@ public class Parser {
         }
     }
     
-    // Méthodes de parsing pour les commandes des Pairs
-    private static void parseInterestedCommand(String[] parts) {
-        String key = parts[1];
-        System.out.println("Intérêt du pair pour le fichier avec la clé " + key);
-    }
-    
-    private static void parseHaveCommand(String[] parts) {
+    private  void parseHaveCommand(String[] parts) {
         String key = parts[1];
         String bufferMap = parts[2];
         System.out.println("Disponibilité du pair pour le fichier avec la clé " + key + ", bufferMap : " + bufferMap);
     }
     
-    private static void parseGetPiecesCommand(String[] parts) {
+    private  void parseGetPiecesCommand(String[] parts) {
         String key = parts[1];
         List<String> pieceIndexes = Arrays.asList(parts).subList(2, parts.length);
         System.out.println("Demande de pièces du pair pour le fichier avec la clé " + key + ", indexes : " + pieceIndexes);
     }
     
-    private static void parseDataCommand(String[] parts) {
+    private  void parseDataCommand(String[] parts) {
         String key = parts[1];
         List<String> data = Arrays.asList(parts).subList(2, parts.length);
         System.out.println("Données reçues du pair pour le fichier avec la clé " + key + " : " + data);
     }
-    
-    // Exemple d'utilisation
-    public static void main(String[] args) {
-        String trackerCommand = "ok";
-        String trackerCommand2 = "list [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2]";
-        String trackerCommand3 = "peers $Key [$IP1:$Port1 $IP2:$Port2]";
-
-        parseCommand(trackerCommand);
-        parseCommand(trackerCommand2);
-        parseCommand(trackerCommand3);
-        
-        String peerCommand = "interested 8905e92afeb80fc7722ec89eb0bf0966";
-        parseCommand(peerCommand);
-    }
 }
+

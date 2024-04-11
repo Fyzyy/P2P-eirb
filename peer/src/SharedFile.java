@@ -26,6 +26,9 @@ public class SharedFile {
 
     // Tableau de bits représentant les pièces du fichier
     private int[] bitMap;
+
+    // data in pieces
+    private byte[][] data;
     
     /**
      * Constructor of the SharedFile class
@@ -40,6 +43,7 @@ public class SharedFile {
         this.key = computeKey();
         this.size = Files.size(this.file.toPath());
         pieceSize = 1024;
+        splitFile();
     }
 
     public String getKey() {
@@ -68,6 +72,33 @@ public class SharedFile {
         return null;
     }
 
+    public int[] getBitMap() {
+        return this.bitMap;
+    }
+
+    public byte[][] getData() {
+        return this.data;
+    }
+
+    private void splitFile() throws IOException {
+        int pieces = (int) Math.ceil((double) this.size / this.pieceSize);
+        this.bitMap = new int[pieces];
+        this.data = new byte[pieces][this.pieceSize];
+
+        byte[] fileData = Files.readAllBytes(Paths.get(this.file.toPath().toString()));
+
+        for (int i = 0; i < pieces; i++) {
+            int length = this.pieceSize;
+            if (i == pieces - 1) {
+                length = (int) (this.size % this.pieceSize);
+            }
+            byte[] piece = new byte[length];
+            System.arraycopy(fileData, i * this.pieceSize, piece, 0, length);
+            this.data[i] = piece;
+            bitMap[i] = 1;
+        }
+    }
+
     /**
      * Takes the path of the file and computes the hexadecimal key of the file.
      * 
@@ -84,3 +115,4 @@ public class SharedFile {
         return checksum;
     }
 }
+
