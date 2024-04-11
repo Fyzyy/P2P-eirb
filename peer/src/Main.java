@@ -103,6 +103,11 @@ public class Main {
     }
 
     private static void handleSend(String[] tokens) throws IOException, UnknownHostException {
+
+        for (String token : tokens) {
+            System.out.println(token);
+        }
+
         // Concatenate message parts separated by space
         StringBuilder messageBuilder = new StringBuilder();
         int i = 1;
@@ -186,6 +191,9 @@ public class Main {
             switch (command) {
                 case HELP_COMMAND:
                     usage();
+                    break;
+                case "peers":
+                    peer.displayPeers();
                     break;
                 case EXIT_COMMAND:
                     System.out.println("Exiting peer...");
