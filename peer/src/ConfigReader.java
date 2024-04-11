@@ -19,15 +19,10 @@ public class ConfigReader {
             inputStream = new FileInputStream("config.ini");
             properties.load(inputStream);
 
-            // Lire les valeurs à partir du fichier de configuration
             TrackerAddress = InetAddress.getByName(properties.getProperty("tracker-address"));
             TrackerPort = Integer.parseInt(properties.getProperty("tracker-port"));
             RefreshRate = Integer.parseInt(properties.getProperty("refresh-rate"));
 
-            // Afficher les valeurs lues
-            System.out.println("Paramètre 1: " + TrackerAddress);
-            System.out.println("Paramètre 2: " + TrackerPort);
-            System.out.println("Paramètre 3: " + RefreshRate);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
