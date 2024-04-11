@@ -143,7 +143,6 @@ public class Main {
     
                 if (peer.haveCommunication(address, port)) {
                     peer.sendMessage(message, address, port);
-                    System.out.println("Message sent to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 } else {
                     System.out.println("You are not connected to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 }

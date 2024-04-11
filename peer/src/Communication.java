@@ -18,6 +18,7 @@ public class Communication {
         this.socket = socket;
         this.sender = new DataOutputStream(this.socket.getOutputStream());
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        System.out.println("Connected to " + socket.getInetAddress().toString() + ":" + socket.getPort() + "\n");
     }
 
     public void sendMessage(String message) throws IOException{
@@ -42,6 +43,10 @@ public class Communication {
 
     public Socket getSocket() {
         return this.socket;
+    }
+
+    public boolean equals(Communication communication) {
+        return this.socket.getInetAddress().equals(communication.getSocket().getInetAddress()) && this.socket.getPort() == communication.getSocket().getPort();
     }
 
     public void close() throws IOException {

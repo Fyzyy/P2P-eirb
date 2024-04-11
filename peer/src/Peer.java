@@ -2,16 +2,16 @@ package src;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 public class Peer {
 
-    private List<Communication> communications;
+    private Set<Communication> communications;
     private Listener listener;
 
     public Peer(int portNumber) throws IOException {
-        communications = new ArrayList<>();
+        communications = new HashSet<Communication>();
 
         listener = new Listener(portNumber);
         listener.start();
@@ -49,7 +49,7 @@ public class Peer {
 
     public void sendMessage(String message, InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
-            if (haveCommunication(peerAddress, peerPortNumber)) {
+            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
                 try {
                     communication.sendMessage(message);
                 } catch (IOException e) {
