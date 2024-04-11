@@ -119,6 +119,7 @@ public class Listener extends Thread {
     private void handleIncomingMessage(String message) {
         // Effectuer le traitement du message ici
         // Exemple : Parser.parseCommand(message);
+        System.out.println("Processing message: " + message);
     }
 
     public void endListening() {

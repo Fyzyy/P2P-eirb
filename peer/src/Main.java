@@ -133,15 +133,14 @@ public class Main {
             String[] addressParts = tokens[peerIndex].split(":");
 
             if (addressParts.length == 2) {
-                System.out.println(addressParts.getClass().getName());
                 InetAddress address = InetAddress.getByName(addressParts[0]);
                 int port = Integer.parseInt(addressParts[1]);
     
                 if (peer.haveCommunication(address, port)) {
                     peer.sendMessage(message, address, port);
-                    System.out.println("Message sent to " + address + ":" + port + "\n");
+                    System.out.println("Message sent to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 } else {
-                    System.out.println("You are not connected to " + address + ":" + port + "\n");
+                    System.out.println("You are not connected to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 }
             }
         }

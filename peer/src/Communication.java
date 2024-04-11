@@ -25,12 +25,6 @@ public class Communication {
         try {
             sender.write(bytes);
             sender.flush();
-            try {
-                System.out.println(reader.readLine());
-            } catch (IOException e) {
-                System.out.println("Cannot read message\n");
-                throw e;
-            }
         } catch (IOException e) {
             System.out.println("Cannot send message\n");
             throw e;
