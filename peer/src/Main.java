@@ -1,5 +1,6 @@
 package src;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -17,16 +18,17 @@ public class Main {
     private static final String DISCONNECT_COMMAND = "disconnect";
     private static final String SEND_COMMAND = "send";
 
+    private static ConfigReader config = new ConfigReader();
+
     private static InetAddress TRACKER_ADDRESS;
-    private static int TRACKER_PORT = 8080;
+    private static int TRACKER_PORT;
     private static Peer peer;
 
-    static {
-        try {
-            TRACKER_ADDRESS = InetAddress.getByName("127.0.0.1");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+    private static void init(){
+        config.Parse();
+        TRACKER_ADDRESS = config.TrackerAddress;
+        TRACKER_PORT = config.TrackerPort;
+        System.out.println("Parsed");
     }
 
     private static void handleConnect(String[] tokens) throws IOException, UnknownHostException {
@@ -207,6 +209,11 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+
+        init();
+
+        System.out.println(TRACKER_ADDRESS);
+        System.out.println(TRACKER_PORT);
 
         int port = 5050; // Port par défaut
         if (args.length > 0) {
