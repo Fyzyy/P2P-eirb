@@ -54,4 +54,16 @@ public class FileManager {
         }
     }
 
+    public void getBitMap() {
+        for (SharedFile file : files.values()) {
+            System.out.println(file.getFilename() + ":" );
+            String tmp = "";
+            for (int i = 0; i<file.getBitMap().length; i++){
+                tmp += file.getBitMap()[i];
+            }
+            System.out.println(tmp);
+            System.out.println("\n");
+        }
+    }
+
 }
