@@ -37,6 +37,10 @@ public class FileManager {
             return false;
         }
     }
+    
+    public boolean containsKey(String key) {
+        return files.containsKey(key);
+    }
 
     public SharedFile getFile(String path) {
         try {
@@ -51,6 +55,18 @@ public class FileManager {
     public void listFiles() {
         for (SharedFile file : files.values()) {
             System.out.println(file.getFilename() + " (" + file.getSize() + " bytes)" + " (" + file.getPieceSize() + " piece size)" + "(" + file.getKey()+")\n");
+        }
+    }
+
+    public void getBitMap() {
+        for (SharedFile file : files.values()) {
+            System.out.println(file.getFilename() + ":" );
+            String tmp = "";
+            for (int i = 0; i<file.getBitMap().length; i++){
+                tmp += file.getBitMap()[i];
+            }
+            System.out.println(tmp);
+            System.out.println("\n");
         }
     }
 

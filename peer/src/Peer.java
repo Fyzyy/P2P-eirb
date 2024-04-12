@@ -10,12 +10,12 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
 
-    public Peer(int portNumber) throws IOException {
+    public Peer(String ip, int portNumber) throws IOException {
         
         communications = new HashSet<Communication>();
         fileManager = new FileManager();
 
-        listener = new Listener(portNumber, new Parser(fileManager));
+        listener = new Listener(ip, portNumber, new Parser(fileManager));
         listener.start();
     }
 
@@ -98,6 +98,11 @@ public class Peer {
         fileManager.listFiles();
     }
 
+    public void listBitMap() {
+        System.out.println("Bit map of the peer: ");
+        fileManager.getBitMap();
+    }
+
     public void addFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
@@ -105,6 +110,16 @@ public class Peer {
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");
+        }
+    }
+
+    public void removeFile(String filePath) {
+        try {
+            System.out.println("Removing " + filePath + " to peer stockage...");
+            fileManager.removeFile(filePath);
+            System.out.println("Done");
+        } catch (Exception e) {
+            System.out.println("Cannot remove the file");
         }
     }
 

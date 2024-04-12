@@ -14,15 +14,17 @@ import java.util.concurrent.Executors;
 
 public class Listener extends Thread {
 
+    private String ip;
     private int portNumber;
     private Selector selector;
     private ExecutorService messageHandlerPool;
     private Parser parser;
 
-    public Listener(int portNumber, Parser parser) {
+    public Listener(String ip, int portNumber, Parser parser) {
         this.portNumber = portNumber;
         this.messageHandlerPool = Executors.newFixedThreadPool(10); // Pool de threads pour le traitement des messages
         this.parser = parser;
+        this.ip = ip;
     }
 
     public void run() {
@@ -32,7 +34,9 @@ public class Listener extends Thread {
             serverSocketChannel.configureBlocking(false);
 
             // Liaison du canal du serveur au port spécifié
-            serverSocketChannel.socket().bind(new InetSocketAddress(portNumber));
+            serverSocketChannel.socket().bind(new InetSocketAddress(ip, portNumber));
+            serverSocketChannel.socket().setReuseAddress(true);
+            System.out.println("ip: " + serverSocketChannel.socket().getInetAddress() + " port: " + serverSocketChannel.socket().getLocalPort());
 
             // Ouvrir le sélecteur et l'enregistrer avec le canal du serveur pour les connexions entrantes
             selector = Selector.open();
@@ -107,7 +111,7 @@ public class Listener extends Thread {
             Response response = new Response();
             // Envoyer le message pour traitement dans le pool de threads
             messageHandlerPool.execute(() -> handleIncomingMessage(message, response));
-
+            //écris la réponse
             socketChannel.write(ByteBuffer.wrap(response.getMessage().getBytes()));
 
             System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());

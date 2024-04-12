@@ -20,7 +20,8 @@ public class Main {
     private static final String DISCONNECT_COMMAND = "disconnect";
     private static final String SEND_COMMAND = "send";
     private static final String ADD_FILE_COMMAND = "add";
-    private static final String LIST_FILES_COMMAND = "list";
+    private static final String REMOVE_FILE_COMMAND = "remove";
+    private static final String LIST_COMMAND = "list";
 
     private static ConfigReader config = new ConfigReader();
 
@@ -164,7 +165,9 @@ public class Main {
         System.out.println("To send message to peer, type: " + SEND_COMMAND + " \"$message\" $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
         System.out.println("To add a file to the peer storage, type: " + ADD_FILE_COMMAND +  " file $path_to_file\n");
-        System.out.println("To list files in peer storage, type: list files");
+        System.out.println("To remove a file to the peer storage, type: " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
+        System.out.println("To list files in peer storage, type: list files\n");
+        System.out.println("To list bitmap in peer storage, type: list bitmap");
         System.out.println("**************************************************************");
         }
     
@@ -188,7 +191,7 @@ public class Main {
                     break;
 
                 case ADD_FILE_COMMAND:
-                    if (tokens.length != 3){
+                    if (tokens.length < 3){
                         usage();
                     }
 
@@ -197,11 +200,26 @@ public class Main {
                     }
                     break;
 
-                case LIST_FILES_COMMAND:
+                case REMOVE_FILE_COMMAND:
+                    if (tokens.length < 3){
+                        usage();
+                    }
+                    
+                    else if (tokens[1].equals("file")) {
+                        peer.removeFile(tokens[2]);
+                    }
+                    break;
+                
+                case LIST_COMMAND:
                     if (tokens[1].equals("files")){
                         peer.listFiles();
                     }
-                    else{
+                    
+                    else if (tokens[1].equals("bitmap")){
+                        peer.listBitMap();
+                    }
+
+                    else {
                         usage();
                     }
                     break;
@@ -246,6 +264,7 @@ public class Main {
         System.out.println(TRACKER_ADDRESS);
         System.out.println(TRACKER_PORT);
 
+        String ip = "127.0.0.1"; // Adresse par défaut
         int port = 5050; // Port par défaut
         if (args.length > 0) {
             try {
@@ -255,7 +274,7 @@ public class Main {
             }
         }
 
-        peer = new Peer(port);
+        peer = new Peer(ip, port);
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
 
