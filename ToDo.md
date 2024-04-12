@@ -31,10 +31,8 @@ Langage: JS?
 
 - Parser coté client pour vérifier le format du message
 - Ecoute du client de la reponse du serveur -> doit pouvoir stocker les infos du tracker (num port et @ des peers à contacter)
-- Echanger des infos entre clients
 - Interface graphique du serveur et du client
-- Finir tests client
-- Automate?
 - Attention aux readLine au niveau client
-
-- Fix Reformat
+- Echange de fichiers
+- Timeout après 3 tentatives de connexion
+- Vérifier le sujet pour voir si on a rien oublié
