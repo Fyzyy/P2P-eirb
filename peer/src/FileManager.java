@@ -63,7 +63,7 @@ public class FileManager {
             System.out.println(file.getFilename() + ":" );
             String tmp = "";
             for (int i = 0; i<file.getBitMap().length; i++){
-                tmp += file.getBitMap()[i];
+                tmp += file.getBitMap()[i] ? "1" : "0";
             }
             System.out.println(tmp);
             System.out.println("\n");

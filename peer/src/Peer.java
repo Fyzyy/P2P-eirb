@@ -58,17 +58,25 @@ public class Peer {
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
                 }
-
-                //Receive
-                try {
-                    System.out.println(communication.receiveMessage());
-                } catch (IOException e) {
-                    System.out.println("I/O error: " + e.getMessage());
-                }
                 return;
             }
         }
         System.out.println("Peer not found\n");
+    }
+
+    public String receiveMessage(InetAddress peerAddress, int peerPortNumber) {
+        for (Communication communication : communications) {
+            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
+                //Receive
+                try {
+                    return communication.receiveMessage();
+                } catch (IOException e) {
+                    System.out.println("I/O error: " + e.getMessage());
+                }
+            }
+        }
+        System.out.println("Peer not found\n");
+        return null;
     }
 
     public void sendFile(String filePath, Communication communication) {
