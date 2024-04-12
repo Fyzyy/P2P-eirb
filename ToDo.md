@@ -36,3 +36,4 @@ Langage: JS?
 - Echange de fichiers
 - Timeout après 3 tentatives de connexion
 - Vérifier le sujet pour voir si on a rien oublié
+- stocker les infos sur les fichiers/échanges dans des fichiers temporaires
