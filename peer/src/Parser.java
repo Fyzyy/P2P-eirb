@@ -10,48 +10,52 @@ public class Parser {
         this.fileManager = fileManager;
     }
 
-    public Response parseCommand(String command) {
-        String[] parts = command.split("\\s+");
-        String messageType = parts[0];
-        Response response = new Response();
+    public Response parseCommand(String command) throws Exception{
+        try {
+            String[] parts = command.split("\\s+");
+            String messageType = parts[0];
+            Response response = new Response();
 
-        switch (messageType) {
+            switch (messageType) {
 
-            //tracker commands
-            case "ok":
-                System.out.println("Confirmation du tracker : " + command);
-                break;
-            case "list":
-                parseListCommand(parts);
-                break;
-            case "peers":
-                parsePeersCommand(parts);
-                break;
+                //tracker commands
+                case "ok":
+                    System.out.println("Confirmation du tracker : " + command);
+                    break;
+                case "list":
+                    parseListCommand(parts);
+                    break;
+                case "peers":
+                    parsePeersCommand(parts);
+                    break;
 
-            //peer commands
-            case "interested":
-                response = parseInterestedCommand(parts);
-                break;
-            case "have":
-                parseHaveCommand(parts);
-                break;
-            case "getpieces":
-                parseGetPiecesCommand(parts);
-                break;
-            case "data":
-                parseDataCommand(parts);
-                break;
-            default:
-                System.out.println("Commande non reconnue : " + command);
+                //peer commands
+                case "interested":
+                    parseInterestedCommand(parts, response);
+                    break;
+                case "have":
+                    parseHaveCommand(parts);
+                    break;
+                case "getpieces":
+                    parseGetPiecesCommand(parts);
+                    break;
+                case "data":
+                    parseDataCommand(parts);
+                    break;
+                default:
+                    System.out.println("Commande non reconnue : " + command);
+            }
+            return response;
+
+        } catch (Exception e) {
+            throw new Exception("Erreur lors du parsing de la commande : " + e.getMessage());
         }
-        return response;
     }
     
     // Méthodes de parsing pour les commandes des Pairs
-    private Response parseInterestedCommand(String[] parts) {
+    private void parseInterestedCommand(String[] parts, Response response) {
         String key = parts[1];
         System.out.println("Intérêt du pair pour le fichier avec la clé " + key);
-        Response response = new Response();
 
         if (fileManager.containsFile(key)) {
             response.setType(ResponseType.SUCCESS);
@@ -60,10 +64,8 @@ public class Parser {
         else {
             response.setType(ResponseType.ERROR);
             response.setMessage("Key not found");
-        }
-
-        return response;
-        
+        }        
+        return;
     }
     
     // Méthodes de parsing pour les commandes du Tracker

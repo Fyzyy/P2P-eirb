@@ -60,10 +60,15 @@
         color: #fff;
         height: 400px;
         padding: 10px;
+        width: auto;
     }
 
+    .server, .user {
+        margin-left: 0;
+    }
     .terminal p {
         margin: 0;
+        margin-right: auto;
     }
 
     .user::before {
@@ -81,7 +86,10 @@
         align-items: center;
         padding: 5px;
         background-color: #f2f2f2;
-        margin-top: 10px;
+        margin-top: auto;
+        border-radius: 5px;
+        width: 99%;
+        margin-right: 5px;
     }
 
     textarea {
@@ -95,9 +103,10 @@
 
     button {
         background-color: #007bff;
-        color: #bfb3b3;
+
         border: none;
         padding: 5px 10px;
+        margin-left: 4px;
         cursor: pointer;
     }
 

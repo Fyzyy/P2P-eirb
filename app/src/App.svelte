@@ -23,6 +23,7 @@
     align-items: center;
     height: 100vh;
     background-color: rgb(189, 185, 230);
+    width:100%;
   }
 
   .container {
@@ -32,5 +33,6 @@
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+
   }
 </style>
