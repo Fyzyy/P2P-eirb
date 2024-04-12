@@ -246,6 +246,7 @@ public class Main {
         System.out.println(TRACKER_ADDRESS);
         System.out.println(TRACKER_PORT);
 
+        String ip = "127.0.0.1"; // Adresse par défaut
         int port = 5050; // Port par défaut
         if (args.length > 0) {
             try {
@@ -255,7 +256,7 @@ public class Main {
             }
         }
 
-        peer = new Peer(port);
+        peer = new Peer(ip, port);
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
 

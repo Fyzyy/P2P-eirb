@@ -37,6 +37,10 @@ public class FileManager {
             return false;
         }
     }
+    
+    public boolean containsKey(String key) {
+        return files.containsKey(key);
+    }
 
     public SharedFile getFile(String path) {
         try {

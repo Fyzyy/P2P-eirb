@@ -10,12 +10,12 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
 
-    public Peer(int portNumber) throws IOException {
+    public Peer(String ip, int portNumber) throws IOException {
         
         communications = new HashSet<Communication>();
         fileManager = new FileManager();
 
-        listener = new Listener(portNumber, new Parser(fileManager));
+        listener = new Listener(ip, portNumber, new Parser(fileManager));
         listener.start();
     }
 
