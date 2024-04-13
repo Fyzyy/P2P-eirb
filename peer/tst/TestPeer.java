@@ -13,14 +13,20 @@ import src.Peer;
 public class TestPeer {
 
     @Test
-    void testErreurConnexion() throws UnknownHostException, IOException {
-        Peer p = new Peer(InetAddress.getByName("127.0.0.2"), 7, InetAddress.getByName("127.14.21.12"), 493);
-        try {
-            p.connectToTracker();
-            assertTrue(false);
-        } catch (IOException e) {
-            assertTrue(true);
-        }  
+    void testConnect() throws IOException {
+        Peer p = new Peer(8080);
+        p.connect(InetAddress.getByName("127.0.0.1"), 5050);
+        assertTrue(p.haveCommunication(InetAddress.getByName("127.0.0.1"), 5050));
+        assertFalse(p.haveCommunication(InetAddress.getByName("127.0.0.2"), 5050));
+    }
+
+    @Test
+    void testDisconnect() throws IOException {
+        Peer p = new Peer(8080);
+        p.connect(InetAddress.getByName("127.0.0.1"), 5050);
+        assertTrue(p.haveCommunication(InetAddress.getByName("127.0.0.1"), 5050));
+        p.disconnect(InetAddress.getByName("127.0.0.1"), 5050);
+        assertFalse(p.haveCommunication(InetAddress.getByName("127.0.0.1"), 5050));
     }
     
 }

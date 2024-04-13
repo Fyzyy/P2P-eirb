@@ -1,12 +1,15 @@
 package tst;
 
-import src.Parser;
-import src.Response;
+import src.*;
+
+import org.junit.Test;
+
 import src.FileManager;
 
 public class TestParser {
         // Exemple d'utilisation
-        public void testParsing(String[] args) {
+        @Test
+        public void testParsing() {
 
             FileManager fileManager = new FileManager();
 
