@@ -25,7 +25,7 @@ public class SharedFile {
     private int pieceSize;
 
     // Tableau de bits représentant les pièces du fichier
-    private int[] bitMap;
+    private boolean[] bitMap;
 
     // data in pieces
     private byte[][] data;
@@ -72,7 +72,7 @@ public class SharedFile {
         return null;
     }
 
-    public int[] getBitMap() {
+    public boolean[] getBitMap() {
         return this.bitMap;
     }
 
@@ -82,7 +82,7 @@ public class SharedFile {
 
     private void splitFile() throws IOException {
         int pieces = (int) Math.ceil((double) this.size / this.pieceSize);
-        this.bitMap = new int[pieces];
+        this.bitMap = new boolean[pieces];
         this.data = new byte[pieces][this.pieceSize];
 
         byte[] fileData = Files.readAllBytes(Paths.get(this.file.toPath().toString()));
@@ -95,7 +95,7 @@ public class SharedFile {
             byte[] piece = new byte[length];
             System.arraycopy(fileData, i * this.pieceSize, piece, 0, length);
             this.data[i] = piece;
-            bitMap[i] = 1;
+            bitMap[i] = true;
         }
     }
 

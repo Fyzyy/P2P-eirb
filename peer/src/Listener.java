@@ -111,6 +111,13 @@ public class Listener extends Thread {
             Response response = new Response();
             // Envoyer le message pour traitement dans le pool de threads
             messageHandlerPool.execute(() -> handleIncomingMessage(message, response));
+            
+            if (response.getType() == ResponseType.ERROR) {
+                System.out.println("Error while processing message: " + response.getMessage());
+                socketChannel.write(ByteBuffer.wrap("Error while processing message".getBytes()));
+                return;
+            }
+
             //écris la réponse
             socketChannel.write(ByteBuffer.wrap(response.getMessage().getBytes()));
 
@@ -127,7 +134,12 @@ public class Listener extends Thread {
     }
 
     private void handleIncomingMessage(String message, Response response) {
-        response = parser.parseCommand(message);
+        try {
+            response = parser.parseCommand(message);
+        } catch (Exception e) {
+            response.setType(ResponseType.ERROR);
+            response.setMessage("Error while processing message: " + e.getMessage());
+        }
 
     }
 
