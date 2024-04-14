@@ -9,8 +9,10 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Listener extends Thread {
 
@@ -36,9 +38,11 @@ public class Listener extends Thread {
             // Liaison du canal du serveur au port spécifié
             serverSocketChannel.socket().bind(new InetSocketAddress(ip, portNumber));
             serverSocketChannel.socket().setReuseAddress(true);
-            System.out.println("ip: " + serverSocketChannel.socket().getInetAddress() + " port: " + serverSocketChannel.socket().getLocalPort());
+            System.out.println("ip: " + serverSocketChannel.socket().getInetAddress() + " port: "
+                    + serverSocketChannel.socket().getLocalPort());
 
-            // Ouvrir le sélecteur et l'enregistrer avec le canal du serveur pour les connexions entrantes
+            // Ouvrir le sélecteur et l'enregistrer avec le canal du serveur pour les
+            // connexions entrantes
             selector = Selector.open();
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
@@ -91,7 +95,7 @@ public class Listener extends Thread {
     private void handleReadableEvent(SelectionKey key) {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-
+    
         try {
             // Lire les données du canal dans le tampon
             int bytesRead = socketChannel.read(buffer);
@@ -101,45 +105,57 @@ public class Listener extends Thread {
                 socketChannel.close();
                 return;
             }
-
+    
             // Convertir les données lues du tampon en une chaîne de caractères
             buffer.flip();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             String message = new String(bytes);
-            
-            Response response = new Response();
-            // Envoyer le message pour traitement dans le pool de threads
-            messageHandlerPool.execute(() -> handleIncomingMessage(message, response));
-            
-            if (response.getType() == ResponseType.ERROR) {
-                System.out.println("Error while processing message: " + response.getMessage());
-                socketChannel.write(ByteBuffer.wrap("Error while processing message".getBytes()));
-                return;
+    
+            try {
+                Future<Response> responseFuture = messageHandlerPool.submit(() -> handleIncomingMessage(message));
+                Response response = responseFuture.get();
+
+                switch (response.getType()) {
+
+                    case UNKNOW:
+                        System.out.println("Unknown : " + message);
+                        break;
+                    
+                    case ERROR:
+                        System.out.println("Error while processing message: " + response.getMessage());
+                        break;
+                    
+                    default:
+                        System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
+                        System.out.println("Response: " + response.getMessage());
+                        break;
+                }
+                
+                // Envoyer la réponse au pair
+                response.send(socketChannel);
+    
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
-
-            //écris la réponse
-            socketChannel.write(ByteBuffer.wrap(response.getMessage().getBytes()));
-
-            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
-            System.out.println("Response: " + response.getMessage());
         } catch (IOException e) {
             System.out.println("Error while reading message: " + e.getMessage());
             try {
                 socketChannel.close();
             } catch (IOException ex) {
-                // Ignorer l'exception lors de la fermeture du canal
             }
         }
     }
-
-    private void handleIncomingMessage(String message, Response response) {
+    
+    private Response handleIncomingMessage(String message) {
+        Response response = new Response();
         try {
             response = parser.parseCommand(message);
         } catch (Exception e) {
             response.setType(ResponseType.ERROR);
             response.setMessage("Error while processing message: " + e.getMessage());
         }
+        return response;
 
     }
 

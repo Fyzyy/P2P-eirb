@@ -1,12 +1,10 @@
 package src;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import javax.print.DocFlavor.STRING;
 
 public class Main {
 
@@ -148,6 +146,7 @@ public class Main {
     
                 if (peer.haveCommunication(address, port)) {
                     peer.sendMessage(message, address, port);
+                    peer.receiveMessage(address, port);
                 } else {
                     System.out.println("You are not connected to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 }
