@@ -284,7 +284,7 @@ public class Main {
              }
             int[] ports = {5000, 5001, 5002};
             System.out.println("Debug mode enabled\n");
-            peer.connect(TRACKER_ADDRESS, port);
+            peer.connect(TRACKER_ADDRESS, TRACKER_PORT);
             for (int p : ports)
                 if (p == port)
                     continue;
