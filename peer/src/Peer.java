@@ -10,6 +10,20 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
 
+    private void writeLog(String message){
+        fileManager.writeToFile("log.txt", message);
+    }
+
+    private void createLog(){
+        if (fileManager.checkFilePresence("log.txt") == false){
+            fileManager.createFile("log.txt");
+            System.out.println("Log file created\n");
+        }
+        else{
+            System.out.println("Log file already exists\n");
+        }
+    }
+
     public Peer(String ip, int portNumber) throws IOException {
         
         communications = new HashSet<Communication>();
@@ -17,6 +31,7 @@ public class Peer {
 
         listener = new Listener(ip, portNumber, new Parser(fileManager));
         listener.start();
+        createLog();
     }
 
     public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
@@ -115,6 +130,7 @@ public class Peer {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
             fileManager.addFile(filePath);
+            writeLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");

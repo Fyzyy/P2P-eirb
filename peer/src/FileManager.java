@@ -2,6 +2,10 @@ package src;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 
 public class FileManager {
     private Map<String, SharedFile> files;
@@ -68,6 +72,39 @@ public class FileManager {
             System.out.println(tmp);
             System.out.println("\n");
         }
+    }
+
+    public void createFile(String filename) {
+        try {
+            File myObj = new File(filename);
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+      
+
+    public void writeToFile (String filename, String message) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+            writer.write(message);
+            writer.newLine();
+            writer.close();
+            System.out.println("Successfully wrote to log.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public boolean checkFilePresence(String filePath) {
+        File file = new File(filePath);
+        return file.exists();
     }
 
 }
