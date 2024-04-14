@@ -266,15 +266,31 @@ public class Main {
 
         String ip = "127.0.0.1"; // Adresse par défaut
         int port = 5050; // Port par défaut
+        boolean debug = false;
         if (args.length > 0) {
             try {
                 port = Integer.parseInt(args[0]);
+                debug = args.length > 1 && Integer.parseInt(args[1]) == 1;
             } catch (NumberFormatException e) {
                 System.err.println("Le port spécifié n'est pas un nombre valide. Utilisation du port par défaut : 5050");
             }
         }
 
         peer = new Peer(ip, port);
+
+        if (debug) {
+             try {Thread.sleep(2000);} catch (InterruptedException e) {
+                e.printStackTrace();
+             }
+            int[] ports = {5000, 5001, 5002};
+            System.out.println("Debug mode enabled\n");
+            peer.connect(TRACKER_ADDRESS, port);
+            for (int p : ports)
+                if (p == port)
+                    continue;
+                else
+                    peer.connect(InetAddress.getByName("localhost"), p);
+        }
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
 
