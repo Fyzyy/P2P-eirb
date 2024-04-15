@@ -9,12 +9,18 @@ public class TestParser {
 
     private FileManager fileManager;
     private Parser parser;
+    private String key;
+    private String key_long;
 
     @Before
     public void setUp() {
         fileManager = new FileManager();
         parser = new Parser(fileManager);
-        fileManager.addFile("fichier_test.txt");
+        fileManager.addFile("data/fichier_test.txt");
+        fileManager.addFile("data/file1.txt");
+        fileManager.listFiles();
+        key = fileManager.getFile("data/fichier_test.txt").getKey();
+        key_long = fileManager.getFile("data/file1.txt").getKey();
     }
 
     @Test
@@ -25,7 +31,7 @@ public class TestParser {
             assertNotNull(response);
             assert response.getType() == ResponseType.NO_RESPONSE;
             response.print();
-            // Ajoutez des assertions supplémentaires si nécessaire
+
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
         }
@@ -37,7 +43,9 @@ public class TestParser {
         try {
             Response response = parser.parseCommand(trackerCommand);
             assertNotNull(response);
-            // Ajoutez des assertions supplémentaires si nécessaire
+            response.print();
+            assert response.getType() == ResponseType.NO_RESPONSE;
+
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
         }
@@ -45,11 +53,13 @@ public class TestParser {
 
     @Test
     public void testTrackerParsingPeersCommand() {
-        String trackerCommand = "peers $Key [$IP1:$Port1 $IP2:$Port2]";
+        String trackerCommand = "peers " + key + " [$IP1:$Port1 $IP2:$Port2]";
         try {
             Response response = parser.parseCommand(trackerCommand);
             assertNotNull(response);
-            // Ajoutez des assertions supplémentaires si nécessaire
+            response.print();
+            assert response.getType() == ResponseType.NO_RESPONSE;
+
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
         }
@@ -57,11 +67,15 @@ public class TestParser {
 
     @Test
     public void testPeerParsingInterestedCommand() {
-        String peerCommand = "interested $key";
+        String peerCommand = "interested " + key;
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
-            // Ajoutez des assertions supplémentaires si nécessaire
+            response.print();
+            assert response.getType() == ResponseType.HAVE;
+            assert response.getMessage().equals("have " + key + " [1]");
+            
+
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
         }
@@ -69,10 +83,13 @@ public class TestParser {
 
     @Test
     public void testPeerParsingHaveCommand() {
-        String peerCommand = "have $Key $BufferMap";
+        String peerCommand = "have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
+            response.print();
+            assert response.getType() == ResponseType.HAVE;
+            assert response.getMessage().equals("have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]");
             // Ajoutez des assertions supplémentaires si nécessaire
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
@@ -81,11 +98,13 @@ public class TestParser {
 
     @Test
     public void testPeerParsingGetPiecesCommand() {
-        String peerCommand = "getpieces $Key [$Index1 $Index2 $Index3]";
+        String peerCommand = "getpieces "+key_long+" [0 3 5]";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
-            // Ajoutez des assertions supplémentaires si nécessaire
+            System.out.println("\n\n RESPONSE \n\n");
+            response.print();
+            assert response.getType() == ResponseType.DATA;
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
         }
@@ -93,10 +112,12 @@ public class TestParser {
 
     @Test
     public void testPeerParsingDataCommand() {
-        String peerCommand = "data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3]";
+
+        String peerCommand = "data "+key_long+" [0:%Pi  ec  e1% 3:%P i  ece2% 4:%Pi  ece 3%]";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
+            assert response.getType() == ResponseType.NO_RESPONSE;
             // Ajoutez des assertions supplémentaires si nécessaire
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());

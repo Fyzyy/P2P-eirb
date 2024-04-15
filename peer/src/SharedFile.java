@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.io.FileNotFoundException;
 
 public class SharedFile {
 
@@ -46,6 +47,15 @@ public class SharedFile {
         splitFile();
     }
 
+    public SharedFile(String path, int pieceSize) throws IOException, NoSuchAlgorithmException {
+        this.file = new File(path);
+        this.filename = this.file.getName();
+        this.key = computeKey();
+        this.size = Files.size(this.file.toPath());
+        this.pieceSize = pieceSize;
+        splitFile();
+    }
+    
     public String getKey() {
         String copy = new String(this.key);
         return copy;
@@ -76,28 +86,60 @@ public class SharedFile {
         return this.bitMap;
     }
 
+    public String getBitMapString() {
+        String bitMapString = "";
+        for (int i = 0; i < this.bitMap.length; i++) {
+            bitMapString += this.bitMap[i] ? "1" : "0";
+        }
+        return bitMapString;
+    }
+
     public byte[][] getData() {
         return this.data;
     }
 
+    public byte[] getPiece(int index) {
+        if (index < 0 || index >= this.data.length) {
+            return null;
+        }
+        if (!this.bitMap[index]) {
+            return null;
+        }
+        
+        return this.data[index];
+    }
+
+    public void setPiece(int index, byte[] piece) {
+        this.data[index] = piece;
+        this.bitMap[index] = true;
+    }
+
+
+
     private void splitFile() throws IOException {
-        int pieces = (int) Math.ceil((double) this.size / this.pieceSize);
-        this.bitMap = new boolean[pieces];
-        this.data = new byte[pieces][this.pieceSize];
-
-        byte[] fileData = Files.readAllBytes(Paths.get(this.file.toPath().toString()));
-
-        for (int i = 0; i < pieces; i++) {
-            int length = this.pieceSize;
-            if (i == pieces - 1) {
-                length = (int) (this.size % this.pieceSize);
+        try {
+            int pieces = (int) Math.ceil((double) this.size / this.pieceSize);
+            this.bitMap = new boolean[pieces];
+            this.data = new byte[pieces][this.pieceSize];
+    
+            byte[] fileData = Files.readAllBytes(Paths.get(this.file.toPath().toString()));
+    
+            for (int i = 0; i < pieces; i++) {
+                int length = this.pieceSize;
+                if (i == pieces - 1) {
+                    length = (int) (this.size % this.pieceSize);
+                }
+                byte[] piece = new byte[length];
+                System.arraycopy(fileData, i * this.pieceSize, piece, 0, length);
+                this.data[i] = piece;
+                bitMap[i] = true;
             }
-            byte[] piece = new byte[length];
-            System.arraycopy(fileData, i * this.pieceSize, piece, 0, length);
-            this.data[i] = piece;
-            bitMap[i] = true;
+        } catch (FileNotFoundException e) {
+            // Handle file not found exception
+            System.err.println("File not found: " + e.getMessage());
         }
     }
+    
 
     /**
      * Takes the path of the file and computes the hexadecimal key of the file.

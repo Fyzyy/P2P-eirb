@@ -56,6 +56,10 @@ public class FileManager {
         }
     }
 
+    public SharedFile getFileByKey(String key) {
+        return files.get(key);
+    }
+
     public void listFiles() {
         for (SharedFile file : files.values()) {
             System.out.println(file.getFilename() + " (" + file.getSize() + " bytes)" + " (" + file.getPieceSize() + " piece size)" + "(" + file.getKey()+")\n");

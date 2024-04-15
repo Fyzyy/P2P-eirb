@@ -37,13 +37,13 @@ public class Parser {
                     parseInterestedCommand(parts, response);
                     break;
                 case "have":
-                    parseHaveCommand(parts);
+                    parseHaveCommand(parts, response);
                     break;
                 case "getpieces":
-                    parseGetPiecesCommand(parts);
+                    parseGetPiecesCommand(parts, response);
                     break;
                 case "data":
-                    parseDataCommand(parts);
+                    parseDataCommand(parts, response);
                     break;
                 default:
                     System.out.println("Commande non reconnue : " + command);
@@ -93,9 +93,9 @@ public class Parser {
         String key = parts[1];
         System.out.println("Intérêt du pair pour le fichier avec la clé " + key);
     
-        if (fileManager.containsFile(key)) {
+        if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
-            response.setMessage("have" + key + " " + fileManager.getFile(key).getBitMap().toString());
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]" );
         }
         else {
             response.setType(ResponseType.UNKNOW);
@@ -104,31 +104,103 @@ public class Parser {
         return;
     }
 
-    //TODO
     // < have $Key $BufferMap
     // > have $Key $BufferMap
-    private  void parseHaveCommand(String[] parts) {
+    private  void parseHaveCommand(String[] parts, Response response) {
         String key = parts[1];
         String bufferMap = parts[2];
         System.out.println("Disponibilité du pair pour le fichier avec la clé " + key + ", bufferMap : " + bufferMap);
+
+        if (fileManager.containsKey(key)) {
+            response.setType(ResponseType.HAVE);
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]");            
+        }
+        else {
+            response.setType(ResponseType.UNKNOW);
+            response.setMessage("Unknow key");
+        }
+
     }
     
-    //TODO
     // < getpieces $Key [$Index1 $Index2 $Index3 …]
-    // > data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
-    private  void parseGetPiecesCommand(String[] parts) {
+    // > data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …] //build the response message
+    private void parseGetPiecesCommand(String[] parts, Response response) {
         String key = parts[1];
-        List<String> pieceIndexes = Arrays.asList(parts).subList(2, parts.length);
-        System.out.println("Demande de pièces du pair pour le fichier avec la clé " + key + ", indexes : " + pieceIndexes);
+        List<String> pieceIndexes = new ArrayList<>();
+        
+        // Extracting piece indexes from the nested list
+        for (int i = 2; i < parts.length; i++) {
+            String index = parts[i].replaceAll("\\[|\\]", ""); // Removing '[' and ']' characters
+            pieceIndexes.add(index);
+        }
+        
+        System.out.println("Peer asking for piece of key : " + key + ", indexes : " + pieceIndexes);
+        
+        if (fileManager.containsKey(key)) {
+            List<String> pieces = new ArrayList<>();
+            for (String index : pieceIndexes) {
+                int pieceIndex = Integer.parseInt(index);
+                byte[] pieceData = fileManager.getFileByKey(key).getPiece(pieceIndex);
+                if (pieceData != null) {
+                    String piece = pieceIndex + ":" + "%" + new String(pieceData) + "%";
+                    pieces.add(piece);
+                } else {
+                    System.out.println("Piece " + pieceIndex + " is missing for key " + key);
+                }
+            }
+            
+            String responseData = String.join(" ", pieces);
+            response.setType(ResponseType.DATA);
+            response.setMessage("data " + key + " [" + responseData + "]");
+            System.out.println("Envoi des pièces au pair : " + response.getMessage());
+        } else {
+            response.setType(ResponseType.UNKNOW);
+            response.setMessage("Unknow key");
+            System.out.println("Unknow key");
+        }
+    }
+    
+    // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
+    // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
+    private void parseDataCommand(String[] parts, Response response) {
+        for (String part : parts) {
+            System.out.println(part);
+        }
+
+        String key = parts[1];
+
+        if (fileManager.containsKey(key)) {
+            for (int i = 2; i < parts.length; i++) {
+                // Remove brackets from the piece
+                String pieceStr = parts[i].replaceAll("[\\[\\]]", "");
+                String[] pieceSplit = pieceStr.split(":");
+                int pieceIndex = Integer.parseInt(pieceSplit[0]);
+
+                // Concatenate parts split by space until the piece is complete
+                StringBuilder fullPieceBuilder = new StringBuilder(pieceSplit[1]);
+                while (!fullPieceBuilder.toString().endsWith("%")) {
+                    i++;
+                    if (i >= parts.length) {
+                        // If we reach the end without finding the end marker, break the loop
+                        break;
+                    }
+                    fullPieceBuilder.append(" ").append(parts[i]);
+                }
+
+                // Remove '%' from the end of the full piece
+                String fullPiece = fullPieceBuilder.toString().replaceAll("%", "").replaceAll("]", "");
+
+                byte[] pieceData = fullPiece.getBytes();
+                fileManager.getFileByKey(key).setPiece(pieceIndex, pieceData);
+                System.out.println("Piece " + pieceIndex + " received for key " + key);
+                System.out.println("Piece data : " + new String(pieceData));
+            }
+            response.setType(ResponseType.NO_RESPONSE);
+        } else {
+            response.setType(ResponseType.UNKNOW);
+            response.setMessage("Unknown key");
+        }
     }
 
-    //TODO
-    // > data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
-    private  void parseDataCommand(String[] parts) {
-        String key = parts[1];
-        List<String> data = Arrays.asList(parts).subList(2, parts.length);
-        System.out.println("Données reçues du pair pour le fichier avec la clé " + key + " : " + data);
-    }
-}
 
-
+}  
