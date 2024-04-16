@@ -17,7 +17,7 @@ public class Peer {
     }
 
     private boolean checkWordPresenceInLog(String word) {
-        String[] array = readLinesFromFile("log.txt");
+        String[] array = readLinesFromLog();
         for (String str : array) {
             if (str.equals(word)) {
                 return true;
@@ -26,7 +26,8 @@ public class Peer {
         return false;
     }
 
-    private String[] readLinesFromFile(String filePath) {
+    private String[] readLinesFromLog() {
+        String filePath = "log.txt";
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -40,7 +41,7 @@ public class Peer {
     }
 
     private void loadLog(){
-        String[] files = readLinesFromFile("log.txt");
+        String[] files = readLinesFromLog();
         for (int i = 0; i<files.length; i++){
             addFile(files[i]);
         }
