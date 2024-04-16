@@ -155,6 +155,10 @@ public class Peer {
         }
     }
 
+    public String getFiles(){
+        return fileManager.getFiles();
+    }
+
     public void listFiles() {
         System.out.println("Listing files stored in peer storage: ");
         fileManager.listFiles();
