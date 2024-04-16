@@ -26,6 +26,7 @@ public class Main {
     private static InetAddress TRACKER_ADDRESS;
     private static int TRACKER_PORT;
     private static Peer peer;
+    private static int port;
 
     private static void init(){
         config.Parse();
@@ -48,6 +49,8 @@ public class Main {
                     System.out.println("Connecting to tracker ...");
                     peer.connect(address, port);
                     System.out.println("Connection successful\n");
+                    String[] announce = {"send", "\"announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]\"", "tracker"};
+                    handleSend(announce);
                 } else {
                     System.out.println("You are already connected\n");
                 }
@@ -259,7 +262,7 @@ public class Main {
         System.out.println(TRACKER_PORT);
 
         String ip = "127.0.0.1"; // Adresse par défaut
-        int port = 5050; // Port par défaut
+        port = 5050; // Port par défaut
         boolean debug = false;
         if (args.length > 0) {
             try {
