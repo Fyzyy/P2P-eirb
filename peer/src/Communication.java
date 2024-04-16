@@ -18,7 +18,7 @@ public class Communication {
         this.socket = socket;
         this.sender = new DataOutputStream(this.socket.getOutputStream());
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-        System.out.println("Connected to " + socket.getInetAddress().toString() + ":" + socket.getPort() + "\n");
+        //System.out.println("Connected to " + socket.getInetAddress().toString() + ":" + socket.getPort() + "\n");
     }
 
     public void sendMessage(String message) throws IOException{
@@ -33,8 +33,19 @@ public class Communication {
     }
 
     public String receiveMessage() throws IOException {
+        StringBuilder messageBuilder = new StringBuilder();
+        int prevChar = -1;
+        int character;
         try {
-            return reader.readLine();
+            while ((character = reader.read()) != -1) {
+                if (prevChar == '\r' && character == '\n') {
+                    messageBuilder.append((char) character);
+                    break; // Message complet reçu
+                }
+                messageBuilder.append((char) character);
+                prevChar = character;
+            }
+            return messageBuilder.toString();
         } catch (IOException e) {
             System.out.println("Cannot read message\n");
             throw e;

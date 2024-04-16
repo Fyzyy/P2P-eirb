@@ -133,9 +133,10 @@ public class Listener extends Thread {
                         System.out.println("Response: " + response.getMessage());
                         break;
                 }
-                
-                // Envoyer la réponse au pair
-                response.send(socketChannel);
+
+                if (response.getType() != ResponseType.NO_RESPONSE)                
+                    // Envoyer la réponse au pair
+                    response.send(socketChannel);
     
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
