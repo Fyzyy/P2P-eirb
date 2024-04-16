@@ -111,6 +111,8 @@ public class Listener extends Thread {
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             String message = new String(bytes);
+
+            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
     
             try {
                 Future<Response> responseFuture = messageHandlerPool.submit(() -> handleIncomingMessage(message));

@@ -1,7 +1,7 @@
 package src;
 
-import java.io.DataOutputStream;
 import java.nio.channels.SocketChannel;
+import java.nio.ByteBuffer;
 
 
 public class Response {
@@ -35,8 +35,7 @@ public class Response {
     
     public void send(SocketChannel sender) {
         try {
-            DataOutputStream out = new DataOutputStream(sender.socket().getOutputStream());
-            out.writeUTF(this.message);
+            sender.write(ByteBuffer.wrap(this.message.getBytes()));
         } catch (Exception e) {
             System.out.println("Error while sending response: " + e.getMessage());
         }

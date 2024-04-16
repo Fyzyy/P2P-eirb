@@ -70,6 +70,10 @@ public class Peer {
                 //Send
                 try {
                     communication.sendMessage(message);
+
+                    ResponseListener responseListener = new ResponseListener(communication);
+                    Thread listenerThread = new Thread(responseListener);
+                    listenerThread.start();
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
                 }
@@ -151,6 +155,29 @@ public class Peer {
         System.out.println("List of connected peers:");
         for (Communication communication : communications) {
             System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":" + communication.getSocket().getPort());
+        }
+    }
+}
+
+
+class ResponseListener implements Runnable {
+    private Communication communication;
+
+    public ResponseListener(Communication communication) {
+        this.communication = communication;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                String response = communication.receiveMessage();
+                if (response != null) {
+                    System.out.println("Received response: " + response);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error while listening for responses: " + e.getMessage());
         }
     }
 }
