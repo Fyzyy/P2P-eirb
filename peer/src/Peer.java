@@ -30,14 +30,12 @@ public class Peer {
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
-            // Lecture de chaque ligne du fichier et ajout dans la liste
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
         } catch (IOException e) {
             System.err.println("Erreur lors de la lecture du fichier : " + e.getMessage());
         }
-        // Conversion de la liste en tableau de String
         return lines.toArray(new String[0]);
     }
 
