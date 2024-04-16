@@ -3,6 +3,8 @@ package src;
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Peer {
 
@@ -14,13 +16,47 @@ public class Peer {
         fileManager.writeToFile("log.txt", message);
     }
 
+    private boolean checkWordPresenceInLog(String word) {
+        String[] array = readLinesFromFile("log.txt");
+        for (String str : array) {
+            if (str.equals(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String[] readLinesFromFile(String filePath) {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            // Lecture de chaque ligne du fichier et ajout dans la liste
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la lecture du fichier : " + e.getMessage());
+        }
+        // Conversion de la liste en tableau de String
+        return lines.toArray(new String[0]);
+    }
+
+    private void loadLog(){
+        String[] files = readLinesFromFile("log.txt");
+        for (int i = 0; i<files.length; i++){
+            addFile(files[i]);
+        }
+        System.out.println("Log file loaded\n");
+    }
+
     private void createLog(){
         if (fileManager.checkFilePresence("log.txt") == false){
             fileManager.createFile("log.txt");
             System.out.println("Log file created\n");
         }
         else{
-            System.out.println("Log file already exists\n");
+            System.out.println("Log file already exists");
+            loadLog();
         }
     }
 
@@ -133,8 +169,10 @@ public class Peer {
     public void addFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
+            if(!checkWordPresenceInLog(filePath)){
+                writeLog(filePath);
+            }
             fileManager.addFile(filePath);
-            writeLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");
