@@ -118,8 +118,18 @@ enum tokens announce(response* res) {
         printf("peer listening %d\n", atoi(port));
         res->peer->listening_port = atoi(port);
         char* tokens = strtok(NULL, " "); // seed || leech
-        if (tokens == NULL || !(strcmp(tokens, "seed") == 0 || strcmp(tokens, "leech") == 0))
-            return OK;
+        
+        if (tokens == NULL) {
+            res->token = OK;
+            strcpy(res->message, "ok\r\n");
+            return OK;            
+        }
+
+        if ( !(strcmp(tokens, "seed") == 0 || strcmp(tokens, "leech") == 0) ) {
+            res->token = UNKNOWN;
+            strcpy(res->message, usage);
+            return UNKNOWN;
+        }
         __attribute__((fallthrough));
 
     case SEED:

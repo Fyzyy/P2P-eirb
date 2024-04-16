@@ -41,7 +41,11 @@ void parse_and_response(void* args) {
     printf("Données reçues de %s:%d : %s\n", peer->ip_address, peer->port, buffer);
     response* res = create_response(peer);
     parsing(buffer, res);
-    send(peer->socket, res->message, strlen(res->message), 0);
+    int bytesend = send(peer->socket, res->message, strlen(res->message), 0);
+    if (bytesend == -1) {
+        perror("Erreur lors de l'envoi de données");
+    }
+    printf("Données envoyées à %s:%d : %s\n", peer->ip_address, peer->port, res->message);
     free(res);
     free(data);
 
