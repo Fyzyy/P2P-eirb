@@ -1,6 +1,8 @@
 package src;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
@@ -54,6 +56,27 @@ public class FileManager {
             System.out.println("Cannot get file: " + e.getMessage());
             return null;
         }
+    }
+
+    public String convertListToString(List<String> list) {
+        StringBuilder sb = new StringBuilder();
+        for (String str : list) {
+            sb.append(str);
+            sb.append(" ");
+        }
+        return sb.toString(); 
+    }
+
+    public String getFiles(){
+        List<String> res = new ArrayList<String>();
+        
+        for (SharedFile file : files.values()) {
+            res.add(file.getFilename());
+            res.add(Long.toString(file.getSize()));
+            res.add(Integer.toString(file.getPieceSize()));
+            res.add(file.getKey());
+        }
+        return convertListToString(res);
     }
 
     public SharedFile getFileByKey(String key) {
