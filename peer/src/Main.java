@@ -107,10 +107,6 @@ public class Main {
 
     private static void handleSend(String[] tokens) throws IOException, UnknownHostException {
 
-        for (String token : tokens) {
-            System.out.println(token);
-        }
-
         // Concatenate message parts separated by space
         StringBuilder messageBuilder = new StringBuilder();
         int i = 1;
@@ -146,7 +142,6 @@ public class Main {
     
                 if (peer.haveCommunication(address, port)) {
                     peer.sendMessage(message, address, port);
-                    peer.receiveMessage(address, port);
                 } else {
                     System.out.println("You are not connected to " + address.toString() + ":" + Integer.toString(port) + "\n");
                 }
