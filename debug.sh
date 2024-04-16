@@ -12,5 +12,5 @@ else
     gnome-terminal -- make peer PORT=5000
     gnome-terminal -- make peer PORT=5001
     gnome-terminal -- make peer PORT=5002
-
+    gnome-terminal -- make tracker
 fi
