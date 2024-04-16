@@ -67,13 +67,13 @@ public class TestParser {
 
     @Test
     public void testPeerParsingInterestedCommand() {
-        String peerCommand = "interested " + key;
+        String peerCommand = "interested " + key + "\n";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
             response.print();
             assert response.getType() == ResponseType.HAVE;
-            assert response.getMessage().equals("have " + key + " [1]");
+            assert response.getMessage().equals("have " + key + " [1]\r\n");
             
 
         } catch (Exception e) {
@@ -83,13 +83,13 @@ public class TestParser {
 
     @Test
     public void testPeerParsingHaveCommand() {
-        String peerCommand = "have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]";
+        String peerCommand = "have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]\n";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
             response.print();
             assert response.getType() == ResponseType.HAVE;
-            assert response.getMessage().equals("have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]");
+            assert response.getMessage().equals("have "+ key + " [" +fileManager.getFileByKey(key).getBitMapString() + "]\r\n");
             // Ajoutez des assertions supplémentaires si nécessaire
         } catch (Exception e) {
             fail("Une exception a été levée : " + e.getMessage());
@@ -98,7 +98,7 @@ public class TestParser {
 
     @Test
     public void testPeerParsingGetPiecesCommand() {
-        String peerCommand = "getpieces "+key_long+" [0 3 5]";
+        String peerCommand = "getpieces "+key_long+" [0 3 5]\r\n";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);
@@ -113,7 +113,7 @@ public class TestParser {
     @Test
     public void testPeerParsingDataCommand() {
 
-        String peerCommand = "data "+key_long+" [0:%Pi  ec  e1% 3:%P i  ece2% 4:%Pi  ece 3%]";
+        String peerCommand = "data "+key_long+" [0:%Pi  ec  e1% 3:%P i  ece2% 4:%Pi  ece 3%]\r\n";
         try {
             Response response = parser.parseCommand(peerCommand);
             assertNotNull(response);

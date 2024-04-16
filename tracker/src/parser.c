@@ -51,13 +51,13 @@ enum tokens leech_key(response* res) {
             add_leecher_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
         } else {
             res->token = ERROR;
-            strcpy(res->message, "Error: Unfind key. \n");
+            strcpy(res->message, "Error: Unfind key. \r\n");
             return ERROR;
         }
         keys = strtok(NULL,separator);
     }
     res->token = OK;
-    strcpy(res->message, "ok\n");
+    strcpy(res->message, "ok\r\n");
     return OK;
 }
 
@@ -82,7 +82,7 @@ enum tokens seed(response* res) {
 
         if (file_size_str == NULL || piece_size_str == NULL || file_key == NULL) {
             res->token = ERROR;
-            strcpy(res->message, "Erreur : Paramètres manquants.\n");
+            strcpy(res->message, "Erreur : Paramètres manquants.\r\n");
             return ERROR;
         }
 
@@ -97,13 +97,13 @@ enum tokens seed(response* res) {
     }
 
     res->token = OK;
-    strcpy(res->message, "ok\n");
+    strcpy(res->message, "ok\r\n");
     return OK;
 }
 
 enum tokens announce(response* res) {
 
-    char* usage = "Usage : announce listen $Port seed [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2 …] leech [$Key3 $Key4 …]\n";
+    char* usage = "Usage : announce listen $Port seed [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2 …] leech [$Key3 $Key4 …]\r\n";
     char* tokens = strtok(NULL, " "); // listen || seed || leech
     if (tokens == NULL) {
         res->token = ERROR;
@@ -118,8 +118,18 @@ enum tokens announce(response* res) {
         printf("peer listening %d\n", atoi(port));
         res->peer->listening_port = atoi(port);
         char* tokens = strtok(NULL, " "); // seed || leech
-        if (tokens == NULL || !(strcmp(tokens, "seed") == 0 || strcmp(tokens, "leech") == 0))
-            return OK;
+        
+        if (tokens == NULL) {
+            res->token = OK;
+            strcpy(res->message, "ok\r\n");
+            return OK;            
+        }
+
+        if ( !(strcmp(tokens, "seed") == 0 || strcmp(tokens, "leech") == 0) ) {
+            res->token = UNKNOWN;
+            strcpy(res->message, usage);
+            return UNKNOWN;
+        }
         __attribute__((fallthrough));
 
     case SEED:
@@ -137,7 +147,7 @@ enum tokens announce(response* res) {
 
     default:
         res->token = OK;
-        strcpy(res->message, "ok\n");
+        strcpy(res->message, "ok\r\n");
         return OK;
     }
 }
@@ -154,7 +164,7 @@ enum tokens look(response* res) {
     if (filename == NULL) {
         printf("Erreur : Clé de fichier manquante.\n");
         res->token = ERROR;
-        strcpy(res->message, "Erreur : Clé de fichier manquante.\n");
+        strcpy(res->message, "Erreur : Clé de fichier manquante.\r\n");
         return UNKNOWN;
     }
     else {
@@ -182,12 +192,12 @@ enum tokens look(response* res) {
     FileInfo* file = look_file(filename, size, operator);
     if (file == NULL) {
         res->token = ERROR;
-        strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+        strcpy(res->message, "Erreur : Fichier non trouvé.\r\n");
         return ERROR;
     }
 
     char message[MAX_BUFFER_SIZE];
-    sprintf(message, "list [%s %d %d %s]\n", file->filename, file->length, file->pieceSize, file->key);
+    sprintf(message, "list [%s %d %d %s]\r\n", file->filename, file->length, file->pieceSize, file->key);
     strcpy(res->message, message);
     return LIST;
 }
@@ -197,14 +207,14 @@ enum tokens look(response* res) {
 enum tokens getfile(response* res) {
     char* key = strtok(NULL, " \n\t\r"); // file key
     if (key == NULL) {
-        strcpy(res->message, "Usage: getfile $key\n");
+        strcpy(res->message, "Usage: getfile $key\r\n");
         return ERROR;
     }
     printf("Peer requesting file with key: %s\n", key);
 
     FileInfo* file =  search_tracked_file(key);
     if (file == NULL) {
-        strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+        strcpy(res->message, "Erreur : Fichier non trouvé.\r\n");
         res->token = ERROR;
         return ERROR;
     }
@@ -212,7 +222,7 @@ enum tokens getfile(response* res) {
         res->token = PEERS;
         char message[MAX_BUFFER_SIZE];
         char* peers_list = PeersList_to_string(file->seeder);
-        sprintf(message, "peers %s [%s]\n", file->key, peers_list);
+        sprintf(message, "peers %s [%s]\r\n", file->key, peers_list);
         strcpy(res->message, message);
         free(peers_list);
     }
@@ -236,7 +246,7 @@ enum tokens seed_key(response* res) {
 
         if (file == NULL) {
             res->token = ERROR;
-            strcpy(res->message, "Erreur : Fichier non trouvé.\n");
+            strcpy(res->message, "Erreur : Fichier non trouvé.\r\n");
             return ERROR;
         }
 
@@ -247,7 +257,7 @@ enum tokens seed_key(response* res) {
     }
 
     res->token = OK;
-    strcpy(res->message, "ok\n");
+    strcpy(res->message, "ok\r\n");
     return OK;
 }
 
@@ -291,7 +301,7 @@ enum tokens parsing(char* buffer, response* res) {
 
         case UNKNOWN:
             res->token = UNKNOWN;
-            strcpy(res->message, "Commande inconnue.\n");
+            strcpy(res->message, "Commande inconnue.\r\n");
             return UNKNOWN;
         default:
             return UNKNOWN;

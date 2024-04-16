@@ -208,12 +208,9 @@ class ResponseListener implements Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
-                String response = communication.receiveMessage();
-                if (response != null) {
-                    System.out.println("Received response: " + response);
-                }
-            }
+            String response = communication.receiveMessage();
+            if (response != null)
+                System.out.println("Received response: " + response);
         } catch (IOException e) {
             System.out.println("Error while listening for responses: " + e.getMessage());
         }

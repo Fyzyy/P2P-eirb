@@ -95,11 +95,11 @@ public class Parser {
     
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
-            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]" );
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n" );
         }
         else {
             response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknow key");
+            response.setMessage("Unknow key\r\n");
         }        
         return;
     }
@@ -113,11 +113,11 @@ public class Parser {
 
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
-            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]");            
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n");            
         }
         else {
             response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknow key");
+            response.setMessage("Unknow key\r\n");
         }
 
     }
@@ -151,16 +151,15 @@ public class Parser {
             
             String responseData = String.join(" ", pieces);
             response.setType(ResponseType.DATA);
-            response.setMessage("data " + key + " [" + responseData + "]");
+            response.setMessage("data " + key + " [" + responseData + "]\r\n");
             System.out.println("Envoi des pièces au pair : " + response.getMessage());
         } else {
             response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknow key");
+            response.setMessage("Unknow key\r\n");
             System.out.println("Unknow key");
         }
     }
     
-    // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
     private void parseDataCommand(String[] parts, Response response) {
         for (String part : parts) {
@@ -198,7 +197,7 @@ public class Parser {
             response.setType(ResponseType.NO_RESPONSE);
         } else {
             response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknown key");
+            response.setMessage("Unknown key\r\n");
         }
     }
 
