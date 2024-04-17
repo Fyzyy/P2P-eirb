@@ -72,6 +72,7 @@ PeerInfo* new_peer(PeersList* peers, const char *ip, int port) {
     newPeer->port = port;
     newPeer->listening_port = port;
     newPeer->socket = -1;
+    newPeer->nb_incorrect_cmds = 0;
     // Add the peer to the list
     peers->peers[peers->n_peers++] = newPeer;
     

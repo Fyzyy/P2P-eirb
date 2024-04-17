@@ -15,6 +15,7 @@ typedef struct {
     int port;
     int listening_port;
     int socket;
+    int nb_incorrect_cmds;
 } PeerInfo;
 
 typedef struct {

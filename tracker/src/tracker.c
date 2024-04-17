@@ -37,10 +37,21 @@ void parse_and_response(void* args) {
     args_data* data = (args_data*)args;
     char* buffer = data->buffer;
     PeerInfo* peer = data->peer;
+    int must_disconnect = 0;
 
     printf("Données reçues de %s:%d : %s\n", peer->ip_address, peer->port, buffer);
     response* res = create_response(peer);
-    parsing(buffer, res);
+    if (parsing(buffer, res) == UNKNOWN) {
+        peer->nb_incorrect_cmds += 1;
+    }
+    else {
+        peer->nb_incorrect_cmds = 0;
+    }
+    if (peer->nb_incorrect_cmds >= 3) {
+        must_disconnect = 1;
+        //printf("Je dois te déco mais vsy je sais pas encore faire\n");
+    }
+    
     int bytesend = send(peer->socket, res->message, strlen(res->message), 0);
     if (bytesend == -1) {
         perror("Erreur lors de l'envoi de données");
@@ -48,7 +59,12 @@ void parse_and_response(void* args) {
     printf("Données envoyées à %s:%d : %s\n", peer->ip_address, peer->port, res->message);
     free(res);
     free(data);
-
+    if (must_disconnect) {
+        printf("%s:%d déconnecté.\n", peer->ip_address, peer->port);
+        delete_peer_from_list(connectedPeers, peer->ip_address, peer->port);
+        close(peer->socket);
+        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
+    }
 }
 
 void* handle_data() {
