@@ -16,6 +16,35 @@ public class Peer {
         fileManager.writeToFile("log.txt", message);
     }
 
+    private void removeFromLog(String message) throws IOException{
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("log.txt"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            if (checkWordPresenceInLog(message)){
+
+                while ((line = reader.readLine()) != null) {
+                    line = line.replaceAll(message, "");
+                    sb.append(line).append("\n");
+                }
+                reader.close();
+                
+                BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt"));
+                writer.write(sb.toString());
+                writer.close();
+                
+                System.out.println("Le mot \"" + message + "\" a été effacé du fichier.");
+            }
+            
+            else{
+                System.out.println("File not present in log");
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la manipulation du fichier : " + e.getMessage());
+        }
+    }
+
     private boolean checkWordPresenceInLog(String word) {
         String[] array = readLinesFromLog();
         for (String str : array) {
@@ -186,6 +215,7 @@ public class Peer {
         try {
             System.out.println("Removing " + filePath + " to peer stockage...");
             fileManager.removeFile(filePath);
+            removeFromLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot remove the file");
