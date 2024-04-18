@@ -117,26 +117,40 @@ public class Listener extends Thread {
             try {
                 Future<Response> responseFuture = messageHandlerPool.submit(() -> handleIncomingMessage(message));
                 Response response = responseFuture.get();
+                if (response.getMessage()!=null){
 
-                switch (response.getType()) {
+                    switch (response.getType()) {
+                        
+                        case NO_RESPONSE:
+                            System.out.println("No response\n");
+                            break;
 
-                    case UNKNOW:
-                        System.out.println("Unknown : " + message);
-                        break;
+                        case UNKNOW:
+                            System.out.println("Unknown : " + message);
+                            break;
+                        
+                        case ERROR:
+                            System.out.println("Error while processing message: " + response.getMessage());
+                            break;
+                        
+                        default:
+                            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
+                            System.out.println("Response: " + response.getMessage());
+                            break;
+                    }
                     
-                    case ERROR:
-                        System.out.println("Error while processing message: " + response.getMessage());
-                        break;
-                    
-                    default:
-                        System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
-                        System.out.println("Response: " + response.getMessage());
-                        break;
                 }
 
-                if (response.getType() != ResponseType.NO_RESPONSE)                
+                else{
+                    response.setMessage("Unknown command");
+                    response.setType(ResponseType.UNKNOW);
+                }
+
+                if (response.getType() != ResponseType.NO_RESPONSE){
                     // Envoyer la réponse au pair
                     response.send(socketChannel);
+                }              
+
     
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
