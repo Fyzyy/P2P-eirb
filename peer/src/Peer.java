@@ -3,8 +3,6 @@ package src;
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Peer {
 
@@ -12,92 +10,18 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
     private Parser parser;
-
-    private void writeLog(String message){
-        fileManager.writeToFile("log.txt", message);
-    }
-
-    private void removeFromLog(String message) throws IOException{
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("log.txt"));
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            if (checkWordPresenceInLog(message)){
-
-                while ((line = reader.readLine()) != null) {
-                    line = line.replaceAll(message, "");
-                    sb.append(line).append("\n");
-                }
-                reader.close();
-                
-                BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt"));
-                writer.write(sb.toString());
-                writer.close();
-                
-                System.out.println("Le mot \"" + message + "\" a été effacé du fichier.");
-            }
-            
-            else{
-                System.out.println("File not present in log");
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la manipulation du fichier : " + e.getMessage());
-        }
-    }
-
-    private boolean checkWordPresenceInLog(String word) {
-        String[] array = readLinesFromLog();
-        for (String str : array) {
-            if (str.equals(word)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String[] readLinesFromLog() {
-        String filePath = "log.txt";
-        List<String> lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la lecture du fichier : " + e.getMessage());
-        }
-        return lines.toArray(new String[0]);
-    }
-
-    private void loadLog(){
-        String[] files = readLinesFromLog();
-        for (int i = 0; i<files.length; i++){
-            addFile(files[i]);
-        }
-        System.out.println("Log file loaded\n");
-    }
-
-    private void createLog(){
-        if (fileManager.checkFilePresence("log.txt") == false){
-            fileManager.createFile("log.txt");
-            System.out.println("Log file created\n");
-        }
-        else{
-            System.out.println("Log file already exists");
-            loadLog();
-        }
-    }
+    private LogManager logManager;
 
     public Peer(String ip, int portNumber) throws IOException {
         
         communications = new HashSet<Communication>();
         fileManager = new FileManager();
         parser = new Parser(fileManager);
+        logManager = new LogManager(portNumber);
 
         listener = new Listener(ip, portNumber, parser);
         listener.start();
-        createLog();
+        logManager.createLog(fileManager);
     }
 
     public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
@@ -203,8 +127,8 @@ public class Peer {
     public void addFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
-            if(!checkWordPresenceInLog(filePath)){
-                writeLog(filePath);
+            if(!logManager.checkWordPresenceInLog(filePath)){
+                logManager.writeLog(filePath, fileManager);
             }
             fileManager.addFile(filePath);
             System.out.println("Done");
@@ -217,7 +141,7 @@ public class Peer {
         try {
             System.out.println("Removing " + filePath + " to peer stockage...");
             fileManager.removeFile(filePath);
-            removeFromLog(filePath);
+            logManager.removeFromLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot remove the file");
