@@ -47,7 +47,7 @@ public class Peer {
             if (haveCommunication(peerAddress, peerPortNumber)) {
                 this.communications.remove(communication);
                 communication.close();
-                System.out.println("Disconnected from peer\n");
+                System.out.println("Connection closed\n");
                 return;
             }
         }
@@ -66,6 +66,13 @@ public class Peer {
                     listenerThread.start();
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
+                    try {
+                        System.out.println("Fermeture de la communication...");
+                        this.disconnect(peerAddress, peerPortNumber);
+                    }
+                    catch (IOException ex) {
+                        System.out.println("I/O error: " + ex.getMessage());
+                    }
                 }
                 return;
             }
