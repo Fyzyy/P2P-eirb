@@ -17,7 +17,7 @@ public class Main {
     private static final String CONNECT_COMMAND = "connect";
     private static final String DISCONNECT_COMMAND = "disconnect";
     private static final String SEND_COMMAND = "send";
-    private static final String ADD_FILE_COMMAND = "add";
+    private static final String LOAD_FILE_COMMAND = "load";
     private static final String REMOVE_FILE_COMMAND = "remove";
     private static final String LIST_COMMAND = "list";
 
@@ -161,7 +161,7 @@ public class Main {
         System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To send message to peer, type: " + SEND_COMMAND + " \"$message\" $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
-        System.out.println("To add a file to the peer storage, type: " + ADD_FILE_COMMAND +  " file $path_to_file\n");
+        System.out.println("To add a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file\n");
         System.out.println("To remove a file to the peer storage, type: " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
         System.out.println("To list files in peer storage, type: list files\n");
         System.out.println("To list bitmap in peer storage, type: list bitmap");
@@ -187,7 +187,7 @@ public class Main {
                     handleSend(tokens);
                     break;
 
-                case ADD_FILE_COMMAND:
+                case LOAD_FILE_COMMAND:
                     if (tokens.length < 3){
                         usage();
                     }
