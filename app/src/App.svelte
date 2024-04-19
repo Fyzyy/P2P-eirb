@@ -2,6 +2,7 @@
   import Terminal from './lib/Terminal.svelte'
   import TrackerInfo from './lib/TrackerInfo.svelte'
   import File from './lib/File.svelte'
+  import FileManager from './lib/FileManager.svelte';
 
   const adress = undefined
   const port = undefined
@@ -14,6 +15,7 @@
     <TrackerInfo/>
     <File/>
     <Terminal/>
+    <FileManager/>
   </div>
 </main>
 

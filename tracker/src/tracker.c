@@ -33,6 +33,13 @@ void quit() {
     exit(EXIT_SUCCESS);
 }
 
+void disconnect_peer(PeerInfo * peer) {
+    printf("%s:%d déconnecté.\n", peer->ip_address, peer->port);
+    delete_peer_from_list(connectedPeers, peer->ip_address, peer->port);
+    close(peer->socket);
+    printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
+}
+
 void parse_and_response(void* args) {
     args_data* data = (args_data*)args;
     char* buffer = data->buffer;
@@ -60,10 +67,7 @@ void parse_and_response(void* args) {
     free(res);
     free(data);
     if (must_disconnect) {
-        printf("%s:%d déconnecté.\n", peer->ip_address, peer->port);
-        delete_peer_from_list(connectedPeers, peer->ip_address, peer->port);
-        close(peer->socket);
-        printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
+        disconnect_peer(peer);
     }
 }
 
@@ -109,10 +113,7 @@ void* handle_data() {
                     args->buffer[bytes_received] = '\0';
                     thpool_add_work(thpool, parse_and_response, (void*) args);
                 } else if (bytes_received == 0) {
-                    printf("%s:%d déconnecté.\n", connectedPeers->peers[i]->ip_address, connectedPeers->peers[i]->port);
-                    delete_peer_from_list(connectedPeers, connectedPeers->peers[i]->ip_address, connectedPeers->peers[i]->port);
-                    close(sockfd);
-                    printf("Nombre de pairs connectés : %d\n", connectedPeers->n_peers);
+                    disconnect_peer(connectedPeers->peers[i]);
                 } else if (bytes_received == -1) {
                     perror("Erreur lors de la réception de données");
                 }
