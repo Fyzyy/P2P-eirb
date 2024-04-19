@@ -193,7 +193,7 @@ public class Main {
                     }
 
                     else if (tokens[1].equals("file")){
-                        peer.addFile(tokens[2]);
+                        peer.loadFile(tokens[2]);
                     }
                     break;
 

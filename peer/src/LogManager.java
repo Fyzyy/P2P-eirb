@@ -20,7 +20,7 @@ public class LogManager {
     public void loadLog(FileManager fileManager){
         String[] files = readLinesFromLog();
         for (int i = 0; i<files.length; i++){
-            fileManager.addFile(files[i]);
+            fileManager.loadFile(files[i]);
         }
         System.out.println("Log file loaded\n");
     }
