@@ -16,7 +16,7 @@ public class FileManager {
         files = new HashMap<>();
     }
 
-    public void addFile(String path) {
+    public void loadFile(String path) {
         try {
             SharedFile file = new SharedFile(path);
             files.put(file.getKey(), file);

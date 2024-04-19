@@ -131,13 +131,13 @@ public class Peer {
         fileManager.getBitMap();
     }
 
-    public void addFile(String filePath) {
+    public void loadFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
             if(!logManager.checkWordPresenceInLog(filePath)){
                 logManager.writeLog(filePath, fileManager);
             }
-            fileManager.addFile(filePath);
+            fileManager.loadFile(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");
