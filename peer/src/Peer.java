@@ -131,6 +131,10 @@ public class Peer {
         fileManager.getBitMap();
     }
 
+    public void newFile(String filename, int pieceSize, int size) {
+        fileManager.createFile(filename, pieceSize, size);
+    }
+
     public void loadFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");

@@ -25,6 +25,15 @@ public class FileManager {
         }
     }
 
+    public void loadFile(String path, int pieceSize, int size) {
+        try {
+            SharedFile file = new SharedFile(path, pieceSize, size);
+            files.put(file.getKey(), file);
+        } catch (Exception e) {
+            System.out.println("Cannot add file: " + e.getMessage());
+        }
+    }
+
     public void removeFile(String path) {
         try {
             SharedFile file = new SharedFile(path);
@@ -101,6 +110,7 @@ public class FileManager {
         }
     }
 
+
     public void createFile(String filename) {
         try {
             File myObj = new File(filename);
@@ -114,8 +124,22 @@ public class FileManager {
             e.printStackTrace();
         }
     }
+        
+    public void createFile(String filename, int pieceSize, int size) {
+        try {
+            File myObj = new File(filename);
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+                loadFile(filename, pieceSize, size);
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
       
-
     public void writeToFile (String filename, String message) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));

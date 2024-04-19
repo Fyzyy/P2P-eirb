@@ -55,6 +55,15 @@ public class SharedFile {
         this.pieceSize = pieceSize;
         splitFile();
     }
+
+    public SharedFile(String path, int pieceSize, int size) throws IOException, NoSuchAlgorithmException {
+        this.file = new File(path);
+        this.filename = this.file.getName();
+        this.key = computeKey();
+        this.size = size;
+        this.pieceSize = pieceSize;
+        splitFile();
+    }
     
     public String getKey() {
         String copy = new String(this.key);
