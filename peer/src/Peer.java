@@ -11,6 +11,7 @@ public class Peer {
     private HashSet<Communication> communications;
     private FileManager fileManager;
     private Listener listener;
+    private Parser parser;
 
     private void writeLog(String message){
         fileManager.writeToFile("log.txt", message);
@@ -92,8 +93,9 @@ public class Peer {
         
         communications = new HashSet<Communication>();
         fileManager = new FileManager();
+        parser = new Parser(fileManager);
 
-        listener = new Listener(ip, portNumber, new Parser(fileManager));
+        listener = new Listener(ip, portNumber, parser);
         listener.start();
         createLog();
     }
@@ -135,7 +137,7 @@ public class Peer {
                 try {
                     communication.sendMessage(message);
 
-                    ResponseListener responseListener = new ResponseListener(communication);
+                    ResponseListener responseListener = new ResponseListener(communication, parser);
                     Thread listenerThread = new Thread(responseListener);
                     listenerThread.start();
                 } catch (IOException e) {
@@ -233,19 +235,27 @@ public class Peer {
 
 class ResponseListener implements Runnable {
     private Communication communication;
+    private Parser parser;
 
-    public ResponseListener(Communication communication) {
+    public ResponseListener(Communication communication, Parser parser) {
         this.communication = communication;
+        this.parser = parser;
     }
 
     @Override
     public void run() {
         try {
             String response = communication.receiveMessage();
+            if (response.startsWith("data")) {
+                System.out.println("Received data from peer");
+                parser.parseCommand(response);                
+            }
             if (response != null)
                 System.out.println("Received response: " + response);
         } catch (IOException e) {
             System.out.println("Error while listening for responses: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error while parsing data: " + e.getMessage());
         }
     }
 }
