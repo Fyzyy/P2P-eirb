@@ -31,6 +31,7 @@ public class Listener extends Thread {
 
     public void run() {
         try {
+            int attempt = 0;
             // Ouvrir le canal du serveur et le configurer en mode non bloquant
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.configureBlocking(false);
@@ -69,7 +70,7 @@ public class Listener extends Thread {
                     if (key.isAcceptable()) {
                         handleAcceptableEvent(serverSocketChannel, key);
                     } else if (key.isReadable()) {
-                        handleReadableEvent(key);
+                        attempt = handleReadableEvent(key, attempt);
                     }
 
                     // Supprimer la clé traitée pour éviter de la traiter à nouveau
@@ -92,18 +93,19 @@ public class Listener extends Thread {
         System.out.println("Extern Peer connected: " + socketChannel.getRemoteAddress());
     }
 
-    private void handleReadableEvent(SelectionKey key) {
+    private int handleReadableEvent(SelectionKey key, int attempt) {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-    
+        int newAttempt = attempt;
+        
         try {
             // Lire les données du canal dans le tampon
             int bytesRead = socketChannel.read(buffer);
-            if (bytesRead == -1) {
+            if (bytesRead == -1 || attempt >= 3) {
                 // La connexion a été fermée par le client
                 System.out.println("Connection closed: " + socketChannel.getRemoteAddress());
                 socketChannel.close();
-                return;
+                return 0;
             }
     
             // Convertir les données lues du tampon en une chaîne de caractères
@@ -123,19 +125,23 @@ public class Listener extends Thread {
                         
                         case NO_RESPONSE:
                             System.out.println("No response\n");
+                            newAttempt++;
                             break;
 
                         case UNKNOW:
                             System.out.println("Unknown : " + message);
+                            newAttempt++;
                             break;
                         
                         case ERROR:
                             System.out.println("Error while processing message: " + response.getMessage());
+                            newAttempt++;
                             break;
                         
                         default:
                             System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
                             System.out.println("Response: " + response.getMessage());
+                            newAttempt=0;
                             break;
                     }
                     
@@ -144,6 +150,7 @@ public class Listener extends Thread {
                 else{
                     response.setMessage("Unknown command");
                     response.setType(ResponseType.UNKNOW);
+                    newAttempt++;
                 }
 
                 if (response.getType() != ResponseType.NO_RESPONSE){
@@ -162,6 +169,7 @@ public class Listener extends Thread {
             } catch (IOException ex) {
             }
         }
+        return newAttempt;
     }
     
     private Response handleIncomingMessage(String message) {
