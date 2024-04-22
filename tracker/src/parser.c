@@ -169,7 +169,7 @@ enum tokens look(response* res) {
     }
     else {
         filename += strlen("filename=");
-        filename = strtok(strncpy(temp_copy, filename, strlen(filename)), "\"");
+        filename = strtok(strncpy(temp_copy, filename, strlen(filename)), "'");
         printf("Matching files for filename '%s':\n", filename);
     }
 
