@@ -16,8 +16,8 @@ public class TestParser {
     public void setUp() {
         fileManager = new FileManager();
         parser = new Parser(fileManager);
-        fileManager.addFile("data/fichier_test.txt");
-        fileManager.addFile("data/file1.txt");
+        fileManager.loadFile("data/fichier_test.txt");
+        fileManager.loadFile("data/file1.txt");
         fileManager.listFiles();
         key = fileManager.getFile("data/fichier_test.txt").getKey();
         key_long = fileManager.getFile("data/file1.txt").getKey();
