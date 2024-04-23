@@ -133,8 +133,6 @@ public class Parser {
             pieceIndexes.add(index);
         }
         
-        System.out.println("Peer asking for piece of key : " + key + ", indexes : " + pieceIndexes);
-        
         if (fileManager.containsKey(key)) {
             List<String> pieces = new ArrayList<>();
             for (String index : pieceIndexes) {
@@ -151,7 +149,6 @@ public class Parser {
             String responseData = String.join(" ", pieces);
             response.setType(ResponseType.DATA);
             response.setMessage("data " + key + " [" + responseData + "]\r\n");
-            System.out.println("Envoi des pièces au pair : " + response.getMessage());
         } else {
             response.setType(ResponseType.UNKNOW);
             response.setMessage("Unknow key\r\n");
@@ -161,9 +158,6 @@ public class Parser {
     
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
     private void parseDataCommand(String[] parts, Response response) {
-        for (String part : parts) {
-            System.out.println(part);
-        }
 
         String key = parts[1];
 
