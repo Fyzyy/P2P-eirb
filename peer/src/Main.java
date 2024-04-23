@@ -126,7 +126,7 @@ public class Main {
         }
 
         String message = messageBuilder.toString();
-        System.out.println("> " + message + "\n");
+        System.out.println("< " + message + "\n");
 
         // Extract peer addresses and ports from the command
         for (int peerIndex = i + 1; peerIndex < tokens.length; peerIndex++) {
