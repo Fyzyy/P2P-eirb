@@ -42,13 +42,10 @@ public class Main {
         int nb_peer = (tokens.length);
         for (int i = 1; i < nb_peer; i++) {
             System.out.println("****************************************************");
-            if (tokens[i].equals("tracker")) {
-                InetAddress address = TRACKER_ADDRESS;
-                int port = TRACKER_PORT;
-                
-                if (!peer.haveCommunication(address, port)) {
+            if (tokens[i].equals("tracker")) {                
+                if (!peer.haveCommunication(TRACKER_ADDRESS, TRACKER_PORT)) {
                     System.out.println("Connecting to tracker ...");
-                    peer.connect(address, port);
+                    peer.connect(TRACKER_ADDRESS, TRACKER_PORT);
                     System.out.println("Connection successful\n");
                     String[] announce = {"send", "\"announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]\"", "tracker"};
                     handleSend(announce);

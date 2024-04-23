@@ -133,7 +133,7 @@ char* PeersList_to_string(PeersList* peers) {
     // Calculate the total size needed for all peer strings
     size_t totalSize = 0;
     for (int i = 0; i < peers->n_peers; i++) {
-        totalSize += snprintf(NULL, 0, "%s:%d\n", peers->peers[i]->ip_address, peers->peers[i]->port) + 1; // +1 for null terminator
+        totalSize += snprintf(NULL, 0, "%s:%d\n", peers->peers[i]->ip_address, peers->peers[i]->listening_port) + 1; // +1 for null terminator
     }
 
     // Reallocate memory to accommodate all peer strings
@@ -145,10 +145,10 @@ char* PeersList_to_string(PeersList* peers) {
 
     // Concatenate peer strings
     for (int i = 0; i < peers->n_peers-1; i++) {
-        snprintf(str + strlen(str), totalSize, "%s:%d ", peers->peers[i]->ip_address, peers->peers[i]->port);
+        snprintf(str + strlen(str), totalSize, "%s:%d ", peers->peers[i]->ip_address, peers->peers[i]->listening_port);
     }
     //remove last space
-    snprintf(str + strlen(str), totalSize, "%s:%d", peers->peers[peers->n_peers-1]->ip_address, peers->peers[peers->n_peers-1]->port);
+    snprintf(str + strlen(str), totalSize, "%s:%d", peers->peers[peers->n_peers-1]->ip_address, peers->peers[peers->n_peers-1]->listening_port);
 
     return str;
 }
