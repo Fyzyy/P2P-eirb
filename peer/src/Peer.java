@@ -182,7 +182,6 @@ class ResponseListener implements Runnable {
         try {
             String response = communication.receiveMessage();
             if (response.startsWith("data")) {
-                System.out.println("Received data from peer");
                 parser.parseCommand(response);                
             }
             if (response != null)
