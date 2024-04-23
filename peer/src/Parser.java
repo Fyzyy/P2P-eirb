@@ -91,7 +91,6 @@ public class Parser {
     // > have $Key $BufferMap
     private void parseInterestedCommand(String[] parts, Response response) {
         String key = parts[1];
-        System.out.println("Intérêt du pair pour le fichier avec la clé " + key);
     
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);

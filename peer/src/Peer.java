@@ -186,7 +186,7 @@ class ResponseListener implements Runnable {
                 parser.parseCommand(response);                
             }
             if (response != null)
-                System.out.println("Received response: " + response);
+                System.out.println("> " + response);
         } catch (IOException e) {
             System.out.println("Error while listening for responses: " + e.getMessage());
         } catch (Exception e) {

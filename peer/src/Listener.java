@@ -114,7 +114,7 @@ public class Listener extends Thread {
             buffer.get(bytes);
             String message = new String(bytes);
 
-            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
+            System.out.println("> " + message + " from " + socketChannel.getRemoteAddress());
     
             try {
                 Future<Response> responseFuture = messageHandlerPool.submit(() -> handleIncomingMessage(message));
@@ -139,8 +139,7 @@ public class Listener extends Thread {
                             break;
                         
                         default:
-                            System.out.println("Received: " + message + " from " + socketChannel.getRemoteAddress());
-                            System.out.println("Response: " + response.getMessage());
+                            System.out.println("< " + response.getMessage());
                             newAttempt=0;
                             break;
                     }
