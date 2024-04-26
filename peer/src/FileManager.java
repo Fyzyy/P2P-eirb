@@ -11,10 +11,16 @@ import java.io.IOException;
 
 public class FileManager {
     private Map<String, SharedFile> files;
+    private Map<String, String> availableFiles;
 
     public FileManager() {
         files = new HashMap<>();
+        availableFiles = new HashMap<>();
     }
+
+
+    /****************** Methods to manipulate files attribute ******************/
+
 
     public void loadFile(String path) {
         try {
@@ -25,10 +31,28 @@ public class FileManager {
         }
     }
 
+    public void loadFile(String path, String key) {
+        try {
+            SharedFile file = new SharedFile(path);
+            files.put(key, file);
+        } catch (Exception e) {
+            System.out.println("Cannot add file: " + e.getMessage());
+        }
+    }
+    
     public void loadFile(String path, int pieceSize, int size) {
         try {
             SharedFile file = new SharedFile(path, pieceSize, size);
             files.put(file.getKey(), file);
+        } catch (Exception e) {
+            System.out.println("Cannot add file: " + e.getMessage());
+        }
+    }
+
+    public void loadFile(String path, int pieceSize, int size, String key) {
+        try {
+            SharedFile file = new SharedFile(path, pieceSize, size, key);
+            files.put(key, file);
         } catch (Exception e) {
             System.out.println("Cannot add file: " + e.getMessage());
         }
@@ -110,6 +134,38 @@ public class FileManager {
         }
     }
 
+    /****************** Methods to manipulate availableFiles ******************/
+
+    public void addAvailableFile(String key, String filename) {
+        availableFiles.put(key, filename);
+        System.out.println("Add tmp file");
+    }
+
+    public void removeAvailableFile(String key) {
+        availableFiles.remove(key);
+        System.out.println("Remove tmp file");
+    }
+
+    public String getAvailableFilenameByKey(String key){
+        return availableFiles.get(key);
+    }
+
+    public void createTmpFile(String filename, String key){
+        createFile(filename);
+        addAvailableFile(key, filename);
+        System.out.println("Tmp file created");
+    }
+
+    public boolean containsAvailableKey(String key){
+        return availableFiles.containsKey(key);
+    }
+
+    public void printAvailableFile(){
+        System.out.println(availableFiles);
+    }
+
+    /****************** Methods to manipulate real files ******************/
+
 
     public void createFile(String filename) {
         try {
@@ -131,6 +187,21 @@ public class FileManager {
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
                 loadFile(filename, pieceSize, size);
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void createFile(String filename, int pieceSize, int size, String key) {
+        try {
+            File myObj = new File(filename);
+            if (myObj.createNewFile()) {
+                loadFile(filename, pieceSize, size, key);
+                System.out.println("File created: " + myObj.getName());
             } else {
                 System.out.println("File already exists.");
             }
