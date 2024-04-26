@@ -29,13 +29,11 @@ Langage: JS?
 
 ## TODO
 
-- Parser coté client pour vérifier le format du message
 - Ecoute du client de la reponse du serveur -> doit pouvoir stocker les infos du tracker (num port et @ des peers à contacter)
 - Interface graphique du serveur et du client
-- Attention aux readLine au niveau client
 - Echange de fichiers
-- Vérifier le sujet pour voir si on a rien oublié
-- stocker les infos sur les fichiers/échanges dans des fichiers temporaires
+- Stocker les infos sur les fichiers/échanges dans des fichiers temporaires
+- Informer les voisins de l'état de l'avancement des téléchargements
 
 ### Gestion des échnages de fichiers
 
