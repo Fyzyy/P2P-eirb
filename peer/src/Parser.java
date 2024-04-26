@@ -1,5 +1,7 @@
 package src;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Parser {
@@ -59,15 +61,17 @@ public class Parser {
     
     // > list [$Filename1 $Length1 $PieceSize1 $Key1 $Filename2 $Length2 $PieceSize2 $Key2]
     
-    private  void parseListCommand(String[] parts) {
+    private  void parseListCommand(String[] parts) throws IOException, NoSuchAlgorithmException {
         List<String> files = Arrays.asList(parts).subList(1, parts.length);
         for (int i = 0; i < files.size(); i++) {
             if (i % 4 == 0) {
-                String fileName = files.get(i).replace("[", " ");
-                String fileLength = files.get(i + 1);
+                String fileName = files.get(i).replace("[", "");
+                String size = files.get(i + 1);
                 String pieceSize = files.get(i + 2);
-                String key = files.get(i + 3).replace("]", " ");
-                System.out.println("Fichier : " + fileName + ", taille : " + fileLength + ", taille des pièces : " + pieceSize + ", clé : " + key);
+                String key = files.get(i + 3).replace("]", "");
+                fileManager.createTmpFile("data/"+fileName, key);
+                fileManager.addAvailableFile("data/"+fileName, key);
+                System.out.println("Fichier : " + fileName + ", taille : " + size + ", taille des pièces : " + pieceSize + ", clé : " + key);
             }
         }
     }
@@ -126,7 +130,7 @@ public class Parser {
     private void parseGetPiecesCommand(String[] parts, Response response) {
         String key = parts[1];
         List<String> pieceIndexes = new ArrayList<>();
-        
+
         // Extracting piece indexes from the nested list
         for (int i = 2; i < parts.length; i++) {
             String index = parts[i].replaceAll("\\[|\\]", ""); // Removing '[' and ']' characters
@@ -160,8 +164,9 @@ public class Parser {
     private void parseDataCommand(String[] parts, Response response) {
 
         String key = parts[1];
+        String file = fileManager.getAvailableFilenameByKey(key);
 
-        if (fileManager.containsKey(key)) {
+        if (fileManager.containsAvailableKey(key)) {
             for (int i = 2; i < parts.length; i++) {
                 // Remove brackets from the piece
                 String pieceStr = parts[i].replaceAll("[\\[\\]]", "");
@@ -182,7 +187,10 @@ public class Parser {
                 // Remove '%' from the end of the full piece
                 String fullPiece = fullPieceBuilder.toString().replaceAll("%", "").replaceAll("]", "");
 
+                fileManager.writeToFile(file, fullPiece);
+
                 byte[] pieceData = fullPiece.getBytes();
+                fileManager.loadFile(fileManager.getAvailableFilenameByKey(key), key);
                 fileManager.getFileByKey(key).setPiece(pieceIndex, pieceData);
                 System.out.println("Piece " + pieceIndex + " received for key " + key);
                 System.out.println("Piece data : " + new String(pieceData));
