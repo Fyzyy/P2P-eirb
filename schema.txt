@@ -1,0 +1,6 @@
+connect tracker
+send "look [filename='file1.txt' filesize>0]" tracker
+send "getfile 54834446690e1b1a328ea45dac2e02d5" tracker
+connect 127.0.0.1:5051
+send "interested 54834446690e1b1a328ea45dac2e02d5" 127.0.0.1:5051
+send "getpieces 54834446690e1b1a328ea45dac2e02d5 [0]" 127.0.0.1:5051
