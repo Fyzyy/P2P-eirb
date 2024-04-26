@@ -34,6 +34,15 @@ Langage: JS?
 - Interface graphique du serveur et du client
 - Attention aux readLine au niveau client
 - Echange de fichiers
-- Timeout après 3 tentatives de connexion
 - Vérifier le sujet pour voir si on a rien oublié
 - stocker les infos sur les fichiers/échanges dans des fichiers temporaires
+
+### Gestion des échnages de fichiers
+
+- Stocker les données recues -> dans un nouveau fichier avec le bon nom
+- Paramétrer la taille des messages recus dans le fichiers de config
+
+### Interface
+
+- Pouvoir se connecter et demander des infos au tracker sans avoir à rentrer toute la ligne de commande
+- Pouvoir faire pareil avec un autre peer
