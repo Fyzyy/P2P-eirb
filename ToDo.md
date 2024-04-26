@@ -40,6 +40,10 @@ Langage: JS?
 - Stocker les données recues -> dans un nouveau fichier avec le bon nom
 - Paramétrer la taille des messages recus dans le fichiers de config
 
+Proposition de gestion:
+
+- Dès qu'on demande un look et qu'on recoit une réponse positive, on créé le fichier et on créé un dictionnaire où stocker les associations clefs/noms de fichier
+
 ### Interface
 
 - Pouvoir se connecter et demander des infos au tracker sans avoir à rentrer toute la ligne de commande
