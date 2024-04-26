@@ -181,9 +181,9 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
-            if (response.startsWith("data")) {
-                parser.parseCommand(response);                
-            }
+            // if (response.startsWith("data")) {
+            parser.parseCommand(response);                
+            // }
             if (response != null)
                 System.out.println("> " + response);
         } catch (IOException e) {
