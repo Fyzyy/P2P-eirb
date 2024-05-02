@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class FileManager {
     private Map<String, SharedFile> files;
-    private Map<String, String> availableFiles;
+    public Map<String, SharedFile> availableFiles;
 
     public FileManager() {
         files = new HashMap<>();
@@ -137,23 +137,39 @@ public class FileManager {
     /****************** Methods to manipulate availableFiles ******************/
 
     public void addAvailableFile(String key, String filename) {
-        availableFiles.put(key, filename);
+        try {
+            SharedFile file = new SharedFile(filename, key);
+            availableFiles.put(key, file);
+        } catch (Exception e) {
+            System.out.println("Cannot add file in addAvailableFile: " + e.getMessage());
+        }
         System.out.println("Add tmp file");
     }
 
     public void removeAvailableFile(String key) {
         availableFiles.remove(key);
-        System.out.println("Remove tmp file");
+        System.out.println("Tmp file removed");
     }
 
-    public String getAvailableFilenameByKey(String key){
+    public SharedFile getAvailableFilenameByKey(String key){
         return availableFiles.get(key);
     }
 
     public void createTmpFile(String filename, String key){
-        createFile(filename);
-        addAvailableFile(key, filename);
-        System.out.println("Tmp file created");
+        try {
+            File myObj = new File(filename);
+            if (myObj.createNewFile()) {
+                loadFile(filename, key);
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+            addAvailableFile(key, filename);
+            System.out.println("Tmp file created");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     public boolean containsAvailableKey(String key){
@@ -196,6 +212,21 @@ public class FileManager {
         }
     }
 
+    public void createFile(String filename, String key) {
+        try {
+            File myObj = new File(filename);
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+                loadFile(filename, key);
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
     public void createFile(String filename, int pieceSize, int size, String key) {
         try {
             File myObj = new File(filename);
@@ -211,17 +242,36 @@ public class FileManager {
         }
     }
       
-    public void writeToFile (String filename, String message) {
+    public void writeToFile(String filename, String message) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
             writer.write(message);
             writer.newLine();
             writer.close();
-            System.out.println("Successfully wrote to log.");
+            // System.out.println("Successfully wrote to log.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+    }
+
+    public void writeToFileNoLine(String filename, String message) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+            writer.write(message);
+            // writer.newLine();
+            writer.close();
+            // System.out.println("Successfully wrote to log.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void moveFileToData(String key){
+        File file = getAvailableFilenameByKey(key).getFile();
+        file.renameTo(new File("data/"+file.getName()));
+        System.out.println("File moved from tmp to data");
     }
 
     public boolean checkFilePresence(String filePath) {
