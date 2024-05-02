@@ -69,8 +69,8 @@ public class Parser {
                 String size = files.get(i + 1);
                 String pieceSize = files.get(i + 2);
                 String key = files.get(i + 3).replace("]", "");
-                fileManager.createTmpFile("data/"+fileName, key);
-                fileManager.addAvailableFile("data/"+fileName, key);
+                fileManager.createTmpFile("tmp/"+fileName, key);
+                // fileManager.addAvailableFile("tmp/"+fileName, key);
                 System.out.println("Fichier : " + fileName + ", taille : " + size + ", taille des pièces : " + pieceSize + ", clé : " + key);
             }
         }
@@ -162,9 +162,11 @@ public class Parser {
     
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
     private void parseDataCommand(String[] parts, Response response) {
-
+        System.out.println("avant write: "+fileManager.availableFiles);
         String key = parts[1];
-        String file = fileManager.getAvailableFilenameByKey(key);
+        SharedFile file = fileManager.getAvailableFilenameByKey(key);
+        String fileName = "tmp/" + file.getFilename();
+        System.out.println("file : " + file);
 
         if (fileManager.containsAvailableKey(key)) {
             for (int i = 2; i < parts.length; i++) {
@@ -182,19 +184,26 @@ public class Parser {
                         break;
                     }
                     fullPieceBuilder.append(" ").append(parts[i]);
+                    fileManager.writeToFileNoLine(fileName, "\n");
+                    fileManager.writeToFileNoLine(fileName, parts[i]);
+                    // System.out.println(parts[i]);
                 }
 
                 // Remove '%' from the end of the full piece
                 String fullPiece = fullPieceBuilder.toString().replaceAll("%", "").replaceAll("]", "");
 
-                fileManager.writeToFile(file, fullPiece);
-
+                
                 byte[] pieceData = fullPiece.getBytes();
-                fileManager.loadFile(fileManager.getAvailableFilenameByKey(key), key);
+                System.out.println(fileManager.getAvailableFilenameByKey(key));
+                fileManager.loadFile(fileName, key);
                 fileManager.getFileByKey(key).setPiece(pieceIndex, pieceData);
                 System.out.println("Piece " + pieceIndex + " received for key " + key);
                 System.out.println("Piece data : " + new String(pieceData));
             }
+            // System.out.println(file);
+            fileManager.moveFileToData(key);
+            fileManager.removeAvailableFile(key);
+            System.out.println("après write: "+fileManager.availableFiles);
             response.setType(ResponseType.NO_RESPONSE);
         } else {
             response.setType(ResponseType.UNKNOW);
