@@ -33,7 +33,7 @@ public class FileManager {
 
     public void loadFile(String path, String key) {
         try {
-            SharedFile file = new SharedFile(path);
+            SharedFile file = new SharedFile(path, key);
             files.put(key, file);
         } catch (Exception e) {
             System.out.println("Cannot add file: " + e.getMessage());
