@@ -22,7 +22,6 @@ public class Parser {
 
                 //tracker commands
                 case "ok":
-                    System.out.println("Confirmation du tracker : " + command);
                     response.setType(ResponseType.NO_RESPONSE);
                     break;
                 case "list":
