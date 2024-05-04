@@ -3,6 +3,7 @@ package src;
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
+import java.util.List;
 
 public class Peer {
 
@@ -60,6 +61,7 @@ public class Peer {
                 //Send
                 try {
                     communication.sendMessage(message);
+                    listener.setHaveSendMessage();
 
                     ResponseListener responseListener = new ResponseListener(communication, parser);
                     Thread listenerThread = new Thread(responseListener);
@@ -165,6 +167,31 @@ public class Peer {
             System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":" + communication.getSocket().getPort());
         }
     }
+
+    public void informState(){
+        if (!communications.isEmpty()){
+            for (Communication communication : communications) {
+                try {
+                    List<String> fileList = fileManager.getStatusInfo();
+                    for (int i = 0; i<fileList.size(); i++){
+                        // System.out.println(fileList.get(i));
+                        communication.sendMessage(fileList.get(i));
+                    }
+                    // System.out.println("\n");
+                } catch (IOException e) {
+                    try {
+                        System.out.println("Cannot inform state to " + communication.getSocket().getInetAddress() + " " + communication.getSocket().getPort());
+                        communication.close();
+                        this.communications.remove(communication);
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 
