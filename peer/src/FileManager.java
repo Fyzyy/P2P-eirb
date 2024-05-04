@@ -134,6 +134,21 @@ public class FileManager {
         }
     }
 
+    public List<String> getStatusInfo() {
+        List<String> result = new ArrayList<String>();
+        String tmp;
+        for (SharedFile file : files.values()) {
+            tmp = "";
+            tmp  += "have " + file.getKey() + " " ;
+            for (int i = 0; i<file.getBitMap().length; i++){
+                tmp += file.getBitMap()[i] ? "1" : "0";
+            }
+            // tmp += "\n";
+            result.add(tmp);
+        }
+        return result;
+    }
+
     /****************** Methods to manipulate availableFiles ******************/
 
     public void addAvailableFile(String key, String filename) {
