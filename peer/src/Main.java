@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main {
@@ -301,6 +304,9 @@ public class Main {
         }
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(peer::informState, 0, 10, TimeUnit.SECONDS);
 
         while (true) {
             String newCommand = readInput();
