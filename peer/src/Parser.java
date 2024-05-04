@@ -162,7 +162,7 @@ public class Parser {
     
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
     private void parseDataCommand(String[] parts, Response response) {
-        System.out.println("avant write: "+fileManager.availableFiles);
+
         String key = parts[1];
         SharedFile file = fileManager.getAvailableFilenameByKey(key);
         String fileName = "tmp/" + file.getFilename();
@@ -185,13 +185,12 @@ public class Parser {
                     }
                     fullPieceBuilder.append(" ").append(parts[i]);
                     fileManager.writeToFileNoLine(fileName, "\n");
-                    fileManager.writeToFileNoLine(fileName, parts[i]);
+                    fileManager.writeToFileNoLine(fileName, parts[i].replaceAll("%", ""));
                     // System.out.println(parts[i]);
                 }
 
                 // Remove '%' from the end of the full piece
                 String fullPiece = fullPieceBuilder.toString().replaceAll("%", "").replaceAll("]", "");
-
                 
                 byte[] pieceData = fullPiece.getBytes();
                 System.out.println(fileManager.getAvailableFilenameByKey(key));
@@ -200,10 +199,10 @@ public class Parser {
                 System.out.println("Piece " + pieceIndex + " received for key " + key);
                 System.out.println("Piece data : " + new String(pieceData));
             }
-            // System.out.println(file);
+
             fileManager.moveFileToData(key);
             fileManager.removeAvailableFile(key);
-            System.out.println("après write: "+fileManager.availableFiles);
+
             response.setType(ResponseType.NO_RESPONSE);
         } else {
             response.setType(ResponseType.UNKNOW);
