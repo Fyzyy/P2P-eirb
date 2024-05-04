@@ -184,7 +184,6 @@ public class Peer {
                         communication.close();
                         this.communications.remove(communication);
                     } catch (IOException e1) {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                 }
