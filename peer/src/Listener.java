@@ -21,6 +21,7 @@ public class Listener extends Thread {
     private Selector selector;
     private ExecutorService messageHandlerPool;
     private Parser parser;
+    private int haveSendMessage = 0;
 
     public Listener(String ip, int portNumber, Parser parser) {
         this.portNumber = portNumber;
@@ -129,8 +130,10 @@ public class Listener extends Thread {
                             break;
 
                         case UNKNOW:
-                            System.out.println("Unknown : " + message);
-                            newAttempt++;
+                            if(this.haveSendMessage > 0){
+                                System.out.println("Unknown : " + message);
+                                newAttempt++;
+                            }
                             break;
                         
                         case ERROR:
@@ -168,6 +171,7 @@ public class Listener extends Thread {
             } catch (IOException ex) {
             }
         }
+        this.haveSendMessage = 0;
         return newAttempt;
     }
     
@@ -181,6 +185,14 @@ public class Listener extends Thread {
         }
         return response;
 
+    }
+
+    public void setHaveSendMessage(){
+        this.haveSendMessage = 1;
+    }
+
+    public int getHaveSendMessage(){
+        return this.haveSendMessage;
     }
 
     public void endListening() {
