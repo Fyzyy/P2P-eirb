@@ -29,6 +29,7 @@ public class Main {
 
     private static InetAddress TRACKER_ADDRESS;
     private static int TRACKER_PORT;
+    private static int REFRESH_RATE;
     private static Peer peer;
     private static int port;
 
@@ -36,6 +37,7 @@ public class Main {
         config.Parse();
         TRACKER_ADDRESS = config.TrackerAddress;
         TRACKER_PORT = config.TrackerPort;
+        REFRESH_RATE = config.RefreshRate;
         System.out.println("Parsed");
     }
 
@@ -50,7 +52,7 @@ public class Main {
                     System.out.println("Connecting to tracker ...");
                     peer.connect(TRACKER_ADDRESS, TRACKER_PORT);
                     System.out.println("Connection successful\n");
-                    String[] announce = {"send", "\"announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]\"", "tracker"};
+                    String[] announce = {"send", "<announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]>", "tracker"};
                     handleSend(announce);
                 } else {
                     System.out.println("You are already connected\n");
@@ -116,13 +118,13 @@ public class Main {
         int i = 1;
 
         for (i = 1; i < tokens.length; i++) {
-            if (tokens[i].startsWith("\"")) {
+            if (tokens[i].startsWith("<")) {
                 tokens[i] = tokens[i].substring(1);
             }
             
             messageBuilder.append(tokens[i]).append(" ");
 
-            if (tokens[i].endsWith("\"")) {
+            if (tokens[i].endsWith(">")) {
                 messageBuilder.deleteCharAt(messageBuilder.length() - 2);
                 break;
             }
@@ -160,7 +162,7 @@ public class Main {
         System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
         System.out.println("To connect to peer, type: " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To send message to peer, type: " + SEND_COMMAND + " \"$message\" $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To send message to peer, type: " + SEND_COMMAND + " <$message> $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
         System.out.println("To create a new file, type: " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
         System.out.println("To load a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file\n");
@@ -287,7 +289,7 @@ public class Main {
             }
         }
 
-        peer = new Peer(ip, port);
+        peer = new Peer(ip, port, TRACKER_PORT, TRACKER_ADDRESS);
 
         if (debug) {
              try {Thread.sleep(2000);} catch (InterruptedException e) {
@@ -306,7 +308,7 @@ public class Main {
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(peer::informState, 0, 10, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(peer::informState, 0, REFRESH_RATE, TimeUnit.SECONDS);
 
         while (true) {
             String newCommand = readInput();
