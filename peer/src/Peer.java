@@ -12,8 +12,10 @@ public class Peer {
     private Listener listener;
     private Parser parser;
     private LogManager logManager;
+    private int TrackerPort;
+    private InetAddress TrackerAddress;
 
-    public Peer(String ip, int portNumber) throws IOException {
+    public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
         
         communications = new HashSet<Communication>();
         fileManager = new FileManager();
@@ -23,6 +25,9 @@ public class Peer {
         listener = new Listener(ip, portNumber, parser);
         listener.start();
         logManager.createLog(fileManager);
+
+        this.TrackerPort = TrackerPort;
+        this.TrackerAddress = TrackerAddress;
     }
 
     public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
@@ -174,8 +179,14 @@ public class Peer {
                 try {
                     List<String> fileList = fileManager.getStatusInfo();
                     for (int i = 0; i<fileList.size(); i++){
-                        // System.out.println(fileList.get(i));
-                        communication.sendMessage(fileList.get(i));
+                        if(communication.getSocket().getInetAddress() == TrackerAddress){
+                            if (communication.getSocket().getPort() != TrackerPort){
+                                communication.sendMessage(fileList.get(i));
+                            }
+                        }                         
+                        else{
+                            communication.sendMessage(fileList.get(i));
+                        }
                     }
                     // System.out.println("\n");
                 } catch (IOException e) {
