@@ -11,20 +11,18 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
     private Parser parser;
-    private LogManager logManager;
     private int TrackerPort;
     private InetAddress TrackerAddress;
 
     public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
         
         communications = new HashSet<Communication>();
-        fileManager = new FileManager();
+        fileManager = new FileManager(portNumber);
         parser = new Parser(fileManager);
-        logManager = new LogManager(portNumber);
 
         listener = new Listener(ip, portNumber, parser);
         listener.start();
-        logManager.createLog(fileManager);
+        fileManager.createLog();
 
         this.TrackerPort = TrackerPort;
         this.TrackerAddress = TrackerAddress;
@@ -145,8 +143,8 @@ public class Peer {
     public void loadFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
-            if(!logManager.checkWordPresenceInLog(filePath)){
-                logManager.writeLog(filePath, fileManager);
+            if(!fileManager.checkWordPresenceInLog(filePath)){
+                fileManager.writeLog(filePath);
             }
             fileManager.loadFile(filePath);
             System.out.println("Done");
@@ -159,7 +157,7 @@ public class Peer {
         try {
             System.out.println("Removing " + filePath + " to peer stockage...");
             fileManager.removeFile(filePath);
-            logManager.removeFromLog(filePath);
+            fileManager.removeFromLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot remove the file");
@@ -188,7 +186,6 @@ public class Peer {
                             communication.sendMessage(fileList.get(i));
                         }
                     }
-                    // System.out.println("\n");
                 } catch (IOException e) {
                     try {
                         System.out.println("Cannot inform state to " + communication.getSocket().getInetAddress() + " " + communication.getSocket().getPort());
@@ -218,9 +215,7 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
-            // if (response.startsWith("data")) {
             parser.parseCommand(response);                
-            // }
             if (response != null)
                 System.out.println("> " + response);
         } catch (IOException e) {

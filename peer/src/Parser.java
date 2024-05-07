@@ -202,6 +202,7 @@ public class Parser {
 
             fileManager.moveFileToData(key);
             fileManager.removeAvailableFile(key);
+            fileManager.writeLog("data/"+file.getFilename());
 
             response.setType(ResponseType.NO_RESPONSE);
         } else {
