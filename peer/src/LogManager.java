@@ -11,33 +11,10 @@ import java.util.List;
 
 public class LogManager {
 
-    private String logName;
+    protected String logName;
 
     public LogManager(int port){
         this.logName = "logs/log" + Integer.toString(port) + ".txt";
-    }
-
-    public void loadLog(FileManager fileManager){
-        String[] files = readLinesFromLog();
-        for (int i = 0; i<files.length; i++){
-            fileManager.loadFile(files[i]);
-        }
-        System.out.println("Log file loaded\n");
-    }
-
-    public void createLog(FileManager fileManager){
-        if (fileManager.checkFilePresence(logName) == false){
-            fileManager.createFile(logName);
-            System.out.println("Log file created\n");
-        }
-        else{
-            System.out.println("Log file already exists");
-            loadLog(fileManager);
-        }
-    }
-
-    public void writeLog(String message, FileManager fileManager){
-        fileManager.writeToFile(logName, message);
     }
 
     public void removeFromLog(String message) throws IOException{
