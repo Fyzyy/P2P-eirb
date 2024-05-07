@@ -12,10 +12,12 @@ import java.io.IOException;
 public class FileManager {
     private Map<String, SharedFile> files;
     public Map<String, SharedFile> availableFiles;
+    private LogManager logManager;
 
-    public FileManager() {
+    public FileManager(int logName) {
         files = new HashMap<>();
         availableFiles = new HashMap<>();
+        logManager = new LogManager(logName);
     }
 
 
@@ -292,6 +294,44 @@ public class FileManager {
     public boolean checkFilePresence(String filePath) {
         File file = new File(filePath);
         return file.exists();
+    }
+
+
+    /* ************* Methods to manipulate logs ************* */
+    
+    public void loadLog(){
+        String[] files = logManager.readLinesFromLog();
+        for (int i = 0; i<files.length; i++){
+            loadFile(files[i]);
+        }
+        System.out.println("Log file loaded\n");
+    }
+
+    public void createLog(){
+        if (checkFilePresence(logManager.logName) == false){
+            createFile(logManager.logName);
+            System.out.println("Log file created\n");
+        }
+        else{
+            System.out.println("Log file already exists");
+            loadLog();
+        }
+    }
+
+    public void writeLog(String message){
+        writeToFile(logManager.logName, message);
+    }
+
+    public void removeFromLog(String message) throws IOException{
+        logManager.removeFromLog(message);
+    }
+
+    public boolean checkWordPresenceInLog(String word) {
+        return logManager.checkWordPresenceInLog(word);
+    }
+
+    public String[] readLinesFromLog() {
+        return logManager.readLinesFromLog();
     }
 
 }
