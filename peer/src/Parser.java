@@ -70,7 +70,6 @@ public class Parser {
                 String pieceSize = files.get(i + 2);
                 String key = files.get(i + 3).replace("]", "");
                 fileManager.createTmpFile("tmp/"+fileName, key);
-                // fileManager.addAvailableFile("tmp/"+fileName, key);
                 System.out.println("Fichier : " + fileName + ", taille : " + size + ", taille des pièces : " + pieceSize + ", clé : " + key);
             }
         }
@@ -161,12 +160,13 @@ public class Parser {
     }
     
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
-    private void parseDataCommand(String[] parts, Response response) {
+    private void parseDataCommand(String[] parts, Response response) throws IOException {
 
         String key = parts[1];
         SharedFile file = fileManager.getAvailableFilenameByKey(key);
         String fileName = "tmp/" + file.getFilename();
-        System.out.println("file : " + file);
+        // System.out.println("file : " + file);
+        fileManager.writeToManifest(fileName, file.getPieceSize(), file.getSize(), key);
 
         if (fileManager.containsAvailableKey(key)) {
             for (int i = 2; i < parts.length; i++) {
@@ -186,7 +186,6 @@ public class Parser {
                     fullPieceBuilder.append(" ").append(parts[i]);
                     fileManager.writeToFileNoLine(fileName, "\n");
                     fileManager.writeToFileNoLine(fileName, parts[i].replaceAll("%", ""));
-                    // System.out.println(parts[i]);
                 }
 
                 // Remove '%' from the end of the full piece
@@ -199,7 +198,8 @@ public class Parser {
                 System.out.println("Piece " + pieceIndex + " received for key " + key);
                 System.out.println("Piece data : " + new String(pieceData));
             }
-
+            
+            fileManager.removeToManifest(fileName, file.getPieceSize(), file.getSize(), key);
             fileManager.moveFileToData(key);
             fileManager.removeAvailableFile(key);
             fileManager.writeLog("data/"+file.getFilename());
