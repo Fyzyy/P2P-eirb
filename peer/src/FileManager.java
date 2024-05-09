@@ -5,19 +5,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.FileWriter;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class FileManager {
+    
     private Map<String, SharedFile> files;
     public Map<String, SharedFile> availableFiles;
     private LogManager logManager;
+    private String manifestName;
 
-    public FileManager(int logName) {
+    public FileManager(int logName, String manifestName) {
         files = new HashMap<>();
         availableFiles = new HashMap<>();
         logManager = new LogManager(logName);
+        this.manifestName = "manifests/"+manifestName;
+        createManifest("manifests/"+manifestName);
     }
 
 
@@ -151,7 +157,9 @@ public class FileManager {
         return result;
     }
 
+
     /****************** Methods to manipulate availableFiles ******************/
+
 
     public void addAvailableFile(String key, String filename) {
         try {
@@ -196,6 +204,7 @@ public class FileManager {
     public void printAvailableFile(){
         System.out.println(availableFiles);
     }
+
 
     /****************** Methods to manipulate real files ******************/
 
@@ -296,9 +305,63 @@ public class FileManager {
         return file.exists();
     }
 
+    public String[] readLinesFromFile(String fileName) {
+        String filePath = fileName;
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la lecture du fichier : " + e.getMessage());
+        }
+        return lines.toArray(new String[0]);
+    }
+
+    public boolean checkWordPresenceInFile(String fileName, String word) {
+        String[] array = readLinesFromFile(fileName);
+        for (String str : array) {
+            if (str.equals(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeFromFile(String fileName, String message) throws IOException{
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            if (checkWordPresenceInFile(fileName, message)){
+
+                while ((line = reader.readLine()) != null) {
+                    line = line.replaceAll(message, "");
+                    sb.append(line).append("\n");
+                }
+                reader.close();
+                
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                writer.write(sb.toString());
+                writer.close();
+                
+                // System.out.println("Le mot \"" + message + "\" a été effacé du fichier.");
+            }
+            
+            else{
+                // System.out.println("File not present in log");
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la manipulation du fichier : " + e.getMessage());
+        }
+    }
+
 
     /* ************* Methods to manipulate logs ************* */
     
+
     public void loadLog(){
         String[] files = logManager.readLinesFromLog();
         for (int i = 0; i<files.length; i++){
@@ -323,15 +386,39 @@ public class FileManager {
     }
 
     public void removeFromLog(String message) throws IOException{
-        logManager.removeFromLog(message);
+        removeFromFile(logManager.logName, message);
     }
 
     public boolean checkWordPresenceInLog(String word) {
         return logManager.checkWordPresenceInLog(word);
     }
 
-    public String[] readLinesFromLog() {
-        return logManager.readLinesFromLog();
+
+    /* ************* Methods to manipulate manifests ************* */
+
+    static void createManifest(String manifestName){
+        try {
+            File myObj = new File(manifestName);
+            if (myObj.createNewFile()) {
+                // loadFile(fileName, pieceSize, fileSize, key);
+                System.out.println("Manifest created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void writeToManifest(String fileName, int pieceSize, long fileSize, String key){
+        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: " + Long.toString(fileSize) + " Key: " + key;
+        writeToFile(manifestName, message);
+    }
+
+    public void removeToManifest(String fileName, int pieceSize, long fileSize, String key) throws IOException{
+        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: " + Long.toString(fileSize) + " Key: " + key;
+        removeFromFile(manifestName, message);
     }
 
 }
