@@ -17,7 +17,7 @@ public class Peer {
     public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
         
         communications = new HashSet<Communication>();
-        fileManager = new FileManager(portNumber);
+        fileManager = new FileManager(portNumber, "manifest" + ip.toString() + Integer.toString(portNumber));
         parser = new Parser(fileManager);
 
         listener = new Listener(ip, portNumber, parser);
