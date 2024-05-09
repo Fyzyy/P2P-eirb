@@ -5,3 +5,4 @@ dist
 *.o
 peer/lib
 peer/logs
+manifests/*
