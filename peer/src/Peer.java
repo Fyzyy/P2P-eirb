@@ -189,10 +189,14 @@ public class Peer {
             for (Communication communication : communications) {
                 try {
                     List<String> fileList = fileManager.getStatusInfo();
+                    List<String> fileListTracker = fileManager.getStatusInfoTracker();
                     for (int i = 0; i<fileList.size(); i++){
                         if(communication.getSocket().getInetAddress() == TrackerAddress){
                             if (communication.getSocket().getPort() != TrackerPort){
                                 communication.sendMessage(fileList.get(i));
+                            }
+                            else{
+                                communication.sendMessage("update seed [" + fileListTracker.get(i) + "] leech []");
                             }
                         }                         
                         else{
