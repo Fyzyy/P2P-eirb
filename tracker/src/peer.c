@@ -11,7 +11,7 @@ PeerInfo* search_peer(PeersList* peers, const char *ip, int port) {
     PeerInfo* peer;
     for (int i = 0; i < peers->n_peers; i++) {
         peer = peers->peers[i];
-        if (strcmp(peer->ip_address, ip) == 0 && peer->port == port) {
+        if (strcmp(peer->ip_address, ip) == 0 && ((peer->listening_port == port) || (peer->port == port))) {
             return peer;
         }
     }

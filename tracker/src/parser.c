@@ -48,7 +48,7 @@ enum tokens leech_key(response* res) {
         printf("Leech Key: %s\n", keys);
         FileInfo* file = search_tracked_file(keys);
         if (file != NULL) {
-            add_leecher_to_tracked_file(keys, res->peer->ip_address, res->peer->port);
+            add_leecher_to_tracked_file(keys, res->peer->ip_address, res->peer->listening_port);
         } else {
             res->token = ERROR;
             strcpy(res->message, "Error: Unfind key. \r\n");
@@ -91,7 +91,7 @@ enum tokens seed(response* res) {
 
         if (search_tracked_file(file_key) == NULL)
             add_tracked_file(file_name, file_size, piece_size, file_key);
-        add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->port);    
+        add_seeder_to_tracked_file(file_key, res->peer->ip_address, res->peer->listening_port);    
 
         file_name = strtok(NULL, " "); // Move to the next file name
     }
@@ -250,7 +250,7 @@ enum tokens seed_key(response* res) {
             return ERROR;
         }
 
-        add_seeder_to_tracked_file(key, res->peer->ip_address, res->peer->port);
+        add_seeder_to_tracked_file(key, res->peer->ip_address, res->peer->listening_port);
         printf("Key: %s found and added\n", key);
 
         key = strtok(NULL, " []\r\n");
