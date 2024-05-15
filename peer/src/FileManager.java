@@ -161,6 +161,15 @@ public class FileManager {
         return result;
     }
 
+    public List<String> getStatusInfoTracker() {
+        List<String> result = new ArrayList<String>();
+        String tmp;
+        for (SharedFile file : files.values()) {
+            tmp  = file.getKey();
+            result.add(tmp);
+        }
+        return result;
+    }
 
     /****************** Methods to manipulate availableFiles ******************/
 
