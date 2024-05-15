@@ -12,7 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class FileManager {
-    
+
     private Map<String, SharedFile> files;
     public Map<String, SharedFile> availableFiles;
     private LogManager logManager;
@@ -22,13 +22,11 @@ public class FileManager {
         files = new HashMap<>();
         availableFiles = new HashMap<>();
         logManager = new LogManager(logName);
-        this.manifestName = "manifests/"+manifestName;
-        createManifest("manifests/"+manifestName);
+        this.manifestName = "manifests/" + manifestName;
+        createManifest("manifests/" + manifestName);
     }
 
-
     /****************** Methods to manipulate files attribute ******************/
-
 
     public void loadFile(String path) {
         try {
@@ -56,7 +54,7 @@ public class FileManager {
             System.out.println("Cannot add file: " + e.getMessage());
         }
     }
-    
+
     public void loadFile(String path, int pieceSize, int size) {
         try {
             SharedFile file = new SharedFile(path, pieceSize, size);
@@ -93,7 +91,7 @@ public class FileManager {
             return false;
         }
     }
-    
+
     public boolean containsKey(String key) {
         return files.containsKey(key);
     }
@@ -114,12 +112,12 @@ public class FileManager {
             sb.append(str);
             sb.append(" ");
         }
-        return sb.toString(); 
+        return sb.toString();
     }
 
-    public String getFiles(){
+    public String getFiles() {
         List<String> res = new ArrayList<String>();
-        
+
         for (SharedFile file : files.values()) {
             res.add(file.getFilename());
             res.add(Integer.toString(file.getSize()));
@@ -135,13 +133,14 @@ public class FileManager {
 
     public void listFiles() {
         for (SharedFile file : files.values()) {
-            System.out.println(file.getFilename() + " (" + file.getSize() + " bytes)" + " (" + file.getPieceSize() + " piece size)" + "(" + file.getKey()+")\n");
+            System.out.println(file.getFilename() + " (" + file.getSize() + " bytes)" + " (" + file.getPieceSize()
+                    + " piece size)" + "(" + file.getKey() + ")\n");
         }
     }
 
     public void getBitMap() {
         for (SharedFile file : files.values()) {
-            System.out.println(file.getFilename() + ":" );
+            System.out.println(file.getFilename() + ":");
             String tmp = file.getBitMapString() + " ";
             System.out.println(tmp);
             System.out.println("\n");
@@ -153,7 +152,7 @@ public class FileManager {
         String tmp;
         for (SharedFile file : files.values()) {
             tmp = "";
-            tmp  += "have " + file.getKey() + " " ;
+            tmp += "have " + file.getKey() + " ";
             tmp += file.getBitMapString();
             // tmp += "\n";
             result.add(tmp);
@@ -161,18 +160,23 @@ public class FileManager {
         return result;
     }
 
-    public List<String> getStatusInfoTracker() {
-        List<String> result = new ArrayList<String>();
-        String tmp;
+    public String getUpdateInfoTracker() {
+        List<String> seed = new ArrayList<>(files.size());
+        List<String> leech = new ArrayList<>(files.size());
+
         for (SharedFile file : files.values()) {
-            tmp  = file.getKey();
-            result.add(tmp);
+            String fileKey = file.getKey();
+            if (file.isComplete()) {
+                seed.add(fileKey);
+            } else {
+                leech.add(fileKey);
+            }
         }
-        return result;
+
+        return "update seed [" + String.join(" ", seed) + "] leech [" + String.join(" ", leech) + "]\n";
     }
 
     /****************** Methods to manipulate availableFiles ******************/
-
 
     public void addAvailableFile(String key, String filename) {
         try {
@@ -189,11 +193,11 @@ public class FileManager {
         System.out.println("Tmp file removed");
     }
 
-    public SharedFile getAvailableFilenameByKey(String key){
+    public SharedFile getAvailableFilenameByKey(String key) {
         return availableFiles.get(key);
     }
 
-    public void createTmpFile(String filename, String key){
+    public void createTmpFile(String filename, String key) {
         try {
             File myObj = new File(filename);
             if (myObj.createNewFile()) {
@@ -210,17 +214,15 @@ public class FileManager {
         }
     }
 
-    public boolean containsAvailableKey(String key){
+    public boolean containsAvailableKey(String key) {
         return availableFiles.containsKey(key);
     }
 
-    public void printAvailableFile(){
+    public void printAvailableFile() {
         System.out.println(availableFiles);
     }
 
-
     /****************** Methods to manipulate real files ******************/
-
 
     public void createFile(String filename) {
         try {
@@ -235,7 +237,7 @@ public class FileManager {
             e.printStackTrace();
         }
     }
-        
+
     public void createFile(String filename, int pieceSize, int size) {
         try {
             File myObj = new File(filename);
@@ -280,7 +282,7 @@ public class FileManager {
             e.printStackTrace();
         }
     }
-      
+
     public void writeToFile(String filename, String message) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
@@ -307,9 +309,9 @@ public class FileManager {
         }
     }
 
-    public void moveFileToData(String key){
+    public void moveFileToData(String key) {
         File file = getAvailableFilenameByKey(key).getFile();
-        file.renameTo(new File("data/"+file.getName()));
+        file.renameTo(new File("data/" + file.getName()));
         System.out.println("File moved from tmp to data");
     }
 
@@ -342,28 +344,28 @@ public class FileManager {
         return false;
     }
 
-    public void removeFromFile(String fileName, String message) throws IOException{
+    public void removeFromFile(String fileName, String message) throws IOException {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
             StringBuilder sb = new StringBuilder();
             String line;
 
-            if (checkWordPresenceInFile(fileName, message)){
+            if (checkWordPresenceInFile(fileName, message)) {
 
                 while ((line = reader.readLine()) != null) {
                     line = line.replaceAll(message, "");
                     sb.append(line).append("\n");
                 }
                 reader.close();
-                
+
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
                 writer.write(sb.toString());
                 writer.close();
-                
+
                 // System.out.println("Le mot \"" + message + "\" a été effacé du fichier.");
             }
-            
-            else{
+
+            else {
                 // System.out.println("File not present in log");
             }
         } catch (IOException e) {
@@ -371,34 +373,31 @@ public class FileManager {
         }
     }
 
-
     /* ************* Methods to manipulate logs ************* */
-    
 
-    public void loadLog(){
+    public void loadLog() {
         String[] files = logManager.readLinesFromLog();
-        for (int i = 0; i<files.length; i++){
+        for (int i = 0; i < files.length; i++) {
             loadFile(files[i]);
         }
         System.out.println("Log file loaded\n");
     }
 
-    public void createLog(){
-        if (checkFilePresence(logManager.logName) == false){
+    public void createLog() {
+        if (checkFilePresence(logManager.logName) == false) {
             createFile(logManager.logName);
             System.out.println("Log file created\n");
-        }
-        else{
+        } else {
             System.out.println("Log file already exists");
             loadLog();
         }
     }
 
-    public void writeLog(String message){
+    public void writeLog(String message) {
         writeToFile(logManager.logName, message);
     }
 
-    public void removeFromLog(String message) throws IOException{
+    public void removeFromLog(String message) throws IOException {
         removeFromFile(logManager.logName, message);
     }
 
@@ -406,10 +405,9 @@ public class FileManager {
         return logManager.checkWordPresenceInLog(word);
     }
 
-
     /* ************* Methods to manipulate manifests ************* */
 
-    static void createManifest(String manifestName){
+    static void createManifest(String manifestName) {
         try {
             File myObj = new File(manifestName);
             if (myObj.createNewFile()) {
@@ -424,14 +422,15 @@ public class FileManager {
         }
     }
 
-    public void writeToManifest(String fileName, int pieceSize, long fileSize, String key){
-        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: " + Long.toString(fileSize) + " Key: " + key;
+    public void writeToManifest(String fileName, int pieceSize, long fileSize, String key) {
+        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: "
+                + Long.toString(fileSize) + " Key: " + key;
         writeToFile(manifestName, message);
     }
 
-    public void removeToManifest(String fileName, int pieceSize, long fileSize, String key) throws IOException{
-        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: " + Long.toString(fileSize) + " Key: " + key;
+    public void removeToManifest(String fileName, int pieceSize, long fileSize, String key) throws IOException {
+        String message = "Filename: " + fileName + " Piece Size: " + Integer.toString(pieceSize) + " Size: "
+                + Long.toString(fileSize) + " Key: " + key;
         removeFromFile(manifestName, message);
     }
-
 }

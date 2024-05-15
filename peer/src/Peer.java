@@ -15,7 +15,7 @@ public class Peer {
     private InetAddress TrackerAddress;
 
     public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
-        
+
         communications = new HashSet<Communication>();
         fileManager = new FileManager(portNumber, "manifest" + ip.toString() + Integer.toString(portNumber));
         parser = new Parser(fileManager);
@@ -29,8 +29,9 @@ public class Peer {
     }
 
     public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
-        for (Communication communication: communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
+        for (Communication communication : communications) {
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
                 return true;
             }
         }
@@ -60,8 +61,9 @@ public class Peer {
 
     public void sendMessage(String message, InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
-                //Send
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
+                // Send
                 try {
                     communication.sendMessage(message);
                     listener.setHaveSendMessage();
@@ -74,8 +76,7 @@ public class Peer {
                     try {
                         System.out.println("Fermeture de la communication...");
                         this.disconnect(peerAddress, peerPortNumber);
-                    }
-                    catch (IOException ex) {
+                    } catch (IOException ex) {
                         System.out.println("I/O error: " + ex.getMessage());
                     }
                 }
@@ -87,8 +88,9 @@ public class Peer {
 
     public String receiveMessage(InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
-                //Receive
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
+                // Receive
                 try {
                     return communication.receiveMessage();
                 } catch (IOException e) {
@@ -111,7 +113,7 @@ public class Peer {
 
             byte[] buffer = new byte[4096];
             int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1){
+            while ((bytesRead = fis.read(buffer)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
 
@@ -122,7 +124,7 @@ public class Peer {
         }
     }
 
-    public String getFiles(){
+    public String getFiles() {
         return fileManager.getFiles();
     }
 
@@ -143,7 +145,7 @@ public class Peer {
     public void loadFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
-            if(!fileManager.checkWordPresenceInLog(filePath)){
+            if (!fileManager.checkWordPresenceInLog(filePath)) {
                 fileManager.writeLog(filePath);
             }
             fileManager.loadFile(filePath);
@@ -153,13 +155,14 @@ public class Peer {
         }
     }
 
-    public void loadFile(String filePath, int  pieceSize) {
+    public void loadFile(String filePath, int pieceSize) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
-            if(!fileManager.checkWordPresenceInLog(filePath)){
+            if (!fileManager.checkWordPresenceInLog(filePath)) {
                 fileManager.writeLog(filePath);
             }
-            fileManager.loadFile(filePath, pieceSize);;
+            fileManager.loadFile(filePath, pieceSize);
+            ;
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");
@@ -180,44 +183,29 @@ public class Peer {
     public void displayPeers() {
         System.out.println("List of connected peers:");
         for (Communication communication : communications) {
-            System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":" + communication.getSocket().getPort());
+            System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":"
+                    + communication.getSocket().getPort());
         }
     }
 
-    public void informState(){
-        if (!communications.isEmpty()){
+    public void informState() {
+        if (!communications.isEmpty()) {
             for (Communication communication : communications) {
-                try {
-                    List<String> fileList = fileManager.getStatusInfo();
-                    List<String> fileListTracker = fileManager.getStatusInfoTracker();
-                    for (int i = 0; i<fileList.size(); i++){
-                        if(communication.getSocket().getInetAddress() == TrackerAddress){
-                            if (communication.getSocket().getPort() != TrackerPort){
-                                communication.sendMessage(fileList.get(i));
-                            }
-                            else{
-                                communication.sendMessage("update seed [" + fileListTracker.get(i) + "] leech []");
-                            }
-                        }                         
-                        else{
-                            communication.sendMessage(fileList.get(i));
-                        }
-                    }
-                } catch (IOException e) {
-                    try {
-                        System.out.println("Cannot inform state to " + communication.getSocket().getInetAddress() + " " + communication.getSocket().getPort());
-                        communication.close();
-                        this.communications.remove(communication);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                InetAddress address = communication.getSocket().getInetAddress();
+                int port = communication.getSocket().getPort();
+                List<String> fileList = fileManager.getStatusInfo();
+                if (address == TrackerAddress && port == TrackerPort) {
+                    sendMessage(fileManager.getUpdateInfoTracker(), address, port);
+                    continue;
+                }
+                for (int i = 0; i < fileList.size(); i++) {
+                    sendMessage(fileList.get(i), address, port);
+
                 }
             }
         }
     }
-
 }
-
 
 class ResponseListener implements Runnable {
     private Communication communication;
@@ -232,7 +220,7 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
-            parser.parseCommand(response);                
+            parser.parseCommand(response);
             if (response != null)
                 System.out.println("> " + response);
         } catch (IOException e) {

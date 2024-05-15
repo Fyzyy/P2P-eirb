@@ -142,7 +142,14 @@ public class SharedFile {
 
     }
 
-
+    public boolean isComplete() {
+        for (int i = 0; i < this.bitMap.length; i++) {
+            if (!this.bitMap[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private void splitFile() throws IOException {
         try {
