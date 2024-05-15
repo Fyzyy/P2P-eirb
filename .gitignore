@@ -6,3 +6,4 @@ dist
 peer/lib
 peer/logs
 manifests/
+logs/*

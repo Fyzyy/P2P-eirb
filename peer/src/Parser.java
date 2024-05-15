@@ -112,11 +112,9 @@ public class Parser {
         String key = parts[1];
         String bufferMap = parts[2];
 
-        String peerBitMap = SharedFile.Base64ToBitMapString(bufferMap);
-
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
-            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapBase64() + "]\r\n");            
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n");            
         }
         else {
             response.setType(ResponseType.UNKNOW);

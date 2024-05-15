@@ -122,19 +122,6 @@ public class SharedFile {
         return bitMapString;
     }
 
-    public String getBitMapBase64() {
-        return Base64.getEncoder().encodeToString(getBitMapString().getBytes());
-    }
-
-    public static String BitMapBase64(String bitMapString) {
-        return Base64.getEncoder().encodeToString(bitMapString.getBytes());
-    }
-
-    public static String Base64ToBitMapString(String base64String) {
-        byte[] revertedByteArray = Base64.getDecoder().decode(base64String);
-        return new String(revertedByteArray);
-    }
-
     public byte[][] getData() {
         return this.data;
     }

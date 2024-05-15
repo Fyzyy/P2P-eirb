@@ -142,7 +142,7 @@ public class FileManager {
     public void getBitMap() {
         for (SharedFile file : files.values()) {
             System.out.println(file.getFilename() + ":" );
-            String tmp = file.getBitMapBase64() + " ";
+            String tmp = file.getBitMapString() + " ";
             System.out.println(tmp);
             System.out.println("\n");
         }
@@ -154,7 +154,7 @@ public class FileManager {
         for (SharedFile file : files.values()) {
             tmp = "";
             tmp  += "have " + file.getKey() + " " ;
-            tmp += file.getBitMapBase64();
+            tmp += file.getBitMapString();
             // tmp += "\n";
             result.add(tmp);
         }

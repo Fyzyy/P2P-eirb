@@ -158,17 +158,18 @@ public class Main {
 
     private static void usage() {
         System.out.println("**************************************************************");
-        System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
-        System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
-        System.out.println("To connect to peer, type: " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To send message to peer, type: " + SEND_COMMAND + " <$message> $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
-        System.out.println("To create a new file, type: " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
-        System.out.println("To load a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file $piece_size\n");
-        System.out.println("To remove a file to the peer storage, type: " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
-        System.out.println("To list files in peer storage, type: list files\n");
-        System.out.println("To list bitmap in peer storage, type: list bitmap");
+        System.out.println("To connect to tracker                   " + TRACKER_CONNECT_COMMAND + "\n");
+        System.out.println("To disconnect from tracker              " + TRACKER_DISCONNECT_COMMAND + "\n");
+        System.out.println("To connect to peer                      " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To disconnect to peer                   " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To send message to peer                 " + SEND_COMMAND + " <$message> $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To exit the client                      " + EXIT_COMMAND + "\n");
+        System.out.println("To create a new file                    " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
+        System.out.println("To load a file to the peer storage      " + LOAD_FILE_COMMAND +  " file $path_to_file $piece_size\n");
+        System.out.println("To remove a file to the peer storage    " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
+        System.out.println("To list peers connected to the peer     list peers\n");
+        System.out.println("To list files in peer storage           list files\n");
+        System.out.println("To list bitmap in peer storage          list bitmap\n");
         System.out.println("**************************************************************");
         }
     
@@ -237,6 +238,10 @@ public class Main {
                         peer.listBitMap();
                     }
 
+                    else if (tokens[1].equals("peers")){
+                        peer.displayPeers();
+                    }
+
                     else {
                         usage();
                     }
@@ -251,9 +256,6 @@ public class Main {
             switch (command) {
                 case HELP_COMMAND:
                     usage();
-                    break;
-                case "peers":
-                    peer.displayPeers();
                     break;
                 case EXIT_COMMAND:
                     System.out.println("Exiting peer...");
