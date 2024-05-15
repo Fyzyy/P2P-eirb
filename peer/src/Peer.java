@@ -153,6 +153,19 @@ public class Peer {
         }
     }
 
+    public void loadFile(String filePath, int  pieceSize) {
+        try {
+            System.out.println("Adding file " + filePath + " to peer storage...");
+            if(!fileManager.checkWordPresenceInLog(filePath)){
+                fileManager.writeLog(filePath);
+            }
+            fileManager.loadFile(filePath, pieceSize);;
+            System.out.println("Done");
+        } catch (Exception e) {
+            System.out.println("Cannot add file to peer storage");
+        }
+    }
+
     public void removeFile(String filePath) {
         try {
             System.out.println("Removing " + filePath + " to peer stockage...");

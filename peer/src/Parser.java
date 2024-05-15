@@ -79,7 +79,7 @@ public class Parser {
         String key = parts[1];
         List<String> peerList = Arrays.asList(parts).subList(2, parts.length);
         
-        System.out.println("Clé du fichier : " + key + "\n Liste des pairs : ");
+
         for (int i = 0; i < peerList.size(); i++) {
             String[] peer = peerList.get(i).split(":");
             String ip = peer[0].replace("[", "");
@@ -111,11 +111,12 @@ public class Parser {
     private  void parseHaveCommand(String[] parts, Response response) {
         String key = parts[1];
         String bufferMap = parts[2];
-        System.out.println("Disponibilité du pair pour le fichier avec la clé " + key + ", bufferMap : " + bufferMap);
+
+        String peerBitMap = SharedFile.Base64ToBitMapString(bufferMap);
 
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
-            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n");            
+            response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapBase64() + "]\r\n");            
         }
         else {
             response.setType(ResponseType.UNKNOW);

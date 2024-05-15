@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.io.FileNotFoundException;
 
 public class SharedFile {
@@ -43,7 +44,7 @@ public class SharedFile {
         this.filename = this.file.getName();
         this.key = computeKey();
         this.size = Files.size(this.file.toPath());
-        pieceSize = 1024;
+        this.pieceSize = 1024;
         splitFile();
     }
 
@@ -121,6 +122,19 @@ public class SharedFile {
         return bitMapString;
     }
 
+    public String getBitMapBase64() {
+        return Base64.getEncoder().encodeToString(getBitMapString().getBytes());
+    }
+
+    public static String BitMapBase64(String bitMapString) {
+        return Base64.getEncoder().encodeToString(bitMapString.getBytes());
+    }
+
+    public static String Base64ToBitMapString(String base64String) {
+        byte[] revertedByteArray = Base64.getDecoder().decode(base64String);
+        return new String(revertedByteArray);
+    }
+
     public byte[][] getData() {
         return this.data;
     }
@@ -139,6 +153,7 @@ public class SharedFile {
     public void setPiece(int index, byte[] piece) {
         this.data[index] = piece;
         this.bitMap[index] = true;
+
     }
 
 

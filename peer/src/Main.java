@@ -165,7 +165,7 @@ public class Main {
         System.out.println("To send message to peer, type: " + SEND_COMMAND + " <$message> $ip1:$port1 $ip2:$port2 ...\n");
         System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
         System.out.println("To create a new file, type: " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
-        System.out.println("To load a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file\n");
+        System.out.println("To load a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file $piece_size(optionnal)\n");
         System.out.println("To remove a file to the peer storage, type: " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
         System.out.println("To list files in peer storage, type: list files\n");
         System.out.println("To list bitmap in peer storage, type: list bitmap");
@@ -197,7 +197,12 @@ public class Main {
                     }
 
                     else if (tokens[1].equals("file")){
-                        peer.loadFile(tokens[2]);
+                        if (tokens.length == 3){
+                            peer.loadFile(tokens[2]);
+                        }
+                        else { 
+                            peer.loadFile(tokens[2], Integer.parseInt(tokens[3]));
+                        }
                     }
                     break;
 

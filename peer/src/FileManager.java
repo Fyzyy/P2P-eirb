@@ -39,6 +39,15 @@ public class FileManager {
         }
     }
 
+    public void loadFile(String path, int pieceSize) {
+        try {
+            SharedFile file = new SharedFile(path, pieceSize);
+            files.put(file.getKey(), file);
+        } catch (Exception e) {
+            System.out.println("Cannot add file: " + e.getMessage());
+        }
+    }
+
     public void loadFile(String path, String key) {
         try {
             SharedFile file = new SharedFile(path, key);
@@ -133,10 +142,7 @@ public class FileManager {
     public void getBitMap() {
         for (SharedFile file : files.values()) {
             System.out.println(file.getFilename() + ":" );
-            String tmp = "";
-            for (int i = 0; i<file.getBitMap().length; i++){
-                tmp += file.getBitMap()[i] ? "1" : "0";
-            }
+            String tmp = file.getBitMapBase64() + " ";
             System.out.println(tmp);
             System.out.println("\n");
         }
@@ -148,9 +154,7 @@ public class FileManager {
         for (SharedFile file : files.values()) {
             tmp = "";
             tmp  += "have " + file.getKey() + " " ;
-            for (int i = 0; i<file.getBitMap().length; i++){
-                tmp += file.getBitMap()[i] ? "1" : "0";
-            }
+            tmp += file.getBitMapBase64();
             // tmp += "\n";
             result.add(tmp);
         }
