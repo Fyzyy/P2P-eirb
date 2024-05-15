@@ -122,7 +122,7 @@ public class FileManager {
         
         for (SharedFile file : files.values()) {
             res.add(file.getFilename());
-            res.add(Long.toString(file.getSize()));
+            res.add(Integer.toString(file.getSize()));
             res.add(Integer.toString(file.getPieceSize()));
             res.add(file.getKey());
         }
