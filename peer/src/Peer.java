@@ -220,13 +220,15 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
+            String peerStr = communication.getSocket().getInetAddress().toString() + ":"
+                    + communication.getSocket().getPort();
             if (response.equals("\r\n")) {
-                System.out.println("> No response\n");
+                System.out.println("(" + peerStr + ")> ack \n");
                 return;
             }
             parser.parseCommand(response);
             if (response != null)
-                System.out.println("> " + response);
+                System.out.println("(" + peerStr + ")> " + response + " \n");
         } catch (IOException e) {
             System.out.println("Error while listening for responses: " + e.getMessage());
         } catch (Exception e) {
