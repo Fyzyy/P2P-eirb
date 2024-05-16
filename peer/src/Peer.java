@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Peer {
 
@@ -13,6 +15,7 @@ public class Peer {
     private Parser parser;
     private int TrackerPort;
     private InetAddress TrackerAddress;
+    private ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
 
@@ -67,10 +70,8 @@ public class Peer {
                 try {
                     communication.sendMessage(message);
                     listener.setHaveSendMessage();
+                    executor.submit(new ResponseListener(communication, parser));
 
-                    ResponseListener responseListener = new ResponseListener(communication, parser);
-                    Thread listenerThread = new Thread(responseListener);
-                    listenerThread.start();
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
                     try {
@@ -193,14 +194,13 @@ public class Peer {
             for (Communication communication : communications) {
                 InetAddress address = communication.getSocket().getInetAddress();
                 int port = communication.getSocket().getPort();
-                List<String> fileList = fileManager.getStatusInfo();
                 if (address == TrackerAddress && port == TrackerPort) {
                     sendMessage(fileManager.getUpdateInfoTracker(), address, port);
                     continue;
                 }
+                List<String> fileList = fileManager.getStatusInfo();
                 for (int i = 0; i < fileList.size(); i++) {
                     sendMessage(fileList.get(i), address, port);
-
                 }
             }
         }
@@ -220,6 +220,10 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
+            if (response.equals("\r\n")) {
+                System.out.println("> No response\n");
+                return;
+            }
             parser.parseCommand(response);
             if (response != null)
                 System.out.println("> " + response);

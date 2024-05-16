@@ -22,7 +22,6 @@ public class Parser {
 
                 //tracker commands
                 case "ok":
-                    System.out.println("Confirmation du tracker : " + command);
                     response.setType(ResponseType.NO_RESPONSE);
                     break;
                 case "list":
@@ -117,8 +116,8 @@ public class Parser {
             response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n");            
         }
         else {
-            response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknow key\r\n");
+            response.setType(ResponseType.HAVE);
+            response.setMessage("\r\n");
         }
 
     }

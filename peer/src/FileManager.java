@@ -152,9 +152,7 @@ public class FileManager {
         String tmp;
         for (SharedFile file : files.values()) {
             tmp = "";
-            tmp += "have " + file.getKey() + " ";
-            tmp += file.getBitMapString();
-            // tmp += "\n";
+            tmp += "have " + file.getKey() + " [" + file.getBitMapString() + "]\n";
             result.add(tmp);
         }
         return result;
