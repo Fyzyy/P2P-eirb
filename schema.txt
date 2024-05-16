@@ -1,6 +1,6 @@
 connect tracker
-send "look [filename='Makefile' filesize>0]" tracker
-send "getfile b49016637f6ae0d2e33c1583f3fd73ad" tracker
+send <look [filename="file1.txt" filesize>0]> tracker
+send <getfile 54834446690e1b1a328ea45dac2e02d5> tracker
 connect 127.0.0.1:5051
-send "interested b49016637f6ae0d2e33c1583f3fd73ad" 127.0.0.1:5051
-send "getpieces b49016637f6ae0d2e33c1583f3fd73ad [0]" 127.0.0.1:5051
+send <interested 54834446690e1b1a328ea45dac2e02d5> 127.0.0.1:5051
+send <getpieces 54834446690e1b1a328ea45dac2e02d5 [0]> 127.0.0.1:5051

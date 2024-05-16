@@ -20,7 +20,7 @@ public class SharedFile {
     private String key;
 
     // Taille en octets du fichier
-    private long size;
+    private int size;
 
     // Taille en octets d'une pièce du fichier
     private int pieceSize;
@@ -42,8 +42,8 @@ public class SharedFile {
         this.file = new File(path);
         this.filename = this.file.getName();
         this.key = computeKey();
-        this.size = Files.size(this.file.toPath());
-        pieceSize = 1024;
+        this.size = (int) Files.size(this.file.toPath());
+        this.pieceSize = (this.size > 32768) ? (1+ (this.size / 32) + 1) : 1024;
         splitFile();
     }
 
@@ -51,7 +51,7 @@ public class SharedFile {
         this.file = new File(path);
         this.filename = this.file.getName();
         this.key = key;
-        this.size = Files.size(this.file.toPath());
+        this.size = (int) Files.size(this.file.toPath());
         pieceSize = 1024;
         splitFile();
     }
@@ -60,7 +60,7 @@ public class SharedFile {
         this.file = new File(path);
         this.filename = this.file.getName();
         this.key = computeKey();
-        this.size = Files.size(this.file.toPath());
+        this.size = (int) Files.size(this.file.toPath());
         this.pieceSize = pieceSize;
         splitFile();
     }
@@ -88,7 +88,7 @@ public class SharedFile {
         return copy;
     }
 
-    public long getSize() {
+    public int getSize() {
         return this.size;
     }
 
@@ -139,9 +139,17 @@ public class SharedFile {
     public void setPiece(int index, byte[] piece) {
         this.data[index] = piece;
         this.bitMap[index] = true;
+
     }
 
-
+    public boolean isComplete() {
+        for (int i = 0; i < this.bitMap.length; i++) {
+            if (!this.bitMap[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private void splitFile() throws IOException {
         try {

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main {
@@ -26,6 +29,7 @@ public class Main {
 
     private static InetAddress TRACKER_ADDRESS;
     private static int TRACKER_PORT;
+    private static int REFRESH_RATE;
     private static Peer peer;
     private static int port;
 
@@ -33,6 +37,7 @@ public class Main {
         config.Parse();
         TRACKER_ADDRESS = config.TrackerAddress;
         TRACKER_PORT = config.TrackerPort;
+        REFRESH_RATE = config.RefreshRate;
         System.out.println("Parsed");
     }
 
@@ -47,7 +52,7 @@ public class Main {
                     System.out.println("Connecting to tracker ...");
                     peer.connect(TRACKER_ADDRESS, TRACKER_PORT);
                     System.out.println("Connection successful\n");
-                    String[] announce = {"send", "\"announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]\"", "tracker"};
+                    String[] announce = {"send", "<announce", "listen", "" + port, "seed", "[", peer.getFiles(), "]>", "tracker"};
                     handleSend(announce);
                 } else {
                     System.out.println("You are already connected\n");
@@ -113,13 +118,13 @@ public class Main {
         int i = 1;
 
         for (i = 1; i < tokens.length; i++) {
-            if (tokens[i].startsWith("\"")) {
+            if (tokens[i].startsWith("<")) {
                 tokens[i] = tokens[i].substring(1);
             }
             
             messageBuilder.append(tokens[i]).append(" ");
 
-            if (tokens[i].endsWith("\"")) {
+            if (tokens[i].endsWith(">")) {
                 messageBuilder.deleteCharAt(messageBuilder.length() - 2);
                 break;
             }
@@ -153,17 +158,18 @@ public class Main {
 
     private static void usage() {
         System.out.println("**************************************************************");
-        System.out.println("To connect to tracker, type: " + TRACKER_CONNECT_COMMAND + "\n");
-        System.out.println("To disconnect from tracker, type: " + TRACKER_DISCONNECT_COMMAND + "\n");
-        System.out.println("To connect to peer, type: " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To disconnect to peer, type: " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To send message to peer, type: " + SEND_COMMAND + " \"$message\" $ip1:$port1 $ip2:$port2 ...\n");
-        System.out.println("To exit the client, type: " + EXIT_COMMAND + "\n");
-        System.out.println("To create a new file, type: " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
-        System.out.println("To load a file to the peer storage, type: " + LOAD_FILE_COMMAND +  " file $path_to_file\n");
-        System.out.println("To remove a file to the peer storage, type: " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
-        System.out.println("To list files in peer storage, type: list files\n");
-        System.out.println("To list bitmap in peer storage, type: list bitmap");
+        System.out.println("To connect to tracker                   " + TRACKER_CONNECT_COMMAND + "\n");
+        System.out.println("To disconnect from tracker              " + TRACKER_DISCONNECT_COMMAND + "\n");
+        System.out.println("To connect to peer                      " + CONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To disconnect to peer                   " + DISCONNECT_COMMAND + " $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To send message to peer                 " + SEND_COMMAND + " <$message> $ip1:$port1 $ip2:$port2 ...\n");
+        System.out.println("To exit the client                      " + EXIT_COMMAND + "\n");
+        System.out.println("To create a new file                    " + NEW_FILE_COMMAND +  " file $file_name $piece_size $file_size\n");
+        System.out.println("To load a file to the peer storage      " + LOAD_FILE_COMMAND +  " file $path_to_file $piece_size\n");
+        System.out.println("To remove a file to the peer storage    " + REMOVE_FILE_COMMAND +  " file $path_to_file\n");
+        System.out.println("To list peers connected to the peer     list peers\n");
+        System.out.println("To list files in peer storage           list files\n");
+        System.out.println("To list bitmap in peer storage          list bitmap\n");
         System.out.println("**************************************************************");
         }
     
@@ -192,7 +198,12 @@ public class Main {
                     }
 
                     else if (tokens[1].equals("file")){
-                        peer.loadFile(tokens[2]);
+                        if (tokens.length == 3){
+                            peer.loadFile(tokens[2]);
+                        }
+                        else { 
+                            peer.loadFile(tokens[2], Integer.parseInt(tokens[3]));
+                        }
                     }
                     break;
 
@@ -227,6 +238,10 @@ public class Main {
                         peer.listBitMap();
                     }
 
+                    else if (tokens[1].equals("peers")){
+                        peer.displayPeers();
+                    }
+
                     else {
                         usage();
                     }
@@ -241,9 +256,6 @@ public class Main {
             switch (command) {
                 case HELP_COMMAND:
                     usage();
-                    break;
-                case "peers":
-                    peer.displayPeers();
                     break;
                 case EXIT_COMMAND:
                     System.out.println("Exiting peer...");
@@ -284,7 +296,7 @@ public class Main {
             }
         }
 
-        peer = new Peer(ip, port);
+        peer = new Peer(ip, port, TRACKER_PORT, TRACKER_ADDRESS);
 
         if (debug) {
              try {Thread.sleep(2000);} catch (InterruptedException e) {
@@ -301,6 +313,9 @@ public class Main {
         }
 
         System.out.println("Type message to send ('help' to get details, 'exit' to quit):");
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(peer::informState, 0, REFRESH_RATE, TimeUnit.SECONDS);
 
         while (true) {
             String newCommand = readInput();

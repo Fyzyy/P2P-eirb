@@ -35,7 +35,7 @@ Langage: JS?
 - Stocker les infos sur les fichiers/échanges dans des fichiers temporaires
 - Informer les voisins de l'état de l'avancement des téléchargements
 
-### Gestion des échnages de fichiers
+### Gestion des échanges de fichiers
 
 - Stocker les données recues -> dans un nouveau fichier avec le bon nom
 - Paramétrer la taille des messages recus dans le fichiers de config

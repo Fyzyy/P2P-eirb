@@ -3,6 +3,9 @@ package src;
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Peer {
 
@@ -10,23 +13,28 @@ public class Peer {
     private FileManager fileManager;
     private Listener listener;
     private Parser parser;
-    private LogManager logManager;
+    private int TrackerPort;
+    private InetAddress TrackerAddress;
+    private ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    public Peer(String ip, int portNumber) throws IOException {
-        
+    public Peer(String ip, int portNumber, int TrackerPort, InetAddress TrackerAddress) throws IOException {
+
         communications = new HashSet<Communication>();
-        fileManager = new FileManager();
+        fileManager = new FileManager(portNumber, "manifest" + ip.toString() + Integer.toString(portNumber));
         parser = new Parser(fileManager);
-        logManager = new LogManager(portNumber);
 
         listener = new Listener(ip, portNumber, parser);
         listener.start();
-        logManager.createLog(fileManager);
+        fileManager.createLog();
+
+        this.TrackerPort = TrackerPort;
+        this.TrackerAddress = TrackerAddress;
     }
 
     public Boolean haveCommunication(InetAddress peerAddress, int peerPortNumber) {
-        for (Communication communication: communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
+        for (Communication communication : communications) {
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
                 return true;
             }
         }
@@ -56,21 +64,20 @@ public class Peer {
 
     public void sendMessage(String message, InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
-                //Send
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
+                // Send
                 try {
                     communication.sendMessage(message);
+                    listener.setHaveSendMessage();
+                    executor.submit(new ResponseListener(communication, parser));
 
-                    ResponseListener responseListener = new ResponseListener(communication, parser);
-                    Thread listenerThread = new Thread(responseListener);
-                    listenerThread.start();
                 } catch (IOException e) {
                     System.out.println("I/O error: " + e.getMessage());
                     try {
                         System.out.println("Fermeture de la communication...");
                         this.disconnect(peerAddress, peerPortNumber);
-                    }
-                    catch (IOException ex) {
+                    } catch (IOException ex) {
                         System.out.println("I/O error: " + ex.getMessage());
                     }
                 }
@@ -82,8 +89,9 @@ public class Peer {
 
     public String receiveMessage(InetAddress peerAddress, int peerPortNumber) {
         for (Communication communication : communications) {
-            if (communication.getSocket().getInetAddress().equals(peerAddress) && communication.getSocket().getPort() == peerPortNumber) {
-                //Receive
+            if (communication.getSocket().getInetAddress().equals(peerAddress)
+                    && communication.getSocket().getPort() == peerPortNumber) {
+                // Receive
                 try {
                     return communication.receiveMessage();
                 } catch (IOException e) {
@@ -106,7 +114,7 @@ public class Peer {
 
             byte[] buffer = new byte[4096];
             int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1){
+            while ((bytesRead = fis.read(buffer)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
 
@@ -117,7 +125,7 @@ public class Peer {
         }
     }
 
-    public String getFiles(){
+    public String getFiles() {
         return fileManager.getFiles();
     }
 
@@ -138,10 +146,24 @@ public class Peer {
     public void loadFile(String filePath) {
         try {
             System.out.println("Adding file " + filePath + " to peer storage...");
-            if(!logManager.checkWordPresenceInLog(filePath)){
-                logManager.writeLog(filePath, fileManager);
+            if (!fileManager.checkWordPresenceInLog(filePath)) {
+                fileManager.writeLog(filePath);
             }
             fileManager.loadFile(filePath);
+            System.out.println("Done");
+        } catch (Exception e) {
+            System.out.println("Cannot add file to peer storage");
+        }
+    }
+
+    public void loadFile(String filePath, int pieceSize) {
+        try {
+            System.out.println("Adding file " + filePath + " to peer storage...");
+            if (!fileManager.checkWordPresenceInLog(filePath)) {
+                fileManager.writeLog(filePath);
+            }
+            fileManager.loadFile(filePath, pieceSize);
+            ;
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot add file to peer storage");
@@ -152,7 +174,7 @@ public class Peer {
         try {
             System.out.println("Removing " + filePath + " to peer stockage...");
             fileManager.removeFile(filePath);
-            logManager.removeFromLog(filePath);
+            fileManager.removeFromLog(filePath);
             System.out.println("Done");
         } catch (Exception e) {
             System.out.println("Cannot remove the file");
@@ -162,11 +184,28 @@ public class Peer {
     public void displayPeers() {
         System.out.println("List of connected peers:");
         for (Communication communication : communications) {
-            System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":" + communication.getSocket().getPort());
+            System.out.println(communication.getSocket().getInetAddress().toString().replace("/", "") + ":"
+                    + communication.getSocket().getPort());
+        }
+    }
+
+    public void informState() {
+        if (!communications.isEmpty()) {
+            for (Communication communication : communications) {
+                InetAddress address = communication.getSocket().getInetAddress();
+                int port = communication.getSocket().getPort();
+                if (address == TrackerAddress && port == TrackerPort) {
+                    sendMessage(fileManager.getUpdateInfoTracker(), address, port);
+                    continue;
+                }
+                List<String> fileList = fileManager.getStatusInfo();
+                for (int i = 0; i < fileList.size(); i++) {
+                    sendMessage(fileList.get(i), address, port);
+                }
+            }
         }
     }
 }
-
 
 class ResponseListener implements Runnable {
     private Communication communication;
@@ -181,9 +220,11 @@ class ResponseListener implements Runnable {
     public void run() {
         try {
             String response = communication.receiveMessage();
-            // if (response.startsWith("data")) {
-            parser.parseCommand(response);                
-            // }
+            if (response.equals("\r\n")) {
+                System.out.println("> No response\n");
+                return;
+            }
+            parser.parseCommand(response);
             if (response != null)
                 System.out.println("> " + response);
         } catch (IOException e) {

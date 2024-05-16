@@ -69,7 +69,6 @@ public class Parser {
                 String pieceSize = files.get(i + 2);
                 String key = files.get(i + 3).replace("]", "");
                 fileManager.createTmpFile("tmp/"+fileName, key);
-                // fileManager.addAvailableFile("tmp/"+fileName, key);
                 System.out.println("Fichier : " + fileName + ", taille : " + size + ", taille des pièces : " + pieceSize + ", clé : " + key);
             }
         }
@@ -79,7 +78,7 @@ public class Parser {
         String key = parts[1];
         List<String> peerList = Arrays.asList(parts).subList(2, parts.length);
         
-        System.out.println("Clé du fichier : " + key + "\n Liste des pairs : ");
+
         for (int i = 0; i < peerList.size(); i++) {
             String[] peer = peerList.get(i).split(":");
             String ip = peer[0].replace("[", "");
@@ -111,15 +110,14 @@ public class Parser {
     private  void parseHaveCommand(String[] parts, Response response) {
         String key = parts[1];
         String bufferMap = parts[2];
-        System.out.println("Disponibilité du pair pour le fichier avec la clé " + key + ", bufferMap : " + bufferMap);
 
         if (fileManager.containsKey(key)) {
             response.setType(ResponseType.HAVE);
             response.setMessage("have " + key + " [" + fileManager.getFileByKey(key).getBitMapString() + "]\r\n");            
         }
         else {
-            response.setType(ResponseType.UNKNOW);
-            response.setMessage("Unknow key\r\n");
+            response.setType(ResponseType.HAVE);
+            response.setMessage("\r\n");
         }
 
     }
@@ -160,12 +158,13 @@ public class Parser {
     }
     
     // data $Key [$Index1:$Piece1 $Index2:$Piece2 $Index3:$Piece3 …]
-    private void parseDataCommand(String[] parts, Response response) {
-        System.out.println("avant write: "+fileManager.availableFiles);
+    private void parseDataCommand(String[] parts, Response response) throws IOException {
+
         String key = parts[1];
         SharedFile file = fileManager.getAvailableFilenameByKey(key);
         String fileName = "tmp/" + file.getFilename();
-        System.out.println("file : " + file);
+        // System.out.println("file : " + file);
+        fileManager.writeToManifest(fileName, file.getPieceSize(), file.getSize(), key);
 
         if (fileManager.containsAvailableKey(key)) {
             for (int i = 2; i < parts.length; i++) {
@@ -184,13 +183,11 @@ public class Parser {
                     }
                     fullPieceBuilder.append(" ").append(parts[i]);
                     fileManager.writeToFileNoLine(fileName, "\n");
-                    fileManager.writeToFileNoLine(fileName, parts[i]);
-                    // System.out.println(parts[i]);
+                    fileManager.writeToFileNoLine(fileName, parts[i].replaceAll("%", ""));
                 }
 
                 // Remove '%' from the end of the full piece
                 String fullPiece = fullPieceBuilder.toString().replaceAll("%", "").replaceAll("]", "");
-
                 
                 byte[] pieceData = fullPiece.getBytes();
                 System.out.println(fileManager.getAvailableFilenameByKey(key));
@@ -199,10 +196,12 @@ public class Parser {
                 System.out.println("Piece " + pieceIndex + " received for key " + key);
                 System.out.println("Piece data : " + new String(pieceData));
             }
-            // System.out.println(file);
+            
+            fileManager.removeToManifest(fileName, file.getPieceSize(), file.getSize(), key);
             fileManager.moveFileToData(key);
             fileManager.removeAvailableFile(key);
-            System.out.println("après write: "+fileManager.availableFiles);
+            fileManager.writeLog("data/"+file.getFilename());
+
             response.setType(ResponseType.NO_RESPONSE);
         } else {
             response.setType(ResponseType.UNKNOW);
